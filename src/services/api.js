@@ -61,7 +61,9 @@ export async function apiRequest(path, { method = 'GET', body, authenticated = t
             : response.status >= 500 && !data
               ? 'Não foi possível conectar ao servidor.'
               : 'Não foi possível concluir a solicitação. Tente novamente.'
-      throw new ApiError(errorMessage(data) || fallback, response.status)
+      const plainMessage = response.status >= 400 && response.status < 500 &&
+        response.headers.get('content-type')?.includes('text/plain') ? text.trim() : null
+      throw new ApiError(errorMessage(data) || plainMessage || fallback, response.status)
     }
 
     if (text && data === null) throw new ApiError('O servidor retornou uma resposta inválida. Tente novamente.', response.status)
