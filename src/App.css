@@ -365,6 +365,259 @@
   margin: 8px 0 12px;
 }
 
+.activities-main {
+  padding-top: 10px;
+  min-width: 0;
+}
+
+.activities-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.activities-heading .eyebrow {
+  margin-bottom: 2px;
+}
+
+.compact-button {
+  min-height: 32px;
+  padding: 7px 9px;
+  font-size: 9px;
+  text-decoration: none;
+}
+
+.activities-heading .compact-button {
+  flex-shrink: 0;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.activity-search {
+  position: relative;
+  margin: 10px 0 6px;
+}
+
+.activity-search input {
+  min-height: 38px;
+  font-size: 10px;
+  padding: 9px 32px;
+}
+
+.activity-search > svg {
+  position: absolute;
+  top: 11px;
+  left: 10px;
+  width: 16px;
+  height: 16px;
+  color: var(--secondary-text);
+  pointer-events: none;
+}
+
+.activity-search input::-webkit-search-cancel-button {
+  display: none;
+}
+
+.search-clear {
+  position: absolute;
+  right: 2px;
+  top: 2px;
+  width: 30px;
+  height: 34px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--green);
+  font-size: 16px;
+}
+
+.activity-filters {
+  display: flex;
+  gap: 5px;
+  overflow-x: auto;
+  padding: 5px 4px 8px;
+  scrollbar-width: thin;
+}
+
+.activity-chip {
+  flex-shrink: 0;
+  padding: 6px 8px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--soft);
+  color: var(--green);
+  font-size: 8px;
+  font-weight: 650;
+  white-space: nowrap;
+}
+
+.activity-chip:hover {
+  border-color: var(--green-2);
+}
+
+.activity-chip[aria-pressed='true'] {
+  background: var(--green);
+  border-color: var(--green);
+  color: white;
+}
+
+.catalog-status, .activity-form-help {
+  color: var(--secondary-text);
+  font-size: 9px;
+}
+
+.catalog-error {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  margin: 6px 0;
+}
+
+.activity-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.activity-row {
+  display: grid;
+  grid-template-columns: 58px minmax(0, 1fr) auto;
+  gap: 9px;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.activity-thumbnail {
+  width: 58px;
+  height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: var(--soft);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--muted);
+}
+
+.activity-thumbnail img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.activity-thumbnail svg {
+  width: 24px;
+  height: 24px;
+}
+
+.activity-info {
+  min-width: 0;
+}
+
+.activity-name {
+  font-size: 11px;
+  font-weight: 750;
+  line-height: 1.3;
+  letter-spacing: normal;
+}
+
+.activity-modality, .activity-description {
+  color: var(--secondary-text);
+  font-size: 8.5px;
+  margin-top: 3px;
+}
+
+.activity-name, .activity-description {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.activity-modality {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.activity-origin {
+  padding: 3px 5px;
+  border-radius: 5px;
+  background: var(--soft);
+  color: var(--secondary-text);
+  font-size: 8px;
+  white-space: nowrap;
+}
+
+.activity-origin-mine {
+  background: var(--mint);
+  color: var(--green);
+}
+
+.activity-back-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  margin: 4px 0;
+  color: var(--green);
+  font-size: 9px;
+  text-underline-offset: 3px;
+}
+
+.activity-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.activity-form input, .activity-form select, .activity-form textarea {
+  width: 100%;
+  min-width: 0;
+  min-height: 38px;
+  padding: 9px 10px;
+  border: 1px solid #9ca9a2;
+  border-radius: 9px;
+  background: white;
+  color: var(--ink);
+  font: inherit;
+  font-size: 10px;
+}
+
+.activity-form textarea {
+  resize: vertical;
+  max-height: 180px;
+}
+
+.activity-form :disabled {
+  background: var(--soft);
+}
+
+.activity-form [aria-invalid='true'] {
+  border-color: #8f3024;
+}
+
+.field-error {
+  color: #8f3024;
+  font-size: 9px;
+}
+
 @keyframes spin { to { transform: rotate(360deg); } }
 @media (max-width: 359px) {
   .account-name {

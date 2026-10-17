@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
 import AppHeader from '../components/AppHeader'
 import { useSession } from '../hooks/useSession'
 import { getMinhasModalidades, getModalidades, saveModalidades } from '../services/modalidades.service'
@@ -121,6 +122,7 @@ export default function ModalidadesPage() {
             </>
           )}
         </section>
+        <Link className="activity-back-link" to="/atividades">Biblioteca de atividades →</Link>
       </main>
     </div>
   )
