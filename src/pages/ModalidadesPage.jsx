@@ -122,7 +122,7 @@ export default function ModalidadesPage() {
             </>
           )}
         </section>
-        <Link className="activity-back-link" to="/atividades">Biblioteca de atividades →</Link>
+        <Link className="app-navigation-row" to="/atividades"><span>Biblioteca de atividades</span><span className="navigation-chevron" aria-hidden="true">›</span></Link>
       </main>
     </div>
   )

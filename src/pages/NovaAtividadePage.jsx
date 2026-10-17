@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import AppHeader from '../components/AppHeader'
+import PageAppBar from '../components/PageAppBar'
 import { useSession } from '../hooks/useSession'
 import { useModalidadesCatalogo } from '../hooks/useModalidadesCatalogo'
 import { criarAtividade } from '../services/atividades.service'
@@ -58,8 +59,7 @@ export default function NovaAtividadePage() {
     <div className="app-shell">
       <AppHeader user={session.user} />
       <main className="activities-main">
-        <Link className="activity-back-link" to="/atividades">← Biblioteca</Link>
-        <div className="activities-heading"><h1>Nova atividade</h1></div>
+        <PageAppBar title="Nova atividade" backTo="/atividades" backLabel="Voltar para a biblioteca" />
         <p className="activity-form-help">Crie uma atividade para sua biblioteca. * Campos obrigatórios.</p>
         <form className="activity-form" onSubmit={handleSubmit} noValidate aria-busy={saving}>
           <div className="field">

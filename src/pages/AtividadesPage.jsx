@@ -74,9 +74,9 @@ export default function AtividadesPage() {
           {busca && <button type="button" className="search-clear" aria-label="Limpar busca" onClick={() => setBusca('')}>×</button>}
         </div>
         <div className="activity-filters" role="group" aria-label="Filtrar por modalidade">
-          <button type="button" className="activity-chip" aria-pressed={!modalidadeId} onClick={() => setModalidadeId('')}>Todos</button>
+          <button type="button" className="activity-chip" aria-pressed={!modalidadeId} onClick={() => setModalidadeId('')}><span className="activity-chip-label">Todos</span></button>
           {catalogo.modalidades.map((item) => (
-            <button key={item.id} type="button" className="activity-chip" aria-pressed={modalidadeId === item.id} onClick={() => setModalidadeId(item.id)}>{item.nome}</button>
+            <button key={item.id} type="button" className="activity-chip" aria-pressed={modalidadeId === item.id} onClick={() => setModalidadeId(item.id)}><span className="activity-chip-label">{item.nome}</span></button>
           ))}
         </div>
         {catalogo.loading ? <p className="catalog-status" role="status">Carregando modalidades...</p> : catalogo.error ? (
@@ -110,7 +110,7 @@ export default function AtividadesPage() {
             </ul>
           )}
         </section>
-        <Link className="activity-back-link" to="/modalidades">Minhas modalidades</Link>
+        <Link className="app-navigation-row" to="/modalidades"><span>Minhas modalidades</span><span className="navigation-chevron" aria-hidden="true">›</span></Link>
       </main>
     </div>
   )
