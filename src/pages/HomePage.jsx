@@ -24,29 +24,32 @@ export default function HomePage() {
           </div>
           <div className="home-card-grid">
             <Link className="home-card" to="/modalidades" aria-labelledby="home-modalidades-title" aria-describedby="home-modalidades-description">
-              <span className="home-card-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="3" y="3" width="7" height="7" rx="2" />
-                  <rect x="14" y="3" width="7" height="7" rx="2" />
-                  <rect x="3" y="14" width="7" height="7" rx="2" />
-                  <path d="m14 18 2.5 2.5L21 15" />
+              <span className="home-card-top" aria-hidden="true">
+                <svg className="home-card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round">
+                  <rect x="4" y="4" width="6" height="6" rx="1" />
+                  <rect x="14" y="4" width="6" height="6" rx="1" />
+                  <rect x="4" y="14" width="6" height="6" rx="1" />
+                  <rect x="14" y="14" width="6" height="6" rx="1" />
+                </svg>
+                <svg className="home-card-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="m9 6 6 6-6 6" />
                 </svg>
               </span>
-              <h3 id="home-modalidades-title">Minhas modalidades</h3>
-              <p id="home-modalidades-description">Escolha e atualize as modalidades em que você atua.</p>
-              <span className="home-card-action" aria-hidden="true">Gerenciar modalidades <span>→</span></span>
+              <h3 id="home-modalidades-title">Modalidades</h3>
+              <p id="home-modalidades-description">Atualize as modalidades em que você atua.</p>
             </Link>
 
             <Link className="home-card" to="/atividades" aria-labelledby="home-atividades-title" aria-describedby="home-atividades-description">
-              <span className="home-card-icon" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M3 3h5v18H3zM8 3h5v18H8zM15 4l4-1 3 17-4 1z" />
-                  <path d="M3 7h10M3 17h10" />
+              <span className="home-card-top" aria-hidden="true">
+                <svg className="home-card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M5 4v16M11 4v16M16 5l4 14" />
+                </svg>
+                <svg className="home-card-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="m9 6 6 6-6 6" />
                 </svg>
               </span>
-              <h3 id="home-atividades-title">Biblioteca de atividades</h3>
-              <p id="home-atividades-description">Encontre atividades, crie as suas e configure suas informações.</p>
-              <span className="home-card-action" aria-hidden="true">Explorar biblioteca <span>→</span></span>
+              <h3 id="home-atividades-title">Biblioteca</h3>
+              <p id="home-atividades-description">Veja, crie e configure atividades.</p>
             </Link>
           </div>
         </nav>

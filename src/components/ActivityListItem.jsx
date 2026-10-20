@@ -1,17 +1,19 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { getActivityMedia } from '../utils/activity-media'
 
 export default function ActivityListItem({ atividade, modalidade }) {
   const [failedUrl, setFailedUrl] = useState(null)
-  const { nome, descricao, midiaUrl, origem } = atividade
-  const hasImage = /^https?:\/\//i.test(midiaUrl ?? '') && failedUrl !== midiaUrl
+  const { nome, descricao, origem } = atividade
+  const media = getActivityMedia(atividade)
+  const hasImage = media && failedUrl !== media.src
 
   return (
     <li>
       <Link className="activity-row" to={`/atividades/${encodeURIComponent(atividade.id)}/configurar`} aria-label={`Configurar ${nome}`}>
         <div className="activity-thumbnail">
           {hasImage ? (
-            <img src={midiaUrl} alt={`Imagem de ${nome}`} loading="lazy" onError={() => setFailedUrl(midiaUrl)} />
+            <img src={media.src} alt={media.alt} loading="lazy" onError={() => setFailedUrl(media.src)} />
           ) : (
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.25" aria-hidden="true">
               <rect x="3" y="3" width="18" height="18" rx="3" />

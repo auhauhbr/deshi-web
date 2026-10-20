@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import AppHeader from '../components/AppHeader'
+import Snackbar from '../components/Snackbar'
 import PageAppBar from '../components/PageAppBar'
+import ActivityMedia from '../components/ActivityMedia'
 import { useSession } from '../hooks/useSession'
 import { useModalidadesCatalogo } from '../hooks/useModalidadesCatalogo'
 import { listarAtividades } from '../services/atividades.service'
@@ -104,7 +106,7 @@ function ValoresAtividade({ atividadeId, campos }) {
     setSaving(true)
     try {
       await criarConfiguracaoAtividade(atividadeId, result.valores, controller.signal)
-      if (!controller.signal.aborted) setFeedback({ type: 'success', message: 'Configuração salva com sucesso.' })
+      if (!controller.signal.aborted) setFeedback({ type: 'success', message: 'Configuração salva' })
     } catch (failure) {
       if (!controller.signal.aborted) setFeedback({ type: 'error', message: failure.message })
     } finally {
@@ -133,9 +135,10 @@ function ValoresAtividade({ atividadeId, campos }) {
           {errors[chave] && <p id={`error-${chave}`} className="field-error" role="alert">{errors[chave]}</p>}
         </div>
       ))}
-      {feedback && <p className={`feedback ${feedback.type}`} role={feedback.type === 'error' ? 'alert' : 'status'}>{feedback.message}</p>}
+      {feedback?.type === 'error' && <p className="feedback error" role="alert">{feedback.message}</p>}
       {saving && <p className="catalog-status" role="status">Salvando configuração...</p>}
       <button className="primary-button" type="submit" disabled={saving || feedback?.type === 'success'}>{saving ? 'Salvando...' : 'Salvar configuração'}</button>
+      <Snackbar notification={feedback?.type === 'success' ? feedback : null} />
     </form>
   )
 }
@@ -218,6 +221,7 @@ function ConfigurarAtividade({ atividadeId, user }) {
               <p>{catalogo.modalidades.find((item) => item.id === state.atividade.modalidadeId)?.nome ?? (catalogo.loading ? 'Carregando modalidade...' : 'Modalidade indisponível')}</p>
             </div>
             {catalogo.error && <div className="catalog-error"><p className="feedback error" role="alert">{catalogo.error}</p><button className="secondary-button compact-button" type="button" onClick={catalogo.retry}>Recarregar modalidades</button></div>}
+            <ActivityMedia atividade={state.atividade} />
             <CamposAtividade atividade={state.atividade} />
           </>
         )}

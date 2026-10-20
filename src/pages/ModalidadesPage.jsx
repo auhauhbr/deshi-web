@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import AppHeader from '../components/AppHeader'
+import Snackbar from '../components/Snackbar'
 import { useSession } from '../hooks/useSession'
 import { getMinhasModalidades, getModalidades, saveModalidades } from '../services/modalidades.service'
+import { getModalityMedia } from '../utils/activity-media'
 
 export default function ModalidadesPage() {
   const { session } = useSession()
@@ -62,7 +64,7 @@ export default function ModalidadesPage() {
     try {
       const saved = await saveModalidades([...selected])
       setSelected(new Set(saved.map((item) => item.id)))
-      setFeedback({ type: 'success', message: 'Modalidades salvas com sucesso.' })
+      setFeedback({ type: 'success', message: 'Modalidades salvas' })
     } catch (error) {
       setFeedback({ type: 'error', message: error.message })
     } finally {
@@ -104,17 +106,23 @@ export default function ModalidadesPage() {
           ) : (
             <>
               <div className="modalidades-grid" role="group" aria-labelledby="selection-title" aria-describedby="selection-help">
-                {catalog.map((item) => (
-                  <button key={item.id} type="button" className="modalidade-card" aria-pressed={selected.has(item.id)} disabled={saving} onClick={() => toggle(item.id)}>
-                    <span className="modalidade-name">{item.nome}</span>
-                    <span className="selection-check" aria-hidden="true">{selected.has(item.id) ? '✓' : '+'}</span>
-                  </button>
-                ))}
+                {catalog.map((item) => {
+                  const media = getModalityMedia(item.id)
+                  return (
+                    <button key={item.id} type="button" className="modalidade-card" aria-pressed={selected.has(item.id)} disabled={saving} onClick={() => toggle(item.id)}>
+                      <span className="modalidade-label">
+                        {media && <img className="modalidade-image" src={media} alt="" width="48" height="48" />}
+                        <span className="modalidade-name">{item.nome}</span>
+                      </span>
+                      <span className="selection-check" aria-hidden="true">{selected.has(item.id) ? '✓' : '+'}</span>
+                    </button>
+                  )
+                })}
               </div>
               <div className="save-area">
                 <div className="save-feedback">
                   {selected.size === 0 && !feedback && <p className="selection-hint" role="status">Selecione pelo menos uma modalidade.</p>}
-                  {feedback && <p className={`feedback ${feedback.type}`} role={feedback.type === 'error' ? 'alert' : 'status'}>{feedback.message}</p>}
+                  {feedback?.type === 'error' && <p className="feedback error" role="alert">{feedback.message}</p>}
                 </div>
                 <button className="primary-button" type="button" onClick={handleSave} disabled={saving || selected.size === 0}>{saving ? 'Salvando...' : 'Salvar modalidades'}</button>
                 <p className="save-note">Você pode alterar suas escolhas quando precisar.</p>
@@ -124,6 +132,7 @@ export default function ModalidadesPage() {
         </section>
         <Link className="app-navigation-row" to="/atividades"><span>Biblioteca de atividades</span><span className="navigation-chevron" aria-hidden="true">›</span></Link>
       </main>
+      <Snackbar notification={feedback?.type === 'success' ? feedback : null} />
     </div>
   )
 }

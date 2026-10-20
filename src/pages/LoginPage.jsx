@@ -1,6 +1,5 @@
 import { useRef, useState } from 'react'
 import { Navigate } from 'react-router-dom'
-import AppHeader from '../components/AppHeader'
 import { useSession } from '../hooks/useSession'
 import { login } from '../services/auth.service'
 
@@ -36,11 +35,8 @@ export default function LoginPage() {
 
   return (
     <div className="app-shell login-shell">
-      <AppHeader />
-      <main className="panel login-panel">
-        <span className="eyebrow">Seu espaço profissional</span>
+      <main className="login-panel">
         <h1>Entrar</h1>
-        <p className="intro">Entre na sua conta para acessar suas modalidades e sua biblioteca de atividades.</p>
         {reason === 'expired' && <p className="notice" role="status">Sua sessão expirou ou é inválida. Entre novamente.</p>}
         <form onSubmit={handleSubmit} aria-busy={submitting}>
           <div className="field">
@@ -54,7 +50,6 @@ export default function LoginPage() {
           {error && <p className="feedback error" role="alert">{error}</p>}
           <button className="primary-button" type="submit" disabled={submitting}>{submitting ? 'Entrando...' : 'Entrar'}</button>
         </form>
-        <p className="login-footnote">Acesso exclusivo para profissionais.</p>
       </main>
     </div>
   )
