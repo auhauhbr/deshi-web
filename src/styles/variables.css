@@ -1,0 +1,61 @@
+:root {
+  /* Identidade visual */
+  --color-primary: #00d9a0;
+  --color-primary-hover: #00bd8b;
+  --color-primary-active: #009f75;
+  --color-primary-light: #d9fff3;
+  --color-gradient-start: #00d9a0;
+  --color-gradient-end: #42e88b;
+
+  /* Fundos e superfícies */
+  --color-background: #f5f7f6;
+  --color-surface: #ffffff;
+  --color-surface-secondary: #ebf0ed;
+  --color-surface-dark: #080b09;
+
+  /* Textos, bordas e estados */
+  --color-text: #151a17;
+  --color-text-secondary: #69736d;
+  --color-text-inverse: #ffffff;
+  --color-text-on-primary: #06291f;
+  --color-border: #dce4df;
+  --color-border-focus: #00d9a0;
+  --color-success: #168653;
+  --color-error: #d93636;
+  --color-warning: #b7791f;
+  --color-info: #2675d8;
+
+  /* Tipografia */
+  --font-family-base: "Exo 2", system-ui, sans-serif;
+  --font-family-secondary: "Rajdhani", system-ui, sans-serif;
+  --font-size-xs: .75rem;
+  --font-size-sm: .875rem;
+  --font-size-md: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.5rem;
+  --font-size-2xl: 2rem;
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* Espaçamento, dimensões e efeitos */
+  --spacing-xs: .25rem;
+  --spacing-sm: .5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 3rem;
+  --spacing-3xl: 4rem;
+  --radius-sm: .375rem;
+  --radius-md: .75rem;
+  --radius-lg: 1.25rem;
+  --radius-full: 9999px;
+  --shadow-card: 0 4px 20px rgb(8 11 9 / 6%);
+  --shadow-dropdown: 0 8px 32px rgb(8 11 9 / 12%);
+  --container-max-width: 1200px;
+  --header-height: 4rem;
+  --sidebar-width: 16rem;
+  --transition-fast: 150ms ease;
+  --transition-normal: 250ms ease;
+}
