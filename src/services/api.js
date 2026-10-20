@@ -17,3 +17,7 @@ api.interceptors.request.use((config) => {
 })
 
 export { TOKEN_STORAGE_KEY }
+
+export function hasSession() {
+  return Boolean(localStorage.getItem(TOKEN_STORAGE_KEY))
+}

@@ -1,10 +1,12 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import AuthLayout from '../../components/AuthLayout.jsx'
 import PasswordField from '../../components/PasswordField.jsx'
 import { getApiErrorMessage, registerUser } from '../../services/authService.js'
 import './Register.css'
 
 function RegisterPage() {
+  const navigate = useNavigate()
   const [form, setForm] = useState({ nome: '', email: '', senha: '', perfil: '' })
   const [message, setMessage] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -30,8 +32,10 @@ function RegisterPage() {
         password: form.senha,
         profile: form.perfil === 'profissional' ? 'PROFESSIONAL' : 'STUDENT',
       })
-      setMessage('Conta criada com sucesso. Agora você já pode entrar.')
-      setForm({ nome: '', email: '', senha: '', perfil: '' })
+      navigate('/login', {
+        replace: true,
+        state: { message: 'Conta criada com sucesso. Agora você já pode entrar.' },
+      })
     } catch (error) {
       setMessage(getApiErrorMessage(error, 'Não foi possível criar a conta. Tente novamente.'))
     } finally {

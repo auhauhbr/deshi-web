@@ -1,12 +1,15 @@
 import { useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import AuthLayout from '../../components/AuthLayout.jsx'
 import PasswordField from '../../components/PasswordField.jsx'
 import { getApiErrorMessage, loginUser } from '../../services/authService.js'
 import './Login.css'
 
 function LoginPage() {
+  const location = useLocation()
+  const navigate = useNavigate()
   const [form, setForm] = useState({ email: '', senha: '' })
-  const [message, setMessage] = useState('')
+  const [message, setMessage] = useState(location.state?.message || '')
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   function updateField(event) {
@@ -25,7 +28,7 @@ function LoginPage() {
     setMessage('')
     try {
       const user = await loginUser({ email: form.email, password: form.senha })
-      setMessage(`Login realizado como ${user.profile === 'PROFESSIONAL' ? 'profissional' : 'aluno'}.`)
+      navigate('/home', { replace: true, state: { profile: user.profile } })
     } catch (error) {
       setMessage(getApiErrorMessage(error, 'Não foi possível entrar. Tente novamente.'))
     } finally {
