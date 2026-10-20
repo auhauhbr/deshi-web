@@ -1,21 +1,42 @@
 import { useState } from 'react'
 import AuthLayout from '../../components/AuthLayout.jsx'
 import PasswordField from '../../components/PasswordField.jsx'
+import { getApiErrorMessage, registerUser } from '../../services/authService.js'
 import './Register.css'
 
 function RegisterPage() {
   const [form, setForm] = useState({ nome: '', email: '', senha: '', perfil: '' })
   const [message, setMessage] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   function updateField(event) {
     const { name, value } = event.target
     setForm((currentForm) => ({ ...currentForm, [name]: value }))
   }
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault()
     if (Object.values(form).some((value) => !value.trim())) { setMessage('Preencha todos os campos para criar sua conta.'); return }
-    setMessage(!form.email.includes('@') ? 'Informe um endereço de e-mail válido.' : 'A integração com a API de cadastro será adicionada nesta etapa.')
+    if (!form.email.includes('@')) { setMessage('Informe um endereço de e-mail válido.'); return }
+    if (form.nome.trim().length < 3) { setMessage('O nome deve ter pelo menos 3 caracteres.'); return }
+    if (form.senha.length < 8) { setMessage('A senha deve ter pelo menos 8 caracteres.'); return }
+
+    setIsSubmitting(true)
+    setMessage('')
+    try {
+      await registerUser({
+        name: form.nome.trim(),
+        email: form.email.trim(),
+        password: form.senha,
+        profile: form.perfil === 'profissional' ? 'PROFESSIONAL' : 'STUDENT',
+      })
+      setMessage('Conta criada com sucesso. Agora você já pode entrar.')
+      setForm({ nome: '', email: '', senha: '', perfil: '' })
+    } catch (error) {
+      setMessage(getApiErrorMessage(error, 'Não foi possível criar a conta. Tente novamente.'))
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return <AuthLayout pageClassName="register-page" title="Crie sua conta" subtitle="Leva apenas alguns instantes para começar." footerText="Já possui uma conta?" footerLink="/login" footerLinkText="Entrar">
@@ -28,7 +49,7 @@ function RegisterPage() {
         <label className={`profile-option ${form.perfil === 'aluno' ? 'selected' : ''}`}><input type="radio" name="perfil" value="aluno" checked={form.perfil === 'aluno'} onChange={updateField} /><span>Sou aluno</span><small>Acompanho meus treinos</small></label>
       </div></fieldset>
       {message && <p className="form-message" role="alert">{message}</p>}
-      <button className="primary-button" type="submit">Criar conta</button>
+      <button className="primary-button" type="submit" disabled={isSubmitting}>{isSubmitting ? 'Criando conta...' : 'Criar conta'}</button>
     </form>
   </AuthLayout>
 }

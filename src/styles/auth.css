@@ -260,6 +260,11 @@ input:focus {
     background: var(--color-primary-active);
 }
 
+.primary-button:disabled {
+  cursor: wait;
+  opacity: .7;
+}
+
 .auth-footer {
     margin-top: 1.75rem;
     text-align: center;

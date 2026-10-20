@@ -1,20 +1,36 @@
 import { useState } from 'react'
 import AuthLayout from '../../components/AuthLayout.jsx'
 import PasswordField from '../../components/PasswordField.jsx'
+import { getApiErrorMessage, loginUser } from '../../services/authService.js'
 import './Login.css'
 
 function LoginPage() {
   const [form, setForm] = useState({ email: '', senha: '' })
   const [message, setMessage] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   function updateField(event) {
     const { name, value } = event.target
     setForm((currentForm) => ({ ...currentForm, [name]: value }))
   }
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault()
-    setMessage(!form.email || !form.senha ? 'Informe seu e-mail e sua senha para continuar.' : 'A integração com a API de autenticação será adicionada nesta etapa.')
+    if (!form.email || !form.senha) {
+      setMessage('Informe seu e-mail e sua senha para continuar.')
+      return
+    }
+
+    setIsSubmitting(true)
+    setMessage('')
+    try {
+      const user = await loginUser({ email: form.email, password: form.senha })
+      setMessage(`Login realizado como ${user.profile === 'PROFESSIONAL' ? 'profissional' : 'aluno'}.`)
+    } catch (error) {
+      setMessage(getApiErrorMessage(error, 'Não foi possível entrar. Tente novamente.'))
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return <AuthLayout pageClassName="login-page" title="Boas-vindas de volta" subtitle="Entre para acompanhar sua rotina esportiva." footerText="Ainda não possui uma conta?" footerLink="/cadastro" footerLinkText="Crie uma agora">
@@ -22,7 +38,7 @@ function LoginPage() {
       <div className="field"><label htmlFor="email">E-mail</label><input id="email" name="email" type="email" autoComplete="email" placeholder="voce@exemplo.com" value={form.email} onChange={updateField} required /></div>
       <PasswordField id="senha" label="Senha" autoComplete="current-password" value={form.senha} onChange={updateField} />
       {message && <p className="form-message" role="alert">{message}</p>}
-      <button className="primary-button" type="submit">Entrar</button>
+      <button className="primary-button" type="submit" disabled={isSubmitting}>{isSubmitting ? 'Entrando...' : 'Entrar'}</button>
     </form>
   </AuthLayout>
 }
