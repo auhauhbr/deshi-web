@@ -21,6 +21,30 @@
   text-align: right;
 }
 
+.header-home {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  margin-right: auto;
+  padding: 4px;
+  border-radius: 8px;
+  color: var(--green);
+  font-size: 12px;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.header-home svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.header-home:hover, .header-home[aria-current='page'] {
+  background: var(--mint);
+}
+
 .account {
   display: flex;
   align-items: center;

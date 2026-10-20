@@ -12,7 +12,7 @@ export default function LoginPage() {
   const [submitting, setSubmitting] = useState(false)
   const pending = useRef(false)
 
-  if (session) return <Navigate to="/modalidades" replace />
+  if (session) return <Navigate to="/home" replace />
 
   async function handleSubmit(event) {
     event.preventDefault()
@@ -40,7 +40,7 @@ export default function LoginPage() {
       <main className="panel login-panel">
         <span className="eyebrow">Seu espaço profissional</span>
         <h1>Entrar</h1>
-        <p className="intro">Entre na sua conta para definir as modalidades em que você atua.</p>
+        <p className="intro">Entre na sua conta para acessar suas modalidades e sua biblioteca de atividades.</p>
         {reason === 'expired' && <p className="notice" role="status">Sua sessão expirou ou é inválida. Entre novamente.</p>}
         <form onSubmit={handleSubmit} aria-busy={submitting}>
           <div className="field">

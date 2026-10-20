@@ -1,6 +1,7 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import ProfessionalRoute from './components/ProfessionalRoute'
 import LoginPage from './pages/LoginPage'
+import HomePage from './pages/HomePage'
 import ModalidadesPage from './pages/ModalidadesPage'
 import AtividadesPage from './pages/AtividadesPage'
 import NovaAtividadePage from './pages/NovaAtividadePage'
@@ -13,12 +14,13 @@ export default function App() {
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route element={<ProfessionalRoute />}>
+          <Route path="/home" element={<HomePage />} />
           <Route path="/modalidades" element={<ModalidadesPage />} />
           <Route path="/atividades" element={<AtividadesPage />} />
           <Route path="/atividades/nova" element={<NovaAtividadePage />} />
           <Route path="/atividades/:id/configurar" element={<ConfigurarAtividadePage />} />
         </Route>
-        <Route path="*" element={<Navigate to="/modalidades" replace />} />
+        <Route path="*" element={<Navigate to="/home" replace />} />
       </Routes>
     </BrowserRouter>
   )
