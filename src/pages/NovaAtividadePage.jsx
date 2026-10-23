@@ -13,7 +13,6 @@ export default function NovaAtividadePage() {
   const [nome, setNome] = useState('')
   const [modalidadeId, setModalidadeId] = useState('')
   const [descricao, setDescricao] = useState('')
-  const [midiaUrl, setMidiaUrl] = useState('')
   const [errors, setErrors] = useState({})
   const [error, setError] = useState('')
   const [saving, setSaving] = useState(false)
@@ -27,14 +26,6 @@ export default function NovaAtividadePage() {
     const nextErrors = {}
     if (!nome.trim()) nextErrors.nome = 'Informe o nome da atividade.'
     if (!catalogo.modalidades.some((item) => item.id === modalidadeId)) nextErrors.modalidadeId = 'Selecione uma modalidade.'
-    if (midiaUrl.trim()) {
-      try {
-        const url = new URL(midiaUrl.trim())
-        if (!/^https?:\/\//i.test(midiaUrl.trim()) || !['http:', 'https:'].includes(url.protocol)) throw new Error()
-      } catch {
-        nextErrors.midiaUrl = 'Informe uma URL válida começando com http:// ou https://.'
-      }
-    }
     setErrors(nextErrors)
     setError('')
     if (Object.keys(nextErrors).length) {
@@ -45,7 +36,7 @@ export default function NovaAtividadePage() {
     pending.current = controller
     setSaving(true)
     try {
-      await criarAtividade({ nome, modalidadeId, descricao, midiaUrl }, controller.signal)
+      await criarAtividade({ nome, modalidadeId, descricao }, controller.signal)
       if (!controller.signal.aborted) navigate('/atividades', { replace: true, state: { atividadeCriada: true } })
     } catch (failure) {
       if (!controller.signal.aborted) setError(failure.message)
@@ -91,9 +82,16 @@ export default function NovaAtividadePage() {
             <textarea id="activity-description" name="descricao" rows="3" value={descricao} onChange={(event) => setDescricao(event.target.value)} disabled={saving} />
           </div>
           <div className="field">
-            <label htmlFor="activity-media">URL da mídia</label>
-            <input id="activity-media" name="midiaUrl" type="url" inputMode="url" autoCapitalize="none" spellCheck={false} placeholder="https://" value={midiaUrl} onChange={(event) => setMidiaUrl(event.target.value)} disabled={saving} aria-invalid={Boolean(errors.midiaUrl)} aria-describedby={errors.midiaUrl ? 'media-error' : undefined} />
-            {errors.midiaUrl && <p className="field-error" id="media-error" role="alert">{errors.midiaUrl}</p>}
+            <label htmlFor="activity-media">Imagem da atividade</label>
+            <button id="activity-media" className="activity-media-button" type="button" disabled aria-describedby="activity-media-help">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
+                <rect x="3" y="3" width="18" height="18" rx="2" />
+                <circle cx="8" cy="8" r="1.5" />
+                <path d="m3 17 5-5 4 4 4-6 5 7" />
+              </svg>
+              Selecionar da galeria
+            </button>
+            <p className="activity-media-help" id="activity-media-help">Disponível em breve</p>
           </div>
           {error && <p className="feedback error" role="alert">{error}</p>}
           {saving && <p className="catalog-status" role="status">Criando atividade...</p>}

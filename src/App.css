@@ -802,6 +802,32 @@
   background: var(--soft);
 }
 
+.activity-media-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 38px;
+  padding: 9px 10px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--soft);
+  color: var(--muted);
+  font-size: 10px;
+  cursor: not-allowed;
+}
+
+.activity-media-button svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.activity-media-help {
+  color: var(--muted);
+  font-size: 9px;
+}
+
 .activity-form [aria-invalid='true'] {
   border-color: #8f3024;
 }
