@@ -131,6 +131,40 @@
 .session-activity-action {
   flex: 0 0 auto;
   margin: 0;
+  width: auto;
+  min-height: 2.5rem;
+}
+
+.session-activity-actions {
+  display: flex;
+  flex: 0 0 100%;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+  margin-left: calc(2rem + var(--spacing-md));
+}
+
+.activity-time-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm) var(--spacing-lg);
+  margin: var(--spacing-sm) 0 0;
+}
+
+.activity-time-summary div {
+  display: grid;
+  gap: var(--spacing-xs);
+}
+
+.activity-time-summary dt {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-xs);
+}
+
+.activity-time-summary dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
 }
 
 .session-secondary-button {
@@ -163,7 +197,11 @@
     margin-left: calc(2rem + var(--spacing-md));
   }
 
-  .session-activity-action {
+  .session-activity-actions {
     margin-left: calc(2rem + var(--spacing-md));
+  }
+
+  .session-activity-actions > button {
+    flex: 1 1 100%;
   }
 }

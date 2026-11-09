@@ -1,7 +1,16 @@
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { getApiErrorMessage } from '../../services/authService.js'
-import { getStudentPrograms, getStudentSessions } from '../../services/sessionService.js'
+import {
+  completeActivity,
+  endActivityRest,
+  getStudentPrograms,
+  getStudentSessions,
+  pauseActivity,
+  resumeActivity,
+  startActivity,
+  startActivityRest,
+} from '../../services/sessionService.js'
 import './StartSession.css'
 import './SessionDetails.css'
 
@@ -17,6 +26,39 @@ function formatStartedAt(value) {
   }).format(date)
 }
 
+function formatDuration(milliseconds = 0) {
+  const totalSeconds = Math.max(0, Math.floor(milliseconds / 1000))
+  const hours = Math.floor(totalSeconds / 3600)
+  const minutes = Math.floor((totalSeconds % 3600) / 60)
+  const seconds = totalSeconds % 60
+
+  return [hours, minutes, seconds]
+    .map((value) => String(value).padStart(2, '0'))
+    .join(':')
+}
+
+function getDurationFromStart(value, now) {
+  if (!value) return 0
+  const startedAt = new Date(value).getTime()
+  return Number.isNaN(startedAt) ? 0 : Math.max(0, now - startedAt)
+}
+
+function getActivityDurations(activity, now) {
+  const tracking = activity.timeTracking || {}
+
+  return {
+    active: (tracking.activeTimeMs || 0) + (activity.status === 'IN_PROGRESS'
+      ? getDurationFromStart(tracking.activeStartedAt, now)
+      : 0),
+    pause: (tracking.pauseTimeMs || 0) + (activity.status === 'PAUSED'
+      ? getDurationFromStart(tracking.pauseStartedAt, now)
+      : 0),
+    rest: (tracking.restTimeMs || 0) + (activity.status === 'RESTING'
+      ? getDurationFromStart(tracking.restStartedAt, now)
+      : 0),
+  }
+}
+
 function SessionDetails() {
   const { sessionId } = useParams()
   const { state } = useLocation()
@@ -26,6 +68,9 @@ function SessionDetails() {
   )
   const [isLoading, setIsLoading] = useState(!session)
   const [message, setMessage] = useState('')
+  const [timeActionMessage, setTimeActionMessage] = useState('')
+  const [pendingActivityId, setPendingActivityId] = useState('')
+  const [now, setNow] = useState(Date.now())
 
   useEffect(() => {
     if (session) return
@@ -68,6 +113,17 @@ function SessionDetails() {
       isCurrent = false
     }
   }, [session, sessionId])
+
+  useEffect(() => {
+    const hasRunningClock = session?.activities?.some((activity) => (
+      ['IN_PROGRESS', 'PAUSED', 'RESTING'].includes(activity.status)
+    ))
+
+    if (!hasRunningClock) return undefined
+
+    const intervalId = window.setInterval(() => setNow(Date.now()), 1000)
+    return () => window.clearInterval(intervalId)
+  }, [session?.activities])
 
   const statusLabels = {
     IN_PROGRESS: 'Em andamento',
@@ -114,6 +170,23 @@ function SessionDetails() {
     (first, second) => first.order - second.order,
   )
 
+  async function runTimeAction(activityId, action) {
+    setPendingActivityId(activityId)
+    setTimeActionMessage('')
+
+    try {
+      const updatedSession = await action(session.id, activityId)
+      setSession((current) => ({
+        ...updatedSession,
+        professionalName: updatedSession.professionalName || current.professionalName,
+      }))
+    } catch (error) {
+      setTimeActionMessage(getApiErrorMessage(error, 'Não foi possível atualizar o tempo da atividade.'))
+    } finally {
+      setPendingActivityId('')
+    }
+  }
+
   return (
     <main className="start-session-page">
       <header className="session-header">
@@ -152,6 +225,8 @@ function SessionDetails() {
             <span>{activities.length}</span>
           </div>
 
+          {timeActionMessage && <p className="session-message" role="alert">{timeActionMessage}</p>}
+
           {activities.length ? (
             <ol className="session-activity-list">
               {activities.map((activity, index) => (
@@ -170,20 +245,62 @@ function SessionDetails() {
                         </ul>
                       </div>
                     )}
+                    {activity.timeTracking && (() => {
+                      const durations = getActivityDurations(activity, now)
+
+                      return (
+                        <dl className="activity-time-summary" aria-label="Tempos da atividade">
+                          <div><dt>Ativo</dt><dd>{formatDuration(durations.active)}</dd></div>
+                          <div><dt>Pausa</dt><dd>{formatDuration(durations.pause)}</dd></div>
+                          <div><dt>Descanso</dt><dd>{formatDuration(durations.rest)}</dd></div>
+                        </dl>
+                      )
+                    })()}
                   </div>
                   <span className="session-activity-status">
                     {statusLabels[activity.status] || activity.status || 'Pendente'}
                   </span>
-                  {activity.status !== 'COMPLETED' && activity.status !== 'INCOMPLETE' && (
-                    <button
-                      type="button"
-                      className="session-secondary-button session-activity-action"
-                      onClick={() => navigate(`/sessions/${session.id}/executions/${activity.activityId}`, {
-                        state: { session, activity },
-                      })}
-                    >
-                      Registrar execução
-                    </button>
+                  {session.status === 'IN_PROGRESS' && (
+                    <div className="session-activity-actions">
+                      {activity.status === 'PENDING' && (
+                        <button type="button" className="session-start-button session-activity-action" disabled={Boolean(pendingActivityId)} onClick={() => runTimeAction(activity.activityId, startActivity)}>
+                          {pendingActivityId === activity.activityId ? 'Iniciando...' : 'Iniciar atividade'}
+                        </button>
+                      )}
+                      {activity.status === 'IN_PROGRESS' && (
+                        <>
+                          <button type="button" className="session-secondary-button session-activity-action" disabled={Boolean(pendingActivityId)} onClick={() => runTimeAction(activity.activityId, pauseActivity)}>
+                            {pendingActivityId === activity.activityId ? 'Atualizando...' : 'Pausar'}
+                          </button>
+                          <button type="button" className="session-secondary-button session-activity-action" disabled={Boolean(pendingActivityId)} onClick={() => runTimeAction(activity.activityId, startActivityRest)}>Iniciar descanso</button>
+                          <button type="button" className="session-start-button session-activity-action" disabled={Boolean(pendingActivityId)} onClick={() => runTimeAction(activity.activityId, completeActivity)}>Concluir atividade</button>
+                        </>
+                      )}
+                      {activity.status === 'PAUSED' && (
+                        <>
+                          <button type="button" className="session-start-button session-activity-action" disabled={Boolean(pendingActivityId)} onClick={() => runTimeAction(activity.activityId, resumeActivity)}>Retomar atividade</button>
+                          <button type="button" className="session-secondary-button session-activity-action" disabled={Boolean(pendingActivityId)} onClick={() => runTimeAction(activity.activityId, completeActivity)}>Concluir atividade</button>
+                        </>
+                      )}
+                      {activity.status === 'RESTING' && (
+                        <>
+                          <button type="button" className="session-start-button session-activity-action" disabled={Boolean(pendingActivityId)} onClick={() => runTimeAction(activity.activityId, endActivityRest)}>Encerrar descanso</button>
+                          <button type="button" className="session-secondary-button session-activity-action" disabled={Boolean(pendingActivityId)} onClick={() => runTimeAction(activity.activityId, completeActivity)}>Concluir atividade</button>
+                        </>
+                      )}
+                      {!['IN_PROGRESS', 'PAUSED', 'RESTING'].includes(activity.status) && (
+                        <button
+                          type="button"
+                          className="session-secondary-button session-activity-action"
+                          disabled={Boolean(pendingActivityId)}
+                          onClick={() => navigate(`/sessions/${session.id}/executions/${activity.activityId}`, {
+                            state: { session, activity },
+                          })}
+                        >
+                          Registrar execução
+                        </button>
+                      )}
+                    </div>
                   )}
                 </li>
               ))}

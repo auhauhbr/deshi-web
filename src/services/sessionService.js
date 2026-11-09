@@ -25,3 +25,35 @@ export async function registerExecution(sessionId, execution) {
 
   return data
 }
+
+async function sendActivityAction(sessionId, activityId, action) {
+  const { data } = await api.post(
+    `/sessions/${sessionId}/activities/${activityId}/${action}`,
+  )
+
+  return data
+}
+
+export function startActivity(sessionId, activityId) {
+  return sendActivityAction(sessionId, activityId, 'start')
+}
+
+export function pauseActivity(sessionId, activityId) {
+  return sendActivityAction(sessionId, activityId, 'pause')
+}
+
+export function resumeActivity(sessionId, activityId) {
+  return sendActivityAction(sessionId, activityId, 'resume')
+}
+
+export function startActivityRest(sessionId, activityId) {
+  return sendActivityAction(sessionId, activityId, 'rest/start')
+}
+
+export function endActivityRest(sessionId, activityId) {
+  return sendActivityAction(sessionId, activityId, 'rest/end')
+}
+
+export function completeActivity(sessionId, activityId) {
+  return sendActivityAction(sessionId, activityId, 'complete')
+}
