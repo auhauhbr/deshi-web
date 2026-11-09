@@ -57,3 +57,15 @@ export function endActivityRest(sessionId, activityId) {
 export function completeActivity(sessionId, activityId) {
   return sendActivityAction(sessionId, activityId, 'complete')
 }
+
+export async function finishSession(sessionId) {
+  const { data } = await api.post(`/sessions/${sessionId}/finish`)
+
+  return data
+}
+
+export async function interruptSession(sessionId) {
+  const { data } = await api.post(`/sessions/${sessionId}/interrupt`)
+
+  return data
+}

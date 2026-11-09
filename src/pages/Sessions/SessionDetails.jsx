@@ -4,8 +4,10 @@ import { getApiErrorMessage } from '../../services/authService.js'
 import {
   completeActivity,
   endActivityRest,
+  finishSession,
   getStudentPrograms,
   getStudentSessions,
+  interruptSession,
   pauseActivity,
   resumeActivity,
   startActivity,
@@ -70,6 +72,8 @@ function SessionDetails() {
   const [message, setMessage] = useState('')
   const [timeActionMessage, setTimeActionMessage] = useState('')
   const [pendingActivityId, setPendingActivityId] = useState('')
+  const [confirmSessionAction, setConfirmSessionAction] = useState('')
+  const [isUpdatingSession, setIsUpdatingSession] = useState(false)
   const [now, setNow] = useState(Date.now())
 
   useEffect(() => {
@@ -187,6 +191,27 @@ function SessionDetails() {
     }
   }
 
+  async function confirmSessionUpdate() {
+    if (!confirmSessionAction) return
+
+    setIsUpdatingSession(true)
+    setTimeActionMessage('')
+
+    try {
+      const update = confirmSessionAction === 'finish' ? finishSession : interruptSession
+      const updatedSession = await update(session.id)
+      setSession((current) => ({
+        ...updatedSession,
+        professionalName: updatedSession.professionalName || current.professionalName,
+      }))
+      setConfirmSessionAction('')
+    } catch (error) {
+      setTimeActionMessage(getApiErrorMessage(error, 'Não foi possível atualizar o estado da sessão.'))
+    } finally {
+      setIsUpdatingSession(false)
+    }
+  }
+
   return (
     <main className="start-session-page">
       <header className="session-header">
@@ -199,9 +224,21 @@ function SessionDetails() {
 
       <section className="session-details-content">
         <div className="session-heading">
-          <p className="session-eyebrow">SESSÃO INICIADA</p>
-          <h1>Seu programa está pronto.</h1>
-          <p>Acompanhe abaixo as atividades na ordem prevista.</p>
+          <p className="session-eyebrow">
+            {session.status === 'COMPLETED'
+              ? 'SESSÃO CONCLUÍDA'
+              : session.status === 'INTERRUPTED' ? 'SESSÃO INTERROMPIDA' : 'SESSÃO INICIADA'}
+          </p>
+          <h1>
+            {session.status === 'COMPLETED'
+              ? 'Sessão finalizada.'
+              : session.status === 'INTERRUPTED' ? 'Sessão interrompida.' : 'Seu programa está pronto.'}
+          </h1>
+          <p>
+            {session.status === 'IN_PROGRESS'
+              ? 'Acompanhe abaixo as atividades e os tempos registrados.'
+              : 'Seus registros e atividades permanecem salvos nesta sessão.'}
+          </p>
         </div>
 
         <section className="session-details-card" aria-label="Dados da sessão">
@@ -218,7 +255,52 @@ function SessionDetails() {
               <dt>Profissional responsável</dt>
               <dd>{session.professionalName || 'Nome não informado pela API'}</dd>
             </div>
+            {session.finishedAt && (
+              <div>
+                <dt>Encerrada em</dt>
+                <dd>{formatStartedAt(session.finishedAt)}</dd>
+              </div>
+            )}
           </dl>
+
+          {session.status === 'IN_PROGRESS' && (
+            <div className="session-end-actions">
+              <p>Finalize a sessão ou interrompa mantendo os registros feitos até agora.</p>
+              <div>
+                <button type="button" className="session-start-button" disabled={isUpdatingSession || Boolean(pendingActivityId)} onClick={() => setConfirmSessionAction('finish')}>
+                  Finalizar sessão
+                </button>
+                <button type="button" className="session-secondary-button" disabled={isUpdatingSession || Boolean(pendingActivityId)} onClick={() => setConfirmSessionAction('interrupt')}>
+                  Interromper sessão
+                </button>
+              </div>
+            </div>
+          )}
+
+          {confirmSessionAction && (
+            <div className="session-confirm-backdrop">
+              <section className="session-confirm-dialog" role="alertdialog" aria-modal="true" aria-labelledby="session-confirm-title" aria-describedby="session-confirm-description">
+                <h2 id="session-confirm-title">
+                  {confirmSessionAction === 'finish' ? 'Finalizar sessão?' : 'Interromper sessão?'}
+                </h2>
+                <p id="session-confirm-description">
+                  {confirmSessionAction === 'finish'
+                    ? 'A sessão será concluída. Atividades ainda em andamento, pausadas ou em descanso serão mantidas como incompletas, com os tempos registrados.'
+                    : 'A sessão será marcada como interrompida. Os registros e as atividades incompletas permanecerão salvos no histórico.'}
+                </p>
+                <div className="session-confirm-actions">
+                  <button type="button" className="session-secondary-button" disabled={isUpdatingSession} onClick={() => setConfirmSessionAction('')}>
+                    Voltar
+                  </button>
+                  <button type="button" className="session-start-button" disabled={isUpdatingSession} onClick={confirmSessionUpdate}>
+                    {isUpdatingSession
+                      ? 'Salvando...'
+                      : confirmSessionAction === 'finish' ? 'Confirmar finalização' : 'Confirmar interrupção'}
+                  </button>
+                </div>
+              </section>
+            </div>
+          )}
 
           <div className="session-activity-heading">
             <h2>Atividades</h2>
