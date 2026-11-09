@@ -23,9 +23,12 @@ function HomePage() {
     <main className="home-page">
       <section className="home-card">
         <span className="home-icon" aria-hidden="true">✓</span>
-        <p className="home-eyebrow">Login realizado</p>
-        <h1>Você está na home.</h1>
-        <p>Esta é uma tela inicial temporária para confirmar que a autenticação funcionou.</p>
+        <p className="home-eyebrow">Área do aluno</p>
+        <h1>Pronto para treinar?</h1>
+        <p>Acesse seus programas e inicie uma sessão de treino.</p>
+        <button type="button" className="home-start-session" onClick={() => navigate('/sessions/start')}>
+          Iniciar sessão <span aria-hidden="true">→</span>
+        </button>
         <button type="button" className="home-logout" onClick={handleLogout} disabled={isLoggingOut}>
           {isLoggingOut ? 'Saindo...' : 'Sair da conta'}
         </button>
