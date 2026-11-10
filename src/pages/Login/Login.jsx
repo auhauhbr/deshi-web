@@ -28,7 +28,10 @@ function LoginPage() {
     setMessage('')
     try {
       const user = await loginUser({ email: form.email, password: form.senha })
-      navigate('/home', { replace: true, state: { profile: user.profile } })
+      navigate(
+        user.profile === 'PROFESSIONAL' ? '/professional/sessions' : '/home',
+        { replace: true, state: { profile: user.profile } }
+      )
     } catch (error) {
       setMessage(getApiErrorMessage(error, 'Não foi possível entrar. Tente novamente.'))
     } finally {

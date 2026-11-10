@@ -7,6 +7,8 @@ import LandingPage from './pages/Landing/Landing.jsx'
 import StartSession from './pages/Sessions/StartSession.jsx'
 import SessionDetails from './pages/Sessions/SessionDetails.jsx'
 import RegisterExecution from './pages/Sessions/RegisterExecution.jsx'
+import ProfessionalSessions from './pages/Sessions/ProfessionalSessions.jsx'
+import SessionResult from './pages/Sessions/SessionResult.jsx'
 
 function AppRoutes() {
   return (
@@ -19,6 +21,8 @@ function AppRoutes() {
       <Route path="/sessions/start" element={<ProtectedRoute><StartSession /></ProtectedRoute>} />
       <Route path="/sessions/:sessionId" element={<ProtectedRoute><SessionDetails /></ProtectedRoute>} />
       <Route path="/sessions/:sessionId/executions/:activityId" element={<ProtectedRoute><RegisterExecution /></ProtectedRoute>} />
+      <Route path="/professional/sessions" element={<ProtectedRoute><ProfessionalSessions /></ProtectedRoute>} />
+      <Route path="/professional/sessions/:sessionId/result" element={<ProtectedRoute><SessionResult /></ProtectedRoute>} />
     </Routes>
   )
 }

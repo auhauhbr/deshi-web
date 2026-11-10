@@ -20,6 +20,18 @@ export async function getStudentSessions() {
   return data
 }
 
+export async function getProfessionalStudentSessions(studentId) {
+  const { data } = await api.get(`/students/${studentId}/sessions/history`)
+
+  return data
+}
+
+export async function getSessionResult(sessionId) {
+  const { data } = await api.get(`/sessions/${sessionId}`)
+
+  return data
+}
+
 export async function registerExecution(sessionId, execution) {
   const { data } = await api.post(`/sessions/${sessionId}/executions`, execution)
 
