@@ -1,0 +1,95 @@
+.student-bottom-nav {
+  position: fixed;
+  z-index: 30;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: calc(4.25rem + env(safe-area-inset-bottom));
+  box-sizing: border-box;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  padding: .35rem max(.55rem, calc((100% - 31rem) / 2)) calc(.35rem + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--color-border);
+  border-radius: 1.2rem 1.2rem 0 0;
+  background: #fff;
+  box-shadow: 0 -8px 24px rgb(24 29 27 / 7%);
+}
+
+.student-bottom-nav a {
+  min-width: 0;
+  display: flex;
+  position: relative;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  border-radius: 1rem;
+  color: #68736d;
+  font-size: .63rem;
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.1;
+  text-align: center;
+  text-decoration: none;
+  transition: color 180ms ease, transform 180ms cubic-bezier(.2, 0, 0, 1);
+}
+
+.student-bottom-nav a.active {
+  z-index: 2;
+  color: #fff;
+  transform: translateY(-.78rem);
+}
+
+.student-bottom-nav a.active::before {
+  position: absolute;
+  z-index: -1;
+  top: 50%;
+  left: 50%;
+  width: 3.65rem;
+  height: 3.65rem;
+  border: .32rem solid #fff;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #00d9a0, #00a879);
+  box-shadow: 0 6px 18px rgb(0 159 117 / 38%);
+  content: '';
+  transform: translate(-50%, -50%);
+}
+
+.student-bottom-nav a:hover:not(.active) { color: #fff; }
+.student-bottom-nav a:active { transform: scale(.96); }
+
+.student-bottom-nav a.active:active { transform: translateY(-.78rem) scale(.96); }
+
+.student-bottom-nav a span {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.student-bottom-nav svg {
+  width: 1.35rem;
+  height: 1.35rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 180ms cubic-bezier(.2, 0, 0, 1);
+}
+
+.student-bottom-nav a.active svg { transform: translateY(-1px) scale(1.06); }
+
+.student-bottom-nav a:focus-visible {
+  outline: 3px solid rgb(0 159 117 / 35%);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .student-bottom-nav a, .student-bottom-nav svg { transition: none; }
+}

@@ -8,17 +8,17 @@
   --color-gradient-end: #42e88b;
 
   /* Fundos e superfícies */
-  --color-background: #f5f7f6;
+  --color-background: #f3f5f4;
   --color-surface: #ffffff;
-  --color-surface-secondary: #ebf0ed;
-  --color-surface-dark: #080b09;
+  --color-surface-secondary: #eef2f0;
+  --color-surface-dark: #13151c;
 
   /* Textos, bordas e estados */
-  --color-text: #151a17;
-  --color-text-secondary: #69736d;
+  --color-text: #1a1d23;
+  --color-text-secondary: #70747d;
   --color-text-inverse: #ffffff;
   --color-text-on-primary: #06291f;
-  --color-border: #dce4df;
+  --color-border: #e1e5e3;
   --color-border-focus: #00d9a0;
   --color-success: #168653;
   --color-error: #d93636;
@@ -48,10 +48,10 @@
   --spacing-2xl: 3rem;
   --spacing-3xl: 4rem;
   --radius-sm: .375rem;
-  --radius-md: .75rem;
-  --radius-lg: 1.25rem;
+  --radius-md: 1rem;
+  --radius-lg: 1.5rem;
   --radius-full: 9999px;
-  --shadow-card: 0 4px 20px rgb(8 11 9 / 6%);
+  --shadow-card: 0 12px 32px rgb(24 29 27 / 7%);
   --shadow-dropdown: 0 8px 32px rgb(8 11 9 / 12%);
   --container-max-width: 1200px;
   --header-height: 4rem;

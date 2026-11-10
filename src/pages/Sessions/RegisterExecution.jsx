@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { getApiErrorMessage } from '../../services/authService.js'
+import StudentBottomNav from '../../components/StudentBottomNav.jsx'
+import BrandLogo from '../../components/BrandLogo.jsx'
 import { getStudentSessions, registerExecution } from '../../services/sessionService.js'
 import './StartSession.css'
 import './SessionDetails.css'
@@ -132,7 +134,7 @@ function RegisterExecution() {
     return (
       <main className="start-session-page">
         <header className="session-header">
-          <div className="session-brand"><span className="session-brand-mark">D</span><span>deshi</span></div>
+          <div className="session-brand"><BrandLogo className="session-brand-logo" /></div>
           <span className="session-header-label">Área do aluno</span>
         </header>
         <section className="session-details-content">
@@ -140,6 +142,7 @@ function RegisterExecution() {
             {isLoading ? 'Carregando atividade...' : message || 'Atividade indisponível.'}
           </div>
         </section>
+        <StudentBottomNav active="todo" />
       </main>
     )
   }
@@ -147,7 +150,7 @@ function RegisterExecution() {
   return (
     <main className="start-session-page">
       <header className="session-header">
-        <div className="session-brand"><span className="session-brand-mark">D</span><span>deshi</span></div>
+        <div className="session-brand"><BrandLogo className="session-brand-logo" /></div>
         <span className="session-header-label">Registro de execução</span>
       </header>
 
@@ -214,6 +217,7 @@ function RegisterExecution() {
           </div>
         </form>
       </section>
+      <StudentBottomNav active="todo" />
     </main>
   )
 }

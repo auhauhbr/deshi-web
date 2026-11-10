@@ -5,6 +5,8 @@ import {
   startSession
 } from '../../services/sessionService.js'
 import { getApiErrorMessage } from '../../services/authService.js'
+import StudentBottomNav from '../../components/StudentBottomNav.jsx'
+import BrandLogo from '../../components/BrandLogo.jsx'
 import './StartSession.css'
 
 function StartSession() {
@@ -75,8 +77,7 @@ async function handleStartSession(event) {
     <main className="start-session-page">
       <header className="session-header">
         <div className="session-brand">
-          <span className="session-brand-mark">D</span>
-          <span>deshi</span>
+          <BrandLogo className="session-brand-logo" />
         </div>
 
         <span className="session-header-label">
@@ -200,6 +201,7 @@ async function handleStartSession(event) {
           </div>
         </form>
       </section>
+      <StudentBottomNav active="todo" />
     </main>
   )
 }

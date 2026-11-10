@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { getApiErrorMessage } from '../../services/authService.js'
+import StudentBottomNav from '../../components/StudentBottomNav.jsx'
+import BrandLogo from '../../components/BrandLogo.jsx'
 import {
   completeActivity,
   endActivityRest,
@@ -146,8 +148,7 @@ function SessionDetails() {
       <main className="start-session-page">
         <header className="session-header">
           <div className="session-brand">
-            <span className="session-brand-mark">D</span>
-            <span>deshi</span>
+            <BrandLogo className="session-brand-logo" />
           </div>
           <span className="session-header-label">Área do aluno</span>
         </header>
@@ -166,6 +167,7 @@ function SessionDetails() {
             )}
           </div>
         </section>
+        <StudentBottomNav active="todo" />
       </main>
     )
   }
@@ -216,8 +218,7 @@ function SessionDetails() {
     <main className="start-session-page">
       <header className="session-header">
         <div className="session-brand">
-          <span className="session-brand-mark">D</span>
-          <span>deshi</span>
+          <BrandLogo className="session-brand-logo" />
         </div>
         <span className="session-header-label">Sessão de treino</span>
       </header>
@@ -339,7 +340,7 @@ function SessionDetails() {
                       )
                     })()}
                   </div>
-                  <span className="session-activity-status">
+                  <span className={`session-activity-status status-${(activity.status || 'PENDING').toLowerCase()}`}>
                     {statusLabels[activity.status] || activity.status || 'Pendente'}
                   </span>
                   {session.status === 'IN_PROGRESS' && (
@@ -392,6 +393,7 @@ function SessionDetails() {
           )}
         </section>
       </section>
+      <StudentBottomNav active={session.status === 'COMPLETED' ? 'completed' : 'todo'} />
     </main>
   )
 }

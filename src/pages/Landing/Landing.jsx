@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import BrandLogo from '../../components/BrandLogo.jsx'
 import './Landing.css'
 
 const currentYear = new Date().getFullYear()
@@ -17,8 +18,7 @@ function LandingPage() {
       <header className="landing-header">
         <div className="landing-container landing-header-content">
           <Link className="landing-brand" to="/" aria-label="Deshi, página inicial">
-            <span className="landing-brand-mark" aria-hidden="true">D</span>
-            <span>deshi</span>
+            <BrandLogo className="landing-brand-logo" />
           </Link>
 
           <nav className="landing-nav" aria-label="Navegação principal">
@@ -60,8 +60,7 @@ function LandingPage() {
               <div className="landing-preview">
                 <div className="preview-topbar">
                   <div className="preview-brand">
-                    <span className="preview-brand-mark">D</span>
-                    <span>deshi</span>
+                    <BrandLogo className="preview-brand-logo" variant="dark" />
                   </div>
                   <span className="preview-profile"><span /> Área profissional</span>
                 </div>
@@ -199,8 +198,7 @@ function LandingPage() {
       <footer className="landing-footer">
         <div className="landing-container landing-footer-content">
           <Link className="landing-brand" to="/" aria-label="Deshi, página inicial">
-            <span className="landing-brand-mark" aria-hidden="true">D</span>
-            <span>deshi</span>
+            <BrandLogo className="landing-brand-logo" variant="dark" />
           </Link>
           <p>Gestão esportiva sem complicação.</p>
           <span>© {currentYear} Deshi</span>
