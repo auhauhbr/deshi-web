@@ -98,20 +98,14 @@ function getEntries(value) {
     : []
 }
 
-function formatValue(value) {
-  if (value === null || value === undefined) return null
-  if (typeof value === 'string' || typeof value === 'number') return String(value)
-  return null
-}
-
 function getMetricLabel(metric) {
   return metricLabels[metric]?.label || null
 }
 
 function formatMetricValue(metric, value) {
-  const formattedValue = formatValue(value)
-  if (formattedValue === null) return null
+  if (typeof value !== 'number' || !Number.isFinite(value)) return null
 
+  const formattedValue = String(value)
   const definition = metricLabels[metric]
   if (definition?.duration) return formatElapsedSeconds(value)
   if (definition?.unit) {
@@ -131,84 +125,95 @@ function ActivityValues({ title, values, sectionClassName }) {
     .map(([metric, value]) => [metric, getMetricLabel(metric), formatMetricValue(metric, value)])
     .filter(([, label, value]) => label && value !== null)
 
-  if (entries.length === 0) return null
-
   return (
     <section className={`result-value-section ${sectionClassName}`}>
       <h4>{title}</h4>
-      <dl className="result-metric-list">
-        {entries.map(([metric, label, value]) => (
-          <div className="result-metric" key={metric}>
-            <dt>{label}</dt>
-            <dd>{value}</dd>
-          </div>
-        ))}
-      </dl>
+      {entries.length === 0 ? (
+        <p className="result-values-empty">Não registrado.</p>
+      ) : (
+        <dl className="result-metric-list">
+          {entries.map(([metric, label, value]) => (
+            <div className="result-metric" key={metric}>
+              <dt>{label}</dt>
+              <dd>{value}</dd>
+            </div>
+          ))}
+        </dl>
+      )}
     </section>
   )
 }
 
-function ActivityComparison({ comparison }) {
-  const entries = getEntries(comparison).filter(([metric, values]) => (
-    metricLabels[metric] &&
-    values && typeof values === 'object' && !Array.isArray(values) &&
-    (formatValue(values.prescribed) !== null || formatValue(values.executed) !== null)
-  ))
-  const labeledEntries = entries.map(([metric, values]) => [metric, values, getMetricLabel(metric)])
+function ActivityComparison({ prescribedValues, executedValues, comparison }) {
+  const entries = getEntries(prescribedValues)
+    .filter(([metric, prescribed]) => (
+      metricLabels[metric] &&
+      typeof prescribed === 'number' &&
+      Number.isFinite(prescribed) &&
+      typeof executedValues?.[metric] === 'number' &&
+      Number.isFinite(executedValues[metric])
+    ))
+    .map(([metric, prescribed]) => {
+      const executed = executedValues[metric]
+      const apiComparison = comparison?.[metric]
+      const hasMatchingApiComparison =
+        apiComparison?.prescribed === prescribed &&
+        apiComparison?.executed === executed &&
+        typeof apiComparison.difference === 'number' &&
+        Number.isFinite(apiComparison.difference)
 
-  if (labeledEntries.length === 0) return null
+      return {
+        metric,
+        label: getMetricLabel(metric),
+        prescribed,
+        executed,
+        difference: hasMatchingApiComparison
+          ? apiComparison.difference
+          : executed - prescribed,
+      }
+    })
 
   return (
     <section className="result-comparison-section">
       <h4>Comparação entre prescrição e execução</h4>
-      <ul className="result-comparison-list">
-        {labeledEntries.map(([metric, values, label]) => {
-          const prescribed = formatMetricValue(metric, values.prescribed)
-          const executed = formatMetricValue(metric, values.executed)
-          const difference = formatMetricValue(metric, values.difference)
-          const canCompareValues = typeof values.prescribed === 'number' &&
-            Number.isFinite(values.prescribed) &&
-            typeof values.executed === 'number' &&
-            Number.isFinite(values.executed)
-          const outcome = canCompareValues
-            ? values.executed < values.prescribed
+      {entries.length === 0 ? (
+        <p className="result-comparison-empty">Não foi possível comparar os valores.</p>
+      ) : (
+        <ul className="result-comparison-list">
+          {entries.map(({ metric, label, prescribed, executed, difference }) => {
+            const formattedDifference = formatMetricValue(metric, difference)
+            const outcome = executed < prescribed
               ? { label: 'Abaixo do prescrito', className: 'is-different' }
-              : values.executed > values.prescribed
+              : executed > prescribed
                 ? { label: 'Acima do prescrito', className: 'is-different' }
                 : { label: 'Conforme o prescrito', className: 'is-equal' }
-            : null
 
-          return (
-            <li className="result-comparison-card" key={metric}>
-              <h5>{label}</h5>
-              <div className="result-comparison-values">
-                {prescribed !== null && (
+            return (
+              <li className="result-comparison-card" key={metric}>
+                <h5>{label}</h5>
+                <div className="result-comparison-values">
                   <div>
                     <span>Prescrito</span>
-                    <strong>{prescribed}</strong>
+                    <strong>{formatMetricValue(metric, prescribed)}</strong>
                   </div>
-                )}
-                {executed !== null && (
                   <div>
                     <span>Executado</span>
-                    <strong>{executed}</strong>
+                    <strong>{formatMetricValue(metric, executed)}</strong>
                   </div>
+                </div>
+                {formattedDifference !== null && (
+                  <p className="result-comparison-difference">
+                    <strong>Diferença:</strong> {formattedDifference}.
+                  </p>
                 )}
-              </div>
-              {difference !== null && (
-                <p className="result-comparison-difference">
-                  <strong>Diferença:</strong> {difference}.
-                </p>
-              )}
-              {outcome && (
                 <span className={`result-comparison-outcome ${outcome.className}`}>
                   {outcome.label}
                 </span>
-              )}
-            </li>
-          )
-        })}
-      </ul>
+              </li>
+            )
+          })}
+        </ul>
+      )}
     </section>
   )
 }
@@ -289,7 +294,11 @@ function ExerciseResult({ activity, index, name }) {
         />
       </div>
 
-      <ActivityComparison comparison={activity.comparison} />
+      <ActivityComparison
+        prescribedValues={activity.prescribed}
+        executedValues={activity.execution?.values}
+        comparison={activity.comparison}
+      />
       <ActivityTimes timeTracking={activity.timeTracking} />
       <ActivityObservations observations={activity.observations} />
     </li>

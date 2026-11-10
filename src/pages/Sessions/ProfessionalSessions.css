@@ -425,6 +425,19 @@
   font-weight: var(--font-weight-semibold);
 }
 
+.result-values-empty,
+.result-comparison-empty {
+  margin: var(--spacing-sm) 0 0;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.result-comparison-empty {
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  background: var(--color-background);
+}
+
 .result-comparison-section,
 .result-times-section {
   display: grid;
