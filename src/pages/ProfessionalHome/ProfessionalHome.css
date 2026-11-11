@@ -35,6 +35,8 @@
     line-height: 1.08
 }
 
+.professional-home__date { margin: .55rem 0 0; color: #78867f; font-size: .9rem }
+
 .professional-home__actions {
     display: flex;
     align-items: center;
@@ -54,6 +56,19 @@
     font-size: 1.35rem;
     position: relative
 }
+
+.profile-menu { position: relative }
+.profile-menu summary { list-style: none; cursor: pointer; user-select: none }
+.profile-menu summary::-webkit-details-marker { display: none }
+.profile-menu__chevron { position: absolute; right: -.08rem; bottom: -.08rem; width: 1.15rem; height: 1.15rem; display: grid; place-items: center; border: 2px solid #f4f7f5; border-radius: 50%; background: #fff; color: #527464; font-size: .8rem; line-height: 1 }
+.profile-menu__panel { position: absolute; z-index: 20; top: calc(100% + .65rem); right: 0; width: min(17rem, calc(100vw - 2rem)); padding: .55rem; border: 1px solid #dce6e1; border-radius: 1rem; background: #fff; box-shadow: 0 14px 36px #152d2120; animation: profile-menu-in .16s ease-out }
+.profile-menu__name,.profile-menu__email { display: block; overflow: hidden; padding: .35rem .55rem; text-overflow: ellipsis; white-space: nowrap }
+.profile-menu__name { color: #20372e; font-size: .9rem; font-weight: 700 }
+.profile-menu__email { padding-top: 0; color: #839089; font-size: .76rem }
+.profile-menu__panel button { width: 100%; min-height: 2.65rem; margin-top: .4rem; padding: 0 .6rem; display: flex; align-items: center; gap: .65rem; border: 0; border-top: 1px solid #edf1ee; border-radius: .55rem; background: transparent; color: #9a443e; text-align: left; font: inherit; font-size: .85rem; font-weight: 650; cursor: pointer }
+.profile-menu__panel button:hover { background: #fff3f1 }
+.profile-menu__panel button svg { width: 1.1rem; height: 1.1rem; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round }
+@keyframes profile-menu-in { from { opacity: 0; transform: translateY(-4px) } to { opacity: 1; transform: translateY(0) } }
 
 .notification-button {
     cursor: pointer
@@ -97,14 +112,14 @@
 
 .stat-card {
     position: relative;
-    min-height: 145px;
-    padding: 1.35rem 1.4rem;
+    min-height: 208px;
+    padding: 1.15rem 1.25rem;
     border: 1px solid #dce6e1;
     border-radius: 1.2rem;
     background: #fff;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     overflow: hidden;
     box-shadow: 0 6px 24px #152d2110
 }
@@ -112,22 +127,28 @@
 .stat-card:after {
     content: "";
     position: absolute;
-    width: 90px;
-    height: 90px;
+    width: 72px;
+    height: 72px;
     border-radius: 50%;
-    right: -24px;
-    top: -24px;
+    right: -20px;
+    top: -20px;
     background: #eef8f3
 }
 
 .stat-card__icon {
-    position: absolute;
-    right: 1.1rem;
-    bottom: 1.05rem;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: .75rem;
+    display: grid;
+    place-items: center;
+    background: #e8f5ef;
     color: #208b70;
     font-size: 1.35rem;
     z-index: 1
 }
+
+.stat-card__top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.05rem }
+.stat-card__tag { position: relative; z-index: 1; color: #718078; font-size: .62rem; font-weight: 750; letter-spacing: .07em }
 
 .stat-card strong {
     font-size: 2.4rem;
@@ -136,14 +157,17 @@
     letter-spacing: -.04em
 }
 
-.stat-card>span:last-child {
-    margin-top: .65rem;
+.stat-card__label {
+    margin-top: .45rem;
     color: #78867f;
-    font-size: .75rem;
+    font-size: .76rem;
     font-weight: 700;
-    letter-spacing: .06em;
-    text-transform: uppercase
+    letter-spacing: .015em
 }
+
+.stat-card p { position: relative; z-index: 1; min-height: 2.35em; margin: .65rem 0 .85rem; color: #839089; font-size: .76rem; line-height: 1.45 }
+.stat-card__track { height: .32rem; margin-top: auto; overflow: hidden; border-radius: 99px; background: #edf2ef }
+.stat-card__track i { height: 100%; display: block; border-radius: inherit; background: #31a47e; transition: width .5s ease }
 
 .stat-card--live .stat-card__icon {
     color: #16876a
@@ -156,6 +180,7 @@
 .stat-card--done .stat-card__icon {
     color: #568f4f
 }
+.stat-card--done .stat-card__track i { background: #6caa5c }
 
 .stat-card--pending:after {
     background: #fff5e5
@@ -164,6 +189,8 @@
 .stat-card--pending .stat-card__icon {
     color: #b9822e
 }
+.stat-card--pending .stat-card__icon { background: #fff2dc }
+.stat-card--pending .stat-card__track i { background: #d49a3c }
 
 .dashboard-section {
     margin: 0 0 2.3rem
@@ -376,25 +403,23 @@
     }
 
     .stat-card {
-        min-height: 120px;
-        padding: .85rem
+        min-height: 190px;
+        padding: .8rem .72rem
     }
 
     .stat-card strong {
-        font-size: 1.8rem
+        font-size: 1.65rem
     }
 
-    .stat-card>span:last-child {
-        font-size: .59rem;
-        letter-spacing: .02em;
+    .stat-card__label {
+        font-size: .63rem;
         line-height: 1.2
     }
 
-    .stat-card__icon {
-        right: .65rem;
-        bottom: .7rem;
-        font-size: 1rem
-    }
+    .stat-card__top { margin-bottom: .8rem }
+    .stat-card__icon { width: 1.9rem; height: 1.9rem; font-size: 1rem }
+    .stat-card__tag { font-size: .5rem; letter-spacing: .02em }
+    .stat-card p { font-size: .65rem; min-height: 3.2em; margin: .5rem 0 .7rem }
 
     .dashboard-section {
         margin-bottom: 1.8rem
@@ -443,6 +468,11 @@
     .professional-home {
         padding: 2rem 2.5rem 2rem 16rem
     }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .profile-menu__panel { animation: none }
+    .stat-card__track i { transition: none }
 }
 
 @media(max-width:390px) {

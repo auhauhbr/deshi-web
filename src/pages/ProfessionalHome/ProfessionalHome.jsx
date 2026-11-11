@@ -28,6 +28,11 @@ function ProfessionalHomePage() {
   const user = JSON.parse(localStorage.getItem('deshi.user') || '{}')
   const [dashboard, setDashboard] = useState(null)
   const [error, setError] = useState('')
+  const trainingCount = dashboard?.counts?.training ?? 0
+  const completedCount = dashboard?.counts?.completed ?? 0
+  const notStartedCount = dashboard?.counts?.notStarted ?? 0
+  const trackedCount = trainingCount + completedCount + notStartedCount
+  const completionRate = trackedCount ? Math.round((completedCount / trackedCount) * 100) : 0
 
   useEffect(() => {
     api.get('/professional/home').then(({ data }) => setDashboard(data)).catch(() => {
@@ -43,15 +48,15 @@ function ProfessionalHomePage() {
     <ProfessionalNavigation />
     <div className="professional-home__container">
       <header className="professional-home__header">
-        <div><p className="professional-home__eyebrow">PAINEL DO PROFISSIONAL</p><h1>{getGreeting()}, {user.name?.trim().split(/\s+/)[0] || 'profissional'}</h1></div>
-        <div className="professional-home__actions"><button className="notification-button" aria-label="Notificações" title="Notificações (em breve)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" /></svg><i /></button><span className="professional-home__avatar" aria-label={user.name}>{initials(user.name)}</span></div>
+        <div><p className="professional-home__eyebrow">PAINEL DO PROFISSIONAL</p><h1>{getGreeting()}, {user.name?.trim().split(/\s+/)[0] || 'profissional'}</h1><p className="professional-home__date">Aqui está o resumo da sua equipe hoje.</p></div>
+        <div className="professional-home__actions"><button className="notification-button" aria-label="Notificações" title="Notificações (em breve)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" /></svg><i /></button><details className="profile-menu"><summary className="professional-home__avatar" aria-label={`Abrir opções de ${user.name || 'usuário'}`} title="Opções da conta">{initials(user.name)}<span className="profile-menu__chevron" aria-hidden="true">⌄</span></summary><div className="profile-menu__panel"><span className="profile-menu__name">{user.name || 'Profissional'}</span>{user.email && <span className="profile-menu__email">{user.email}</span>}<button type="button" onClick={handleLogout}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 17l5-5-5-5M15 12H3m9-7h7a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-7" /></svg>Sair da conta</button></div></details></div>
       </header>
 
       {error && <p className="professional-home__error" role="alert">{error}</p>}
       <section className="professional-home__stats" aria-label="Resumo dos treinos de hoje">
-        <article className="stat-card stat-card--live"><span className="stat-card__icon">{icons.running}</span><strong>{dashboard?.counts?.training ?? '—'}</strong><span>Treinando agora</span></article>
-        <article className="stat-card stat-card--done"><span className="stat-card__icon">{icons.check}</span><strong>{dashboard?.counts?.completed ?? '—'}</strong><span>Concluíram hoje</span></article>
-        <article className="stat-card stat-card--pending"><span className="stat-card__icon">{icons.clock}</span><strong>{dashboard?.counts?.notStarted ?? '—'}</strong><span>Ainda não treinaram</span></article>
+        <article className="stat-card stat-card--live"><div className="stat-card__top"><span className="stat-card__icon">{icons.running}</span><span className="stat-card__tag">AO VIVO</span></div><strong>{dashboard?.counts?.training ?? '—'}</strong><span className="stat-card__label">Treinando agora</span><p>{dashboard?.counts?.training ? 'Acompanhe o andamento dos treinos ativos.' : 'Nenhum treino em andamento neste momento.'}</p><div className="stat-card__track"><i style={{ width: `${trackedCount ? (trainingCount / trackedCount) * 100 : 0}%` }} /></div></article>
+        <article className="stat-card stat-card--done"><div className="stat-card__top"><span className="stat-card__icon">{icons.check}</span><span className="stat-card__tag">{dashboard ? `${completionRate}% DA EQUIPE` : 'HOJE'}</span></div><strong>{dashboard?.counts?.completed ?? '—'}</strong><span className="stat-card__label">Treinos concluídos</span><p>{dashboard ? `De ${trackedCount} aluno${trackedCount === 1 ? '' : 's'} acompanhados hoje.` : 'Resumo das conclusões de hoje.'}</p><div className="stat-card__track"><i style={{ width: `${completionRate}%` }} /></div></article>
+        <article className="stat-card stat-card--pending"><div className="stat-card__top"><span className="stat-card__icon">{icons.clock}</span><span className="stat-card__tag">PENDENTES</span></div><strong>{dashboard?.counts?.notStarted ?? '—'}</strong><span className="stat-card__label">Sem treino hoje</span><p>{dashboard?.counts?.notStarted ? 'Alunos que ainda podem iniciar a rotina.' : 'Sua equipe está em dia com a rotina.'}</p><div className="stat-card__track"><i style={{ width: `${trackedCount ? (notStartedCount / trackedCount) * 100 : 0}%` }} /></div></article>
       </section>
 
       <section className="dashboard-section">
@@ -71,7 +76,7 @@ function ProfessionalHomePage() {
           </article>) : <p className="empty-state">As atividades dos seus alunos aparecerão aqui.</p>}
         </div>
       </section>
-      <footer className="professional-home__footer"><span>DESHI · Seu acompanhamento, em um só lugar</span><button onClick={handleLogout}>Sair da conta</button></footer>
+      <footer className="professional-home__footer"><span>DESHI · Seu acompanhamento, em um só lugar</span></footer>
     </div>
   </main>
 }
