@@ -1,7 +1,7 @@
 import { api } from './api.js'
 
 export async function getStudentPrograms() {
-  const { data } = await api.get('/programs')
+  const { data } = await api.get('/programas')
 
   return data
 }
