@@ -1,5 +1,5 @@
-import { lazy, Suspense, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { lazy, Suspense, useEffect, useRef, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { logoutUser } from '../../services/authService.js'
 import StudentBottomNav from '../../components/StudentBottomNav.jsx'
 import BrandLogo from '../../components/BrandLogo.jsx'
@@ -8,8 +8,36 @@ import './Home.css'
 const FitnessScene = lazy(() => import('../../components/FitnessScene.jsx'))
 
 function HomePage() {
+  const location = useLocation()
   const navigate = useNavigate()
+  const videoRef = useRef(null)
   const [isLoggingOut, setIsLoggingOut] = useState(false)
+  const [isLoginRevealVisible, setIsLoginRevealVisible] = useState(() => (
+    Boolean(location.state?.playLoginReveal)
+    && !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  ))
+
+  useEffect(() => {
+    if (!location.state?.playLoginReveal) return
+    navigate('/home', {
+      replace: true,
+      state: { profile: location.state.profile },
+    })
+  }, [location.state, navigate])
+
+  useEffect(() => {
+    if (!isLoginRevealVisible) return undefined
+
+    function skipOnEscape(event) {
+      if (event.key === 'Escape') setIsLoginRevealVisible(false)
+    }
+
+    window.addEventListener('keydown', skipOnEscape)
+    const playPromise = videoRef.current?.play()
+    playPromise?.catch(() => setIsLoginRevealVisible(false))
+
+    return () => window.removeEventListener('keydown', skipOnEscape)
+  }, [isLoginRevealVisible])
 
   async function handleLogout() {
     setIsLoggingOut(true)
@@ -51,6 +79,23 @@ function HomePage() {
         </div>
       </section>
       <StudentBottomNav active="home" />
+      {isLoginRevealVisible && (
+        <div className="login-transition-overlay" role="status" aria-label="Animação de entrada do Deshi">
+          <div className="login-transition-crop">
+            <video
+              ref={videoRef}
+              className="login-transition-video"
+              src="/login-transition.mp4"
+              autoPlay
+              muted
+              playsInline
+              preload="auto"
+              onEnded={() => setIsLoginRevealVisible(false)}
+              onError={() => setIsLoginRevealVisible(false)}
+            />
+          </div>
+        </div>
+      )}
     </main>
   )
 }

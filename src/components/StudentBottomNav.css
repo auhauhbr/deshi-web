@@ -50,7 +50,6 @@
   border: .32rem solid #fff;
   border-radius: 50%;
   background: linear-gradient(145deg, #00d9a0, #00a879);
-  box-shadow: 0 6px 18px rgb(0 159 117 / 38%);
   content: '';
   transform: translate(-50%, -50%);
 }

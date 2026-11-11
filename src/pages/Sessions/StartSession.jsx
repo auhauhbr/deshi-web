@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import {
   getStudentPrograms,
+  getStudentSessions,
   startSession
 } from '../../services/sessionService.js'
 import { getApiErrorMessage } from '../../services/authService.js'
@@ -13,28 +14,58 @@ function StartSession() {
   const navigate = useNavigate()
 
   const [programs, setPrograms] = useState([])
+  const [completedProgramsCount, setCompletedProgramsCount] = useState(0)
   const [selectedProgram, setSelectedProgram] = useState('')
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [message, setMessage] = useState('')
+  const [historyWarning, setHistoryWarning] = useState('')
 
   useEffect(() => {
+    let isCurrent = true
+
     async function loadPrograms() {
       try {
         setIsLoading(true)
         setMessage('')
+        setHistoryWarning('')
 
-        const data = await getStudentPrograms()
-        setPrograms(data)
+        const [data, history] = await Promise.all([
+          getStudentPrograms(),
+          getStudentSessions().catch((error) => {
+            if (isCurrent) {
+              setHistoryWarning(getApiErrorMessage(error, 'Não foi possível verificar as sessões concluídas.'))
+            }
+            return null
+          }),
+        ])
 
+        if (!isCurrent) return
+
+        if (!history) {
+          setPrograms(data)
+          setCompletedProgramsCount(0)
+          return
+        }
+
+        const completedProgramIds = new Set(
+          history
+            .filter((session) => session.status === 'COMPLETED' && session.programId != null)
+            .map((session) => String(session.programId)),
+        )
+        const availablePrograms = data.filter((program) => !completedProgramIds.has(String(program.id)))
+
+        setPrograms(availablePrograms)
+        setCompletedProgramsCount(data.length - availablePrograms.length)
       } catch (error) {
-        setMessage(getApiErrorMessage(error, 'Não foi possível carregar seus programas.'))
+        if (isCurrent) setMessage(getApiErrorMessage(error, 'Não foi possível carregar seus programas.'))
       } finally {
-        setIsLoading(false)
+        if (isCurrent) setIsLoading(false)
       }
     }
 
     loadPrograms()
+    return () => { isCurrent = false }
   }, [])
 
 async function handleStartSession(event) {
@@ -122,12 +153,23 @@ async function handleStartSession(event) {
 
           {!isLoading && programs.length === 0 && (
             <div className="session-empty">
-              <span className="empty-icon">◎</span>
-              <h3>Nenhum programa disponível</h3>
-              <p>
-                Você ainda não possui programas disponíveis.
-                Entre em contato com seu profissional responsável.
-              </p>
+              {completedProgramsCount > 0 ? (
+                <>
+                  <span className="empty-icon">✓</span>
+                  <h3>Todos os programas foram concluídos</h3>
+                  <p>Os programas com sessões concluídas não aparecem mais nesta lista.</p>
+                  <Link className="completed-program-link" to="/sessions/completed">Ver sessões concluídas <span aria-hidden="true">→</span></Link>
+                </>
+              ) : (
+                <>
+                  <span className="empty-icon">◎</span>
+                  <h3>Nenhum programa disponível</h3>
+                  <p>
+                    Você ainda não possui programas disponíveis.
+                    Entre em contato com seu profissional responsável.
+                  </p>
+                </>
+              )}
             </div>
           )}
 
@@ -176,6 +218,12 @@ async function handleStartSession(event) {
           {message && (
             <p className="session-message" role="alert">
               {message}
+            </p>
+          )}
+
+          {historyWarning && (
+            <p className="session-history-warning" role="status">
+              {historyWarning} Programas concluídos podem continuar aparecendo.
             </p>
           )}
 
