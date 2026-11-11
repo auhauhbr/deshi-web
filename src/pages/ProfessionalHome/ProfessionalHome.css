@@ -1,0 +1,464 @@
+.professional-home {
+    min-height: 100svh;
+        padding: clamp(1.25rem, 4vw, 3.5rem) 1rem calc(5.8rem + env(safe-area-inset-bottom));
+    background: #f4f7f5;
+    color: #18251f;
+    font-family: var(--font-family-base)
+}
+
+.professional-home__container {
+    width: min(100%, 920px);
+    margin: 0 auto
+}
+
+.professional-home__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2rem
+}
+
+.professional-home__eyebrow,
+.section-kicker {
+    margin: 0 0 .5rem;
+    color: #14856c;
+    font-weight: 700;
+    font-size: .72rem;
+    letter-spacing: .12em
+}
+
+.professional-home__header h1 {
+    margin: 0;
+    font-size: clamp(1.75rem, 5vw, 2.75rem);
+    letter-spacing: -.045em;
+    line-height: 1.08
+}
+
+.professional-home__actions {
+    display: flex;
+    align-items: center;
+    gap: .9rem
+}
+
+.notification-button,
+.professional-home__avatar {
+    width: 3.15rem;
+    height: 3.15rem;
+    border: 1px solid #dbe6e0;
+    border-radius: 50%;
+    background: #fff;
+    display: grid;
+    place-items: center;
+    color: #20372e;
+    font-size: 1.35rem;
+    position: relative
+}
+
+.notification-button {
+    cursor: pointer
+}
+
+.notification-button svg {
+    width: 1.3rem;
+    height: 1.3rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round
+}
+
+.notification-button i {
+    position: absolute;
+    right: .58rem;
+    top: .52rem;
+    width: .48rem;
+    height: .48rem;
+    border-radius: 50%;
+    background: #e2a743;
+    border: 2px solid #fff
+}
+
+.professional-home__avatar {
+    border: 0;
+    background: #cfe9df;
+    color: #17644f;
+    font-weight: 700;
+    font-size: .9rem
+}
+
+.professional-home__stats {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+    margin-bottom: 2.4rem
+}
+
+.stat-card {
+    position: relative;
+    min-height: 145px;
+    padding: 1.35rem 1.4rem;
+    border: 1px solid #dce6e1;
+    border-radius: 1.2rem;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow: hidden;
+    box-shadow: 0 6px 24px #152d2110
+}
+
+.stat-card:after {
+    content: "";
+    position: absolute;
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    right: -24px;
+    top: -24px;
+    background: #eef8f3
+}
+
+.stat-card__icon {
+    position: absolute;
+    right: 1.1rem;
+    bottom: 1.05rem;
+    color: #208b70;
+    font-size: 1.35rem;
+    z-index: 1
+}
+
+.stat-card strong {
+    font-size: 2.4rem;
+    line-height: 1;
+    font-weight: 700;
+    letter-spacing: -.04em
+}
+
+.stat-card>span:last-child {
+    margin-top: .65rem;
+    color: #78867f;
+    font-size: .75rem;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase
+}
+
+.stat-card--live .stat-card__icon {
+    color: #16876a
+}
+
+.stat-card--done:after {
+    background: #edf7e9
+}
+
+.stat-card--done .stat-card__icon {
+    color: #568f4f
+}
+
+.stat-card--pending:after {
+    background: #fff5e5
+}
+
+.stat-card--pending .stat-card__icon {
+    color: #b9822e
+}
+
+.dashboard-section {
+    margin: 0 0 2.3rem
+}
+
+.dashboard-section__heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: end;
+    margin: 0 0 .85rem
+}
+
+.dashboard-section__heading h2 {
+    margin: 0;
+    font-size: 1.35rem;
+    letter-spacing: -.025em
+}
+
+.section-kicker {
+    font-size: .65rem;
+    margin-bottom: .25rem
+}
+
+.section-count {
+    padding: .42rem .75rem;
+    border-radius: 99px;
+    background: #e4f3ec;
+    color: #237b61;
+    font-size: .76rem;
+    font-weight: 700
+}
+
+.student-list,
+.activity-list {
+    border: 1px solid #dce6e1;
+    border-radius: 1.2rem;
+    background: #fff;
+    overflow: hidden;
+    box-shadow: 0 6px 24px #152d2108
+}
+
+.student-row,
+.activity-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.2rem;
+    min-height: 88px
+}
+
+.student-row+.student-row,
+.activity-row+.activity-row {
+    border-top: 1px solid #e8eeeb
+}
+
+.student-avatar {
+    flex: none;
+    width: 3.1rem;
+    height: 3.1rem;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: #d8ece4;
+    color: #225c49;
+    font-size: .82rem;
+    font-weight: 700
+}
+
+.student-row:nth-child(even) .student-avatar {
+    background: #e7ddf5;
+    color: #644d91
+}
+
+.student-row__main,
+.activity-row__main {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: .28rem;
+    flex: 1
+}
+
+.student-row__main strong,
+.activity-row__main strong {
+    font-size: 1rem
+}
+
+.student-row__main span,
+.activity-row__main span {
+    color: #7a8881;
+    font-size: .88rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis
+}
+
+.student-row__status {
+    display: flex;
+    align-items: flex-end;
+    flex-direction: column;
+    gap: .34rem;
+    white-space: nowrap
+}
+
+.student-row__status strong {
+    font-size: .83rem;
+    color: #187e65
+}
+
+.student-row__status span {
+    display: flex;
+    align-items: center;
+    gap: .35rem;
+    padding: .32rem .65rem;
+    border-radius: 99px;
+    background: #e8f6ef;
+    color: #187b60;
+    font-size: .7rem;
+    font-weight: 700
+}
+
+.student-row__status i {
+    width: .4rem;
+    height: .4rem;
+    border-radius: 50%;
+    background: #26a875
+}
+
+.activity-row {
+    min-height: 77px
+}
+
+.activity-icon {
+    width: 2.7rem;
+    height: 2.7rem;
+    flex: none;
+    display: grid;
+    place-items: center;
+    border-radius: .85rem;
+    background: #f1f5f3;
+    color: #56816f;
+    font-size: 1.1rem;
+    font-weight: 700
+}
+
+.activity-icon--completed {
+    background: #e9f5eb;
+    color: #45844b
+}
+
+.activity-row time {
+    font-size: .8rem;
+    color: #8a9690;
+    white-space: nowrap
+}
+
+.empty-state {
+    margin: 0;
+    padding: 1.5rem;
+    color: #839089;
+    text-align: center;
+    font-size: .9rem
+}
+
+.professional-home__error {
+    margin: 0 0 1rem;
+    color: #a63c36
+}
+
+.professional-home__footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1.2rem;
+    border-top: 1px solid #dce6e1;
+    color: #8a9690;
+    font-size: .78rem
+}
+
+.professional-home__footer button {
+    border: 0;
+    background: none;
+    color: #51806c;
+    font: inherit;
+    cursor: pointer
+}
+
+@media(max-width:620px) {
+    .professional-home {
+        padding: 1.4rem 1rem calc(5.8rem + env(safe-area-inset-bottom))
+    }
+
+    .professional-home__header {
+        margin-bottom: 1.5rem
+    }
+
+    .professional-home__actions {
+        gap: .5rem
+    }
+
+    .notification-button,
+    .professional-home__avatar {
+        width: 2.7rem;
+        height: 2.7rem
+    }
+
+    .professional-home__stats {
+        gap: .55rem;
+        margin-bottom: 1.9rem
+    }
+
+    .stat-card {
+        min-height: 120px;
+        padding: .85rem
+    }
+
+    .stat-card strong {
+        font-size: 1.8rem
+    }
+
+    .stat-card>span:last-child {
+        font-size: .59rem;
+        letter-spacing: .02em;
+        line-height: 1.2
+    }
+
+    .stat-card__icon {
+        right: .65rem;
+        bottom: .7rem;
+        font-size: 1rem
+    }
+
+    .dashboard-section {
+        margin-bottom: 1.8rem
+    }
+
+    .student-row,
+    .activity-row {
+        gap: .7rem;
+        padding: .9rem .8rem
+    }
+
+    .student-avatar {
+        width: 2.65rem;
+        height: 2.65rem
+    }
+
+    .student-row__main strong,
+    .activity-row__main strong {
+        font-size: .88rem
+    }
+
+    .student-row__main span,
+    .activity-row__main span {
+        font-size: .74rem
+    }
+
+    .student-row__status span {
+        padding: .28rem .48rem
+    }
+
+    .activity-row time {
+        font-size: .7rem
+    }
+
+    .activity-icon {
+        width: 2.35rem;
+        height: 2.35rem
+    }
+
+    .professional-home__footer {
+        font-size: .7rem
+    }
+}
+
+@media(min-width:800px) {
+    .professional-home {
+        padding: 2rem 2.5rem 2rem 16rem
+    }
+}
+
+@media(max-width:390px) {
+    .professional-home__header h1 {
+        font-size: 1.6rem
+    }
+
+    .stat-card {
+        padding: .7rem
+    }
+
+    .stat-card strong {
+        font-size: 1.55rem
+    }
+
+    .student-row__status strong {
+        font-size: .75rem
+    }
+}

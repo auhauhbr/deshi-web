@@ -3,7 +3,7 @@ import axios from 'axios'
 const TOKEN_STORAGE_KEY = 'deshi.token'
 
 export const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: import.meta.env.VITE_API_URL || `${window.location.protocol}//${window.location.hostname}:3030`,
   timeout: 10000,
   headers: { 'Content-Type': 'application/json' },
 })
