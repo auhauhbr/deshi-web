@@ -9,6 +9,7 @@ import SessionDetails from './pages/Sessions/SessionDetails.jsx'
 import RegisterExecution from './pages/Sessions/RegisterExecution.jsx'
 import ProfessionalSessions from './pages/Sessions/ProfessionalSessions.jsx'
 import SessionResult from './pages/Sessions/SessionResult.jsx'
+import StudentEvolution from './pages/Sessions/StudentEvolution.jsx'
 
 function AppRoutes() {
   return (
@@ -23,6 +24,7 @@ function AppRoutes() {
       <Route path="/sessions/:sessionId/executions/:activityId" element={<ProtectedRoute><RegisterExecution /></ProtectedRoute>} />
       <Route path="/professional/sessions" element={<ProtectedRoute><ProfessionalSessions /></ProtectedRoute>} />
       <Route path="/professional/sessions/:sessionId/result" element={<ProtectedRoute><SessionResult /></ProtectedRoute>} />
+      <Route path="/professional/evolution" element={<ProtectedRoute><StudentEvolution /></ProtectedRoute>} />
     </Routes>
   )
 }

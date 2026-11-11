@@ -105,6 +105,13 @@ function ProfessionalSessions() {
           >
             {isLoggingOut ? 'Saindo...' : 'Sair'}
           </button>
+          <button
+            type="button"
+            className="professional-header-action"
+            onClick={() => navigate('/professional/evolution')}
+          >
+            Evolução do aluno
+          </button>
         </div>
       </header>
 
