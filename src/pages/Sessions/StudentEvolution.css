@@ -1,0 +1,240 @@
+.student-evolution-page .session-details-content {
+  width: min(100% - 2rem, 1000px);
+  margin: 0 auto;
+  padding: clamp(2.5rem, 6vw, 5rem) 0;
+}
+
+.evolution-panel {
+  display: grid;
+  gap: var(--spacing-xl);
+}
+
+.evolution-controls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr));
+  gap: var(--spacing-md);
+}
+
+.evolution-field {
+  display: grid;
+  gap: var(--spacing-xs);
+}
+
+.evolution-field label {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
+.evolution-field select {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: .5rem .75rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+}
+
+.evolution-field select:focus-visible {
+  outline: 3px solid rgb(0 217 160 / 25%);
+  outline-offset: 2px;
+}
+
+.evolution-field select:disabled {
+  background: var(--color-surface-secondary);
+  cursor: not-allowed;
+}
+
+.evolution-results {
+  display: grid;
+  gap: var(--spacing-lg);
+}
+
+.evolution-student-heading {
+  padding-bottom: var(--spacing-md);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.evolution-student-heading h2 {
+  margin: 0;
+  font-size: var(--font-size-xl);
+}
+
+.evolution-student-heading p {
+  margin: var(--spacing-xs) 0 0;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.evolution-message {
+  margin: 0;
+  padding: var(--spacing-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-background);
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+.evolution-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+  border-color: #efc3c3;
+  background: #fff7f7;
+  color: var(--color-error);
+}
+
+.evolution-error p {
+  margin: 0;
+}
+
+.evolution-groups {
+  display: grid;
+  gap: var(--spacing-lg);
+}
+
+.evolution-group {
+  min-width: 0;
+  display: grid;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.evolution-group-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+.evolution-group-heading h3 {
+  margin: 0;
+  font-size: var(--font-size-lg);
+}
+
+.evolution-modality {
+  margin: var(--spacing-xs) 0 0;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.evolution-metric-badge {
+  width: fit-content;
+  padding: .35rem .7rem;
+  border-radius: var(--radius-full);
+  background: var(--color-primary-light);
+  color: var(--color-primary-active);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+}
+
+.evolution-insufficient {
+  margin: 0;
+  padding: var(--spacing-md);
+  border-left: 3px solid var(--color-info);
+  background: var(--color-background);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  line-height: 1.5;
+}
+
+.evolution-point-list {
+  display: grid;
+  gap: var(--spacing-sm);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.evolution-point-list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs) var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-sm);
+  background: var(--color-background);
+}
+
+.evolution-point-list time {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.evolution-point-list strong {
+  color: var(--color-text);
+}
+
+.evolution-chart {
+  margin: 0;
+  padding: var(--spacing-sm) 0 0;
+}
+
+.evolution-chart svg {
+  display: block;
+  width: 100%;
+  min-height: 12rem;
+  overflow: visible;
+}
+
+.evolution-chart svg text {
+  fill: var(--color-text-secondary);
+  font-family: var(--font-family-base);
+  font-size: 11px;
+}
+
+.evolution-chart-axis {
+  stroke: var(--color-border);
+  stroke-width: 1.5;
+}
+
+.evolution-chart-line {
+  fill: none;
+  stroke: var(--color-primary-active);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 3;
+}
+
+.evolution-chart circle {
+  fill: var(--color-primary-active);
+  stroke: var(--color-surface);
+  stroke-width: 2;
+}
+
+.evolution-chart figcaption {
+  margin-top: var(--spacing-xs);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+@media (max-width: 600px) {
+  .student-evolution-page .session-header {
+    gap: var(--spacing-sm);
+    padding: 0 var(--spacing-md);
+  }
+
+  .student-evolution-page .professional-header-action {
+    padding: 0 var(--spacing-sm);
+    font-size: var(--font-size-sm);
+  }
+
+  .evolution-panel,
+  .evolution-group {
+    padding: var(--spacing-md);
+  }
+
+  .evolution-chart svg {
+    min-height: 10rem;
+  }
+}
