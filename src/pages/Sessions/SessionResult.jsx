@@ -60,6 +60,13 @@ function formatDateTime(value) {
   }).format(date)
 }
 
+function formatProgramReference(value) {
+  if (typeof value !== 'string' && typeof value !== 'number') return null
+
+  const reference = String(value).trim()
+  return reference || null
+}
+
 function formatDuration(milliseconds) {
   if (typeof milliseconds !== 'number' || !Number.isFinite(milliseconds) || milliseconds < 0) {
     return null
@@ -386,6 +393,8 @@ function SessionResult() {
   const finishedAt = formatDateTime(session?.finishedAt)
   const duration = formatDuration(session?.durationMs)
   const sessionStatus = sessionStatusLabels[session?.status] || null
+  const programId = formatProgramReference(session?.programId)
+  const programVersion = formatProgramReference(session?.programVersion)
 
   return (
     <main className="start-session-page session-result-page">
@@ -441,22 +450,30 @@ function SessionResult() {
 
             <section className="session-result-panel" aria-label="Dados da sessão">
               <div className="result-session-summary">
-                {(startedAt || finishedAt) && (
-                  <dl className="result-session-dates">
-                    {startedAt && (
-                      <div>
-                        <dt>Iniciada em</dt>
-                        <dd>{startedAt}</dd>
-                      </div>
-                    )}
-                    {finishedAt && (
-                      <div>
-                        <dt>Encerrada em</dt>
-                        <dd>{finishedAt}</dd>
-                      </div>
-                    )}
-                  </dl>
-                )}
+                <dl className="result-session-dates">
+                  {startedAt && (
+                    <div>
+                      <dt>Iniciada em</dt>
+                      <dd>{startedAt}</dd>
+                    </div>
+                  )}
+                  {finishedAt && (
+                    <div>
+                      <dt>Encerrada em</dt>
+                      <dd>{finishedAt}</dd>
+                    </div>
+                  )}
+                  <div>
+                    <dt>Programa utilizado</dt>
+                    <dd>
+                      {programId ? `Programa ${programId}` : 'Referência não informada'}
+                      {' · '}
+                      {programVersion
+                        ? `versão ${programVersion}`
+                        : 'versão não informada para esta sessão'}
+                    </dd>
+                  </div>
+                </dl>
                 {duration !== null && (
                   <div className="result-total-duration">
                     <span>Duração total da sessão</span>
