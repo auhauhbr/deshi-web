@@ -12,6 +12,7 @@ import AtividadesPage from './pages/Atividades/Atividades.jsx'
 import NovaAtividadePage from './pages/NovaAtividade/NovaAtividade.jsx'
 import ConfigurarAtividadePage from './pages/ConfigurarAtividade/ConfigurarAtividade.jsx'
 import BibliotecaPage from './pages/Biblioteca/Biblioteca.jsx'
+import ProfessionalProfilePage from './pages/ProfessionalProfile/ProfessionalProfile.jsx'
 
 function AppRoutes() {
   return (
@@ -23,6 +24,7 @@ function AppRoutes() {
       <Route path="/modalidades" element={<ProtectedRoute profile="PROFESSIONAL"><ModalidadesPage /></ProtectedRoute>} />
       <Route path="/atividades" element={<ProtectedRoute profile="PROFESSIONAL"><AtividadesPage /></ProtectedRoute>} />
       <Route path="/biblioteca" element={<ProtectedRoute profile="PROFESSIONAL"><BibliotecaPage /></ProtectedRoute>} />
+      <Route path="/perfil" element={<ProtectedRoute profile="PROFESSIONAL"><ProfessionalProfilePage /></ProtectedRoute>} />
       <Route path="/atividades/nova" element={<ProtectedRoute profile="PROFESSIONAL"><NovaAtividadePage /></ProtectedRoute>} />
       <Route path="/atividades/:id/configurar" element={<ProtectedRoute profile="PROFESSIONAL"><ConfigurarAtividadePage /></ProtectedRoute>} />
       <Route path="/alunos" element={<ProtectedRoute profile="PROFESSIONAL"><StudentsPage /></ProtectedRoute>} />
