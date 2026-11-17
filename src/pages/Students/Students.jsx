@@ -1,8 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import ProfessionalNavigation from '../../components/ProfessionalNavigation.jsx'
 import { api } from '../../services/api.js'
-import { getProfessionalStudentDashboard } from '../../services/studentDashboardService.js'
 import './Students.css'
 
 function initials(name = '') {
@@ -180,107 +179,5 @@ function StudentsPage() {
   </main>
 }
 
-function StudentDetailPage() {
-  const { studentId } = useParams()
-  const navigate = useNavigate()
-  const [dashboard, setDashboard] = useState(null)
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState('overview')
-  const [showAllSessions, setShowAllSessions] = useState(false)
 
-  useEffect(() => {
-    setLoading(true)
-    getProfessionalStudentDashboard(studentId).then((data) => {
-      if (!data.student) setError('Aluno não encontrado ou sem vínculo ativo.')
-      else { setDashboard(data); setError('') }
-    }).catch((requestError) => setError(getErrorMessage(requestError, 'Não foi possível carregar os dados do aluno.'))).finally(() => setLoading(false))
-  }, [studentId])
-
-  const student = dashboard?.student
-  const sessions = dashboard?.sessions || []
-  const programs = dashboard?.programs || []
-  const completedSessions = sessions.filter((session) => session.status === 'COMPLETED')
-  const now = new Date()
-  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
-  const weekStart = new Date(now)
-  weekStart.setHours(0, 0, 0, 0)
-  weekStart.setDate(weekStart.getDate() - ((weekStart.getDay() + 6) % 7))
-  const completedThisMonth = completedSessions.filter((session) => new Date(session.finishedAt || session.startedAt) >= monthStart).length
-  const completedThisWeek = completedSessions.filter((session) => new Date(session.finishedAt || session.startedAt) >= weekStart).length
-  const sessionsToShow = showAllSessions ? sessions : sessions.slice(0, 4)
-  const studentImage = student?.photoUrl || student?.avatarUrl || student?.fotoUrl
-  const studentObjective = student?.objective || student?.objetivo || 'Objetivo não informado'
-  const monthName = new Intl.DateTimeFormat('pt-BR', { month: 'long' }).format(now)
-
-  function formatDate(value, options = { day: '2-digit', month: 'short' }) {
-    if (!value) return 'Data não registrada'
-    return new Intl.DateTimeFormat('pt-BR', options).format(new Date(value)).replace('.', '')
-  }
-
-  function formatDuration(session) {
-    if (session.durationMs != null) return `${Math.max(1, Math.round(session.durationMs / 60000))} min`
-    if (!session.finishedAt) return session.status === 'IN_PROGRESS' ? 'Em andamento' : 'Duração não registrada'
-    const minutes = Math.max(1, Math.round((new Date(session.finishedAt) - new Date(session.startedAt)) / 60000))
-    return `${minutes} min`
-  }
-
-  const metricLabels = { weight: 'Carga', repetitions: 'Repetições', reps: 'Repetições', series: 'Séries', duration: 'Duração', distance: 'Distância' }
-
-  return <main className="students-page student-detail-page">
-    <ProfessionalNavigation />
-    <div className="students-page__container">
-      <header className="student-detail-toolbar"><button className="student-detail-back" type="button" onClick={() => navigate('/alunos')} aria-label="Voltar para alunos">←</button><span>Perfil do aluno</span><span className="student-detail-toolbar__spacer" /></header>
-      {loading ? <p className="students-message">Carregando perfil do aluno…</p> : error ? <p className="students-message students-message--error" role="alert">{error}</p> : <>
-        <section className="student-profile-hero" aria-label="Perfil do aluno">
-          {studentImage ? <img className="student-profile-hero__avatar" src={studentImage} alt={`Foto de ${student.name}`} /> : <span className="student-profile-hero__avatar student-profile-hero__avatar--fallback" aria-hidden="true">{initials(student.name)}</span>}
-          <div className="student-profile-hero__copy"><p className="students-eyebrow">ALUNO VINCULADO</p><h1 className="student-detail-name">{student.name}</h1><p><strong>Objetivo:</strong> {studentObjective}{student.createdAt && <> <span aria-hidden="true">·</span> desde {formatDate(student.createdAt, { month: 'short', year: 'numeric' })}</>}</p></div>
-        </section>
-
-        <div className="student-view-switch" role="tablist" aria-label="Visão do aluno">
-          <button type="button" role="tab" aria-selected={activeTab === 'overview'} className={activeTab === 'overview' ? 'is-active' : ''} onClick={() => setActiveTab('overview')}>Visão geral</button>
-          <button type="button" role="tab" aria-selected={activeTab === 'evolution'} className={activeTab === 'evolution' ? 'is-active' : ''} onClick={() => setActiveTab('evolution')}>Evolução</button>
-        </div>
-
-        {activeTab === 'overview' ? <div role="tabpanel" className="student-detail-content">
-          <section className="student-period-stats" aria-label="Frequência de treinos">
-            <article><strong>{completedThisMonth}</strong><span>treinos em {monthName}</span><small>{completedSessions.length} no histórico total</small></article>
-            <article><strong>{completedThisWeek}</strong><span>nesta semana</span><small>Semana iniciada na segunda</small></article>
-          </section>
-
-          <section className="student-detail-section">
-            <div className="student-detail-section__heading"><div><p className="students-eyebrow">PRESCRIÇÃO</p><h2>Programas de treino</h2></div><span className="student-detail-count">{programs.length}</span></div>
-            <div className="student-program-list">{programs.length ? programs.map((program, index) => <article className="student-program-card" key={program.id}>
-              <span className={`student-program-card__mark student-program-card__mark--${index % 4}`}>{String.fromCharCode(65 + (index % 26))}</span><div className="student-program-card__copy"><strong>{program.nome}</strong><span>{program.atividades?.length || 0} {(program.atividades?.length || 0) === 1 ? 'atividade' : 'atividades'}{program.modalidade?.nome ? ` · ${program.modalidade.nome}` : ''}</span></div><div className="student-program-card__meta"><span>Atualizado</span><strong>{formatDate(program.criadoEm)}</strong></div>
-            </article>) : <div className="student-detail-empty"><span className="student-detail-empty__icon" aria-hidden="true">▤</span><strong>Nenhum programa por aqui</strong><span>Os treinos prescritos para este aluno aparecerão nesta seção.</span></div>}</div>
-          </section>
-
-          <section className="student-detail-section">
-            <div className="student-detail-section__heading"><div><p className="students-eyebrow">HISTÓRICO</p><h2>Últimas sessões</h2></div><span className="student-detail-count">{sessions.length}</span></div>
-            <div className="student-session-list">{sessionsToShow.length ? sessionsToShow.map((session) => {
-              const program = programs.find((item) => item.id === session.programId)
-              const completedActivities = session.activities?.filter((activity) => activity.status === 'COMPLETED').length || 0
-              const totalActivities = session.activities?.length || 0
-              return <article className="student-session-card" key={session.id}><span className={`student-session-card__mark student-session-card__mark--${session.status.toLowerCase()}`} aria-hidden="true">{session.status === 'COMPLETED' ? '✓' : session.status === 'IN_PROGRESS' ? '↗' : '–'}</span><div className="student-session-card__copy"><strong>{program?.nome || 'Sessão de treino'}</strong><span>{formatDate(session.startedAt, { day: '2-digit', month: 'short', year: 'numeric' })} · {totalActivities ? `${completedActivities} de ${totalActivities} atividades` : 'Atividades não registradas'}</span></div><div className="student-session-card__meta"><strong>{formatDuration(session)}</strong><span>{session.status === 'COMPLETED' ? 'Concluída' : session.status === 'IN_PROGRESS' ? 'Em andamento' : 'Interrompida'}</span></div></article>
-            }) : <div className="student-detail-empty"><span className="student-detail-empty__icon" aria-hidden="true">◷</span><strong>Sem sessões registradas</strong><span>Quando o aluno iniciar um treino, o histórico aparecerá aqui.</span></div>}</div>
-            {sessions.length > 4 && <button className="student-history-toggle" type="button" onClick={() => setShowAllSessions((value) => !value)}>{showAllSessions ? 'Mostrar menos' : 'Ver histórico completo'}</button>}
-          </section>
-        </div> : <div role="tabpanel" className="student-detail-content student-evolution">
-          <section className="student-detail-section"><div className="student-detail-section__heading"><div><p className="students-eyebrow">DESEMPENHO</p><h2>Evolução por atividade</h2></div></div>
-            {dashboard.evolution.length ? <div className="student-evolution-list">{dashboard.evolution.map((item) => {
-              const values = item.points.map((point) => point.value)
-              const low = Math.min(...values)
-              const high = Math.max(...values)
-              const points = values.map((value, index) => `${values.length === 1 ? 50 : 8 + (index / (values.length - 1)) * 84},${38 - (high === low ? 0.5 : (value - low) / (high - low)) * 28}`).join(' ')
-              const label = metricLabels[item.metric] || item.metric.replace(/([A-Z])/g, ' $1').replace(/^./, (letter) => letter.toUpperCase())
-              return <article className="student-evolution-card" key={`${item.activityId}-${item.metric}`}><div className="student-evolution-card__heading"><div><span>{item.modalityName || 'Atividade'}</span><h3>{item.activityName || 'Exercício'}</h3></div><span>{label}</span></div><div className="student-evolution-card__chart"><div><strong>{values.at(-1)}</strong><span>{label.toLocaleLowerCase('pt-BR')} na última sessão</span></div><svg viewBox="0 0 100 44" role="img" aria-label={`Evolução de ${label} em ${item.activityName || 'exercício'}`}><polyline points={points} /><circle cx={values.length === 1 ? 50 : 92} cy={38 - (high === low ? 0.5 : (values.at(-1) - low) / (high - low)) * 28} r="3" /></svg></div><p>{values.length} registros · {formatDate(item.points[0]?.executedAt)} a {formatDate(item.points.at(-1)?.executedAt)}</p></article>
-            })}</div> : <div className="student-detail-empty student-detail-empty--large"><span className="student-detail-empty__icon" aria-hidden="true">⌁</span><strong>A evolução começa com os registros</strong><span>Quando as sessões tiverem cargas, repetições ou outras métricas registradas, você verá a progressão de cada atividade aqui.</span></div>}
-          </section>
-        </div>}
-      </>}
-    </div>
-  </main>
-}
-
-export { StudentDetailPage }
 export default StudentsPage

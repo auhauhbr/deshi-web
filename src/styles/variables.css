@@ -25,6 +25,17 @@
   --color-warning: #b7791f;
   --color-info: #2675d8;
 
+  /* Paleta da área profissional */
+  --color-professional-background: #f4f7f5;
+  --color-professional-ink: #18251f;
+  --color-professional-muted: #78867f;
+  --color-professional-green: #14856c;
+  --color-professional-green-hover: #17624e;
+  --color-professional-green-active: #17644f;
+  --color-professional-green-light: #e7f5ee;
+  --color-professional-surface-secondary: #ebf0ed;
+  --color-professional-border: #dce6e1;
+
   /* Tipografia */
   --font-family-base: "Exo 2", system-ui, sans-serif;
   --font-family-secondary: "Rajdhani", system-ui, sans-serif;
