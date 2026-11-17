@@ -1,5 +1,11 @@
 # React + Vite
 
+## Acessar pelo celular na rede local
+
+Inicie o frontend e a API no computador. No celular, conectado à mesma rede Wi-Fi, abra o endereço de rede local exibido pelo Vite (por exemplo, `http://192.168.x.x:5173`). O frontend usa automaticamente o mesmo endereço do computador para chamar a API na porta `3030`, e a API permite origens locais do Vite.
+
+Se o Windows Firewall perguntar, permita o acesso do Node.js à rede privada. Se o computador trocar de rede, use o novo endereço que o Vite exibir.
+
 This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
 
 Currently, two official plugins are available:

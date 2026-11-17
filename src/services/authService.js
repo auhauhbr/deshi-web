@@ -8,6 +8,7 @@ export async function registerUser({ email, name, password, profile }) {
 export async function loginUser({ email, password }) {
   const { data } = await api.post('/login', { email, password })
   localStorage.setItem(TOKEN_STORAGE_KEY, data.token)
+  localStorage.setItem('deshi.user', JSON.stringify(data.user))
   return data.user
 }
 
@@ -16,6 +17,7 @@ export async function logoutUser() {
     await api.post('/logout')
   } finally {
     localStorage.removeItem(TOKEN_STORAGE_KEY)
+    localStorage.removeItem('deshi.user')
   }
 }
 
