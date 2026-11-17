@@ -1,44 +1,28 @@
 import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { getApiErrorMessage } from '../../services/authService.js'
 import StudentBottomNav from '../../components/StudentBottomNav.jsx'
 import BrandLogo from '../../components/BrandLogo.jsx'
+import SessionActionSlider from './SessionActionSlider.jsx'
 import {
-  completeActivity,
-  endActivityRest,
   finishSession,
   getStudentPrograms,
   getStudentSessions,
   interruptSession,
-  pauseActivity,
-  resumeActivity,
-  startActivity,
-  startActivityRest,
+  pauseSession,
+  resumeSession,
 } from '../../services/sessionService.js'
 import './StartSession.css'
 import './SessionDetails.css'
 
-function formatStartedAt(value) {
-  if (!value) return 'Horário não informado pela API'
-
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return 'Horário não informado pela API'
-
-  return new Intl.DateTimeFormat('pt-BR', {
-    dateStyle: 'long',
-    timeStyle: 'short',
-  }).format(date)
-}
-
-function formatDuration(milliseconds = 0) {
+function formatSessionClock(milliseconds = 0) {
   const totalSeconds = Math.max(0, Math.floor(milliseconds / 1000))
   const hours = Math.floor(totalSeconds / 3600)
   const minutes = Math.floor((totalSeconds % 3600) / 60)
   const seconds = totalSeconds % 60
-
-  return [hours, minutes, seconds]
-    .map((value) => String(value).padStart(2, '0'))
-    .join(':')
+  const clock = [minutes, seconds].map((value) => String(value).padStart(2, '0'))
+  return hours ? [String(hours).padStart(2, '0'), ...clock].join(':') : clock.join(':')
 }
 
 function getDurationFromStart(value, now) {
@@ -47,20 +31,22 @@ function getDurationFromStart(value, now) {
   return Number.isNaN(startedAt) ? 0 : Math.max(0, now - startedAt)
 }
 
-function getActivityDurations(activity, now) {
-  const tracking = activity.timeTracking || {}
+function ExerciseThumbnail({ activity, label }) {
+  const [imageFailed, setImageFailed] = useState(false)
 
-  return {
-    active: (tracking.activeTimeMs || 0) + (activity.status === 'IN_PROGRESS'
-      ? getDurationFromStart(tracking.activeStartedAt, now)
-      : 0),
-    pause: (tracking.pauseTimeMs || 0) + (activity.status === 'PAUSED'
-      ? getDurationFromStart(tracking.pauseStartedAt, now)
-      : 0),
-    rest: (tracking.restTimeMs || 0) + (activity.status === 'RESTING'
-      ? getDurationFromStart(tracking.restStartedAt, now)
-      : 0),
-  }
+  return activity.midiaUrl && !imageFailed ? (
+    <img
+      className="session-activity-thumbnail"
+      src={activity.midiaUrl}
+      alt=""
+      loading="lazy"
+      onError={() => setImageFailed(true)}
+    />
+  ) : (
+    <span className="session-activity-thumbnail session-activity-thumbnail-empty" role="img" aria-label={`Imagem indisponível para ${label}`}>
+      <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 18v12m5-17v22m22-22v22m5-17v12M13 24h22" /></svg>
+    </span>
+  )
 }
 
 function SessionDetails() {
@@ -70,37 +56,35 @@ function SessionDetails() {
   const [session, setSession] = useState(
     state?.session?.id === sessionId ? state.session : null,
   )
+  const [programName, setProgramName] = useState(state?.programName || '')
   const [isLoading, setIsLoading] = useState(!session)
   const [message, setMessage] = useState('')
   const [timeActionMessage, setTimeActionMessage] = useState('')
-  const [pendingActivityId, setPendingActivityId] = useState('')
-  const [confirmSessionAction, setConfirmSessionAction] = useState('')
   const [isUpdatingSession, setIsUpdatingSession] = useState(false)
+  const [showFinishConfirm, setShowFinishConfirm] = useState(false)
   const [now, setNow] = useState(Date.now())
 
   useEffect(() => {
-    if (session) return
-
     let isCurrent = true
 
     async function loadSession() {
       try {
         const [sessions, programs] = await Promise.all([
-          getStudentSessions(),
+          session ? Promise.resolve([]) : getStudentSessions(),
           getStudentPrograms(),
         ])
-        const foundSession = sessions.find((item) => item.id === sessionId)
+        const foundSession = session || sessions.find((item) => item.id === sessionId)
         const matchingProgram = programs.find(
           (program) => program.id === foundSession?.programId,
         )
 
         if (isCurrent) {
+          if (matchingProgram?.name) setProgramName(matchingProgram.name)
           if (foundSession) {
-            setSession({
+            setSession((current) => ({
               ...foundSession,
-              professionalName:
-                foundSession.professionalName || matchingProgram?.professionalName,
-            })
+              professionalName: foundSession.professionalName || matchingProgram?.professionalName || current?.professionalName,
+            }))
           }
           else setMessage('A sessão não foi encontrada no seu histórico.')
         }
@@ -118,28 +102,14 @@ function SessionDetails() {
     return () => {
       isCurrent = false
     }
-  }, [session, sessionId])
+  }, [sessionId])
 
   useEffect(() => {
-    const hasRunningClock = session?.activities?.some((activity) => (
-      ['IN_PROGRESS', 'PAUSED', 'RESTING'].includes(activity.status)
-    ))
-
-    if (!hasRunningClock) return undefined
+    if (session?.status !== 'IN_PROGRESS') return undefined
 
     const intervalId = window.setInterval(() => setNow(Date.now()), 1000)
     return () => window.clearInterval(intervalId)
-  }, [session?.activities])
-
-  const statusLabels = {
-    IN_PROGRESS: 'Em andamento',
-    COMPLETED: 'Concluída',
-    INTERRUPTED: 'Interrompida',
-    PENDING: 'Pendente',
-    PAUSED: 'Pausada',
-    RESTING: 'Em descanso',
-    INCOMPLETE: 'Incompleta',
-  }
+  }, [session?.activities, session?.status])
 
   const showSessionUnavailable = !isLoading && !session
 
@@ -148,9 +118,8 @@ function SessionDetails() {
       <main className="start-session-page">
         <header className="session-header">
           <div className="session-brand">
-            <BrandLogo className="session-brand-logo" />
+            <BrandLogo className="session-brand-logo" to="/home" />
           </div>
-          <span className="session-header-label">Área do aluno</span>
         </header>
         <section className="session-details-content">
           <div className="session-details-card" role="status" aria-live="polite">
@@ -175,216 +144,157 @@ function SessionDetails() {
   const activities = [...(session.activities || [])].sort(
     (first, second) => first.order - second.order,
   )
+  const completedActivities = activities.filter((activity) => activity.status === 'COMPLETED').length
+  const activityCount = activities.length
+  const progressPercent = activityCount ? Math.round((completedActivities / activityCount) * 100) : 0
+  const sessionEnd = session.finishedAt ? new Date(session.finishedAt).getTime() : now
+  const activeSessionPauseMs = session.pauseStartedAt
+    ? getDurationFromStart(session.pauseStartedAt, now)
+    : 0
+  const elapsedSessionMs = Math.max(
+    0,
+    getDurationFromStart(session.startedAt, sessionEnd)
+      - (session.pausedDurationMs || 0)
+      - activeSessionPauseMs,
+  )
 
-  async function runTimeAction(activityId, action) {
-    setPendingActivityId(activityId)
-    setTimeActionMessage('')
-
-    try {
-      const updatedSession = await action(session.id, activityId)
-      setSession((current) => ({
-        ...updatedSession,
-        professionalName: updatedSession.professionalName || current.professionalName,
-      }))
-    } catch (error) {
-      setTimeActionMessage(getApiErrorMessage(error, 'Não foi possível atualizar o tempo da atividade.'))
-    } finally {
-      setPendingActivityId('')
-    }
-  }
-
-  async function confirmSessionUpdate() {
-    if (!confirmSessionAction) return
-
+  async function executeSessionAction(resolvedAction) {
     setIsUpdatingSession(true)
     setTimeActionMessage('')
 
     try {
-      const update = confirmSessionAction === 'finish' ? finishSession : interruptSession
+      const update = {
+        pause: pauseSession,
+        resume: resumeSession,
+        finish: finishSession,
+        interrupt: interruptSession,
+      }[resolvedAction]
       const updatedSession = await update(session.id)
       setSession((current) => ({
         ...updatedSession,
         professionalName: updatedSession.professionalName || current.professionalName,
+        activities: updatedSession.activities.map((updatedActivity) => {
+          const currentActivity = current.activities.find((item) => item.activityId === updatedActivity.activityId)
+          return {
+            ...updatedActivity,
+            nome: updatedActivity.nome || currentActivity?.nome,
+            descricao: updatedActivity.descricao || currentActivity?.descricao,
+            midiaUrl: updatedActivity.midiaUrl || currentActivity?.midiaUrl,
+          }
+        }),
       }))
-      setConfirmSessionAction('')
+      setShowFinishConfirm(false)
+      return true
     } catch (error) {
       setTimeActionMessage(getApiErrorMessage(error, 'Não foi possível atualizar o estado da sessão.'))
+      return false
     } finally {
       setIsUpdatingSession(false)
     }
+  }
+
+  async function handleSessionAction(action) {
+    const resolvedAction = action === 'toggle'
+      ? session.status === 'PAUSED' ? 'resume' : 'pause'
+      : action
+
+    if (resolvedAction === 'finish' && completedActivities < activityCount) {
+      setTimeActionMessage('')
+      setShowFinishConfirm(true)
+      return false
+    }
+
+    return executeSessionAction(resolvedAction)
   }
 
   return (
     <main className="start-session-page">
       <header className="session-header">
         <div className="session-brand">
-          <BrandLogo className="session-brand-logo" />
+          <BrandLogo className="session-brand-logo" to="/home" />
         </div>
         <span className="session-header-label">Sessão de treino</span>
       </header>
 
       <section className="session-details-content">
-        <div className="session-heading">
-          <p className="session-eyebrow">
-            {session.status === 'COMPLETED'
-              ? 'SESSÃO CONCLUÍDA'
-              : session.status === 'INTERRUPTED' ? 'SESSÃO INTERROMPIDA' : 'SESSÃO INICIADA'}
-          </p>
-          <h1>
-            {session.status === 'COMPLETED'
-              ? 'Sessão finalizada.'
-              : session.status === 'INTERRUPTED' ? 'Sessão interrompida.' : 'Seu programa está pronto.'}
-          </h1>
-          <p>
-            {session.status === 'IN_PROGRESS'
-              ? 'Acompanhe abaixo as atividades e os tempos registrados.'
-              : 'Seus registros e atividades permanecem salvos nesta sessão.'}
-          </p>
-        </div>
+        <section className="workout-session-summary" aria-label="Resumo do treino">
+          <div className="workout-summary-heading">
+            <div>
+              <p className="session-eyebrow">{session.status === 'IN_PROGRESS' ? 'TREINO EM ANDAMENTO' : session.status === 'PAUSED' ? 'TREINO PAUSADO' : session.status === 'COMPLETED' ? 'TREINO CONCLUÍDO' : 'TREINO INTERROMPIDO'}</p>
+              <h1>{programName || 'Seu treino'}</h1>
+            </div>
+            {session.professionalName && <span className="workout-coach-name">com {session.professionalName}</span>}
+          </div>
 
-        <section className="session-details-card" aria-label="Dados da sessão">
-          <dl className="session-metadata">
-            <div>
-              <dt>Estado</dt>
-              <dd>{statusLabels[session.status] || session.status || 'Não informado'}</dd>
-            </div>
-            <div>
-              <dt>Iniciada em</dt>
-              <dd>{formatStartedAt(session.startedAt)}</dd>
-            </div>
-            <div>
-              <dt>Profissional responsável</dt>
-              <dd>{session.professionalName || 'Nome não informado pela API'}</dd>
-            </div>
-            {session.finishedAt && (
-              <div>
-                <dt>Encerrada em</dt>
-                <dd>{formatStartedAt(session.finishedAt)}</dd>
-              </div>
-            )}
-          </dl>
+          <div className="workout-live-clock" aria-live="off">
+            <strong>{formatSessionClock(elapsedSessionMs)}</strong>
+            <span>Tempo decorrido</span>
+          </div>
 
-          {session.status === 'IN_PROGRESS' && (
-            <div className="session-end-actions">
-              <p>Finalize a sessão ou interrompa mantendo os registros feitos até agora.</p>
-              <div>
-                <button type="button" className="session-start-button" disabled={isUpdatingSession || Boolean(pendingActivityId)} onClick={() => setConfirmSessionAction('finish')}>
-                  Finalizar sessão
-                </button>
-                <button type="button" className="session-secondary-button" disabled={isUpdatingSession || Boolean(pendingActivityId)} onClick={() => setConfirmSessionAction('interrupt')}>
-                  Interromper sessão
-                </button>
-              </div>
-            </div>
+          <div className="workout-progress-copy">
+            <strong>{progressPercent}% concluído</strong>
+            <span>{completedActivities} de {activityCount} {activityCount === 1 ? 'atividade' : 'atividades'}</span>
+          </div>
+          <div className="workout-progress-track" role="progressbar" aria-label="Progresso do treino" aria-valuemin="0" aria-valuemax="100" aria-valuenow={progressPercent}>
+            <span style={{ width: `${progressPercent}%` }} />
+          </div>
+
+          {['IN_PROGRESS', 'PAUSED'].includes(session.status) && (
+            <SessionActionSlider
+              status={session.status}
+              busy={isUpdatingSession}
+              onAction={handleSessionAction}
+            />
           )}
 
-          {confirmSessionAction && (
-            <div className="session-confirm-backdrop">
-              <section className="session-confirm-dialog" role="alertdialog" aria-modal="true" aria-labelledby="session-confirm-title" aria-describedby="session-confirm-description">
-                <h2 id="session-confirm-title">
-                  {confirmSessionAction === 'finish' ? 'Finalizar sessão?' : 'Interromper sessão?'}
-                </h2>
-                <p id="session-confirm-description">
-                  {confirmSessionAction === 'finish'
-                    ? 'A sessão será concluída. Atividades ainda em andamento, pausadas ou em descanso serão mantidas como incompletas, com os tempos registrados.'
-                    : 'A sessão será marcada como interrompida. Os registros e as atividades incompletas permanecerão salvos no histórico.'}
+          {timeActionMessage && !showFinishConfirm && <p className="session-message" role="alert">{timeActionMessage}</p>}
+
+          {showFinishConfirm && (
+            createPortal(<div className="session-confirm-backdrop">
+              <section className="session-confirm-dialog" role="alertdialog" aria-modal="true" aria-labelledby="finish-confirm-title" aria-describedby="finish-confirm-description">
+                <h2 id="finish-confirm-title">Ainda há atividades pendentes</h2>
+                <p id="finish-confirm-description">
+                  Você concluiu {completedActivities} de {activityCount} atividades. Se finalizar agora, as atividades restantes serão marcadas como incompletas. Deseja continuar?
                 </p>
+                {timeActionMessage && <p className="session-message" role="alert">{timeActionMessage}</p>}
                 <div className="session-confirm-actions">
-                  <button type="button" className="session-secondary-button" disabled={isUpdatingSession} onClick={() => setConfirmSessionAction('')}>
-                    Voltar
+                  <button type="button" className="session-secondary-button" disabled={isUpdatingSession} onClick={() => { setShowFinishConfirm(false); setTimeActionMessage('') }}>
+                    Voltar ao treino
                   </button>
-                  <button type="button" className="session-start-button" disabled={isUpdatingSession} onClick={confirmSessionUpdate}>
-                    {isUpdatingSession
-                      ? 'Salvando...'
-                      : confirmSessionAction === 'finish' ? 'Confirmar finalização' : 'Confirmar interrupção'}
+                  <button type="button" className="session-start-button" disabled={isUpdatingSession} onClick={() => executeSessionAction('finish')}>
+                    {isUpdatingSession ? 'Finalizando...' : 'Finalizar mesmo assim'}
                   </button>
                 </div>
               </section>
-            </div>
+            </div>, document.body)
           )}
 
+          {['COMPLETED', 'INTERRUPTED'].includes(session.status) && (
+            <p className="workout-terminal-note">{session.status === 'COMPLETED' ? 'Os registros deste treino foram salvos.' : 'Os registros feitos até a interrupção foram salvos.'}</p>
+          )}
+        </section>
+
+        <section className="session-details-card" aria-label="Dados da sessão">
           <div className="session-activity-heading">
             <h2>Atividades</h2>
             <span>{activities.length}</span>
           </div>
 
-          {timeActionMessage && <p className="session-message" role="alert">{timeActionMessage}</p>}
-
           {activities.length ? (
             <ol className="session-activity-list">
               {activities.map((activity, index) => (
                 <li key={activity.activityId}>
-                  <span className="session-activity-order">{index + 1}</span>
-                  <div>
-                    <strong>Atividade {index + 1}</strong>
-                    <small>ID: {activity.activityId}</small>
-                    {activity.execution?.values && (
-                      <div className="session-execution-summary">
-                        <small className="session-execution-heading">Dados executados nesta sessão</small>
-                        <ul className="session-execution-values">
-                          {Object.entries(activity.execution.values).map(([name, value]) => (
-                            <li key={name}>{name}: {value}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-                    {activity.timeTracking && (() => {
-                      const durations = getActivityDurations(activity, now)
-
-                      return (
-                        <dl className="activity-time-summary" aria-label="Tempos da atividade">
-                          <div><dt>Ativo</dt><dd>{formatDuration(durations.active)}</dd></div>
-                          <div><dt>Pausa</dt><dd>{formatDuration(durations.pause)}</dd></div>
-                          <div><dt>Descanso</dt><dd>{formatDuration(durations.rest)}</dd></div>
-                        </dl>
-                      )
-                    })()}
-                  </div>
-                  <span className={`session-activity-status status-${(activity.status || 'PENDING').toLowerCase()}`}>
-                    {statusLabels[activity.status] || activity.status || 'Pendente'}
-                  </span>
-                  {session.status === 'IN_PROGRESS' && (
-                    <div className="session-activity-actions">
-                      {activity.status === 'PENDING' && (
-                        <button type="button" className="session-start-button session-activity-action" disabled={Boolean(pendingActivityId)} onClick={() => runTimeAction(activity.activityId, startActivity)}>
-                          {pendingActivityId === activity.activityId ? 'Iniciando...' : 'Iniciar atividade'}
-                        </button>
-                      )}
-                      {activity.status === 'IN_PROGRESS' && (
-                        <>
-                          <button type="button" className="session-secondary-button session-activity-action" disabled={Boolean(pendingActivityId)} onClick={() => runTimeAction(activity.activityId, pauseActivity)}>
-                            {pendingActivityId === activity.activityId ? 'Atualizando...' : 'Pausar'}
-                          </button>
-                          <button type="button" className="session-secondary-button session-activity-action" disabled={Boolean(pendingActivityId)} onClick={() => runTimeAction(activity.activityId, startActivityRest)}>Iniciar descanso</button>
-                          <button type="button" className="session-start-button session-activity-action" disabled={Boolean(pendingActivityId)} onClick={() => runTimeAction(activity.activityId, completeActivity)}>Concluir atividade</button>
-                        </>
-                      )}
-                      {activity.status === 'PAUSED' && (
-                        <>
-                          <button type="button" className="session-start-button session-activity-action" disabled={Boolean(pendingActivityId)} onClick={() => runTimeAction(activity.activityId, resumeActivity)}>Retomar atividade</button>
-                          <button type="button" className="session-secondary-button session-activity-action" disabled={Boolean(pendingActivityId)} onClick={() => runTimeAction(activity.activityId, completeActivity)}>Concluir atividade</button>
-                        </>
-                      )}
-                      {activity.status === 'RESTING' && (
-                        <>
-                          <button type="button" className="session-start-button session-activity-action" disabled={Boolean(pendingActivityId)} onClick={() => runTimeAction(activity.activityId, endActivityRest)}>Encerrar descanso</button>
-                          <button type="button" className="session-secondary-button session-activity-action" disabled={Boolean(pendingActivityId)} onClick={() => runTimeAction(activity.activityId, completeActivity)}>Concluir atividade</button>
-                        </>
-                      )}
-                      {!['IN_PROGRESS', 'PAUSED', 'RESTING'].includes(activity.status) && (
-                        <button
-                          type="button"
-                          className="session-secondary-button session-activity-action"
-                          disabled={Boolean(pendingActivityId)}
-                          onClick={() => navigate(`/sessions/${session.id}/executions/${activity.activityId}`, {
-                            state: { session, activity },
-                          })}
-                        >
-                          Registrar execução
-                        </button>
-                      )}
-                    </div>
-                  )}
+                  <button
+                    type="button"
+                    className="session-activity-card"
+                    onClick={() => navigate(`/sessions/${session.id}/activities/${activity.activityId}`, {
+                      state: { session, activity, programName },
+                    })}
+                    aria-label={`Abrir ${activity.nome || `atividade ${index + 1}`}`}
+                  >
+                    <ExerciseThumbnail activity={activity} label={activity.nome || `atividade ${index + 1}`} />
+                    <span>{activity.nome || `Atividade ${index + 1}`}</span>
+                  </button>
                 </li>
               ))}
             </ol>

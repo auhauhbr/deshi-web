@@ -55,9 +55,8 @@ function HomePage() {
     <main className="home-page">
       <header className="home-header">
         <div className="session-brand">
-          <BrandLogo className="session-brand-logo" />
+          <BrandLogo className="session-brand-logo" to="/home" />
         </div>
-        <span className="session-header-label">Área do aluno</span>
       </header>
       <section className="home-content">
         <div className="home-card">

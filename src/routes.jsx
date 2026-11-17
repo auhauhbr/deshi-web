@@ -6,9 +6,11 @@ import RegisterPage from './pages/Register/Register.jsx'
 import LandingPage from './pages/Landing/Landing.jsx'
 import StartSession from './pages/Sessions/StartSession.jsx'
 import SessionDetails from './pages/Sessions/SessionDetails.jsx'
+import SessionActivity from './pages/Sessions/SessionActivity.jsx'
 import RegisterExecution from './pages/Sessions/RegisterExecution.jsx'
 import CompletedSessions from './pages/Sessions/CompletedSessions.jsx'
 import ProfilePage from './pages/Profile/Profile.jsx'
+import AcceptInvitePage from './pages/Invites/AcceptInvite.jsx'
 
 function AppRoutes() {
   return (
@@ -18,9 +20,11 @@ function AppRoutes() {
       <Route path="/" element={<LandingPage />} />
       <Route path="/home" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
       <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+      <Route path="/invites/accept" element={<ProtectedRoute><AcceptInvitePage /></ProtectedRoute>} />
       <Route path="*" element={<Navigate to="/login" replace />} />
       <Route path="/sessions/start" element={<ProtectedRoute><StartSession /></ProtectedRoute>} />
       <Route path="/sessions/completed" element={<ProtectedRoute><CompletedSessions /></ProtectedRoute>} />
+      <Route path="/sessions/:sessionId/activities/:activityId" element={<ProtectedRoute><SessionActivity /></ProtectedRoute>} />
       <Route path="/sessions/:sessionId" element={<ProtectedRoute><SessionDetails /></ProtectedRoute>} />
       <Route path="/sessions/:sessionId/executions/:activityId" element={<ProtectedRoute><RegisterExecution /></ProtectedRoute>} />
     </Routes>

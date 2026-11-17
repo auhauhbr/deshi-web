@@ -68,10 +68,10 @@ function StartSession() {
     return () => { isCurrent = false }
   }, [])
 
-async function handleStartSession(event) {
-  event.preventDefault()
+async function handleStartSession(event, programId = selectedProgram) {
+  event?.preventDefault()
 
-  if (!selectedProgram) {
+  if (!programId) {
     setMessage('Selecione um programa para iniciar sua sessão.')
     return
   }
@@ -80,7 +80,8 @@ async function handleStartSession(event) {
     setIsSubmitting(true)
     setMessage('')
 
-    const session = await startSession(selectedProgram)
+    setSelectedProgram(programId)
+    const session = await startSession(programId)
 
     if (!session?.id) {
       setMessage('A API iniciou a sessão, mas não retornou o identificador esperado.')
@@ -89,7 +90,7 @@ async function handleStartSession(event) {
 
     navigate(`/sessions/${session.id}`, {
       replace: true,
-      state: { session }
+      state: { session, programName: programs.find((program) => program.id === programId)?.name }
     })
   } catch (error) {
     setMessage(
@@ -105,27 +106,17 @@ async function handleStartSession(event) {
 
 
   return (
-    <main className="start-session-page">
-      <header className="session-header">
+    <main className="start-session-page programs-page">
+      <header className="session-header programs-header">
         <div className="session-brand">
-          <BrandLogo className="session-brand-logo" />
+          <BrandLogo className="session-brand-logo" to="/home" />
         </div>
-
-        <span className="session-header-label">
-          Área do aluno
-        </span>
       </header>
 
       <section className="start-session-content">
-        <div className="session-heading">
+        <div className="session-heading programs-heading">
           <p className="session-eyebrow">SUA ROTINA ESPORTIVA</p>
-
-          <h1>Vamos começar?</h1>
-
-          <p>
-            Escolha um dos seus programas e prepare-se para iniciar
-            uma nova sessão de treino.
-          </p>
+          <h1>Seus programas</h1>
         </div>
 
         <form
@@ -134,8 +125,8 @@ async function handleStartSession(event) {
         >
           <div className="program-section-heading">
             <div>
-              <h2>Seus programas</h2>
-              <p>Selecione o programa que deseja realizar.</p>
+              <h2>Programas disponíveis</h2>
+              <p>Toque no botão ao lado para iniciar.</p>
             </div>
 
             {!isLoading && (
@@ -176,41 +167,41 @@ async function handleStartSession(event) {
           {!isLoading && programs.length > 0 && (
             <div className="program-grid">
               {programs.map((program) => (
-                <label
+                <article
                   key={program.id}
                   className={`program-card ${
                     selectedProgram === program.id ? 'selected' : ''
                   }`}
                 >
-                  <input
-                    type="radio"
-                    name="program"
-                    value={program.id}
-                    checked={selectedProgram === program.id}
-                    onChange={() => {
-                      setSelectedProgram(program.id)
-                      setMessage('')
-                    }}
-                  />
-
-                  <div className="program-card-icon">
-                    <span>↗</span>
-                  </div>
-
-                  <div className="program-card-content">
-                    <h3>{program.name}</h3>
-
-                    <p>
-                      {program.description ||
-                        `${program.activities?.length ?? 0} ${program.activities?.length === 1 ? 'atividade' : 'atividades'} neste programa.`}
-                    </p>
-                    <p className="program-professional">
-                      Profissional responsável: {program.professionalName || 'não informado'}
-                    </p>
-                  </div>
-
-                  <span className="program-radio-indicator" />
-                </label>
+                  <label className="program-card-choice">
+                    <input
+                      type="radio"
+                      name="program"
+                      value={program.id}
+                      checked={selectedProgram === program.id}
+                      onChange={() => {
+                        setSelectedProgram(program.id)
+                        setMessage('')
+                      }}
+                    />
+                    <div className="program-card-icon" aria-hidden="true"><span>↗</span></div>
+                    <div className="program-card-content">
+                      <h3>{program.name}</h3>
+                      <p>{program.description || `${program.activities?.length ?? 0} ${program.activities?.length === 1 ? 'atividade' : 'atividades'} neste programa.`}</p>
+                      <p className="program-professional">Personal: {program.professionalName || 'não informado'}</p>
+                    </div>
+                  </label>
+                  <button
+                    className="program-start-button"
+                    type="button"
+                    onClick={(event) => handleStartSession(event, program.id)}
+                    disabled={isSubmitting}
+                    aria-label={`${isSubmitting && selectedProgram === program.id ? 'Iniciando' : 'Iniciar sessão do programa'} ${program.name}`}
+                    title="Iniciar sessão"
+                  >
+                    {isSubmitting && selectedProgram === program.id ? <span className="program-start-spinner" /> : <span aria-hidden="true">›</span>}
+                  </button>
+                </article>
               ))}
             </div>
           )}
@@ -227,26 +218,6 @@ async function handleStartSession(event) {
             </p>
           )}
 
-          <div className="session-actions">
-            <button
-              className="session-start-button"
-              type="submit"
-              disabled={
-                isLoading ||
-                programs.length === 0 ||
-                !selectedProgram ||
-                isSubmitting
-              }
-            >
-              {isSubmitting ? 'Iniciando sessão...' : 'Iniciar sessão'}
-              {!isSubmitting && <span>→</span>}
-            </button>
-
-            <p>
-              Ao iniciar, o sistema registrará o horário e
-              carregará as atividades do programa.
-            </p>
-          </div>
         </form>
       </section>
       <StudentBottomNav active="todo" />

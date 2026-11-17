@@ -27,6 +27,10 @@ function StudentBottomNav({ active }) {
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="m8 12 2.5 2.5L16 9" /></svg>
         <span>Treinos concluídos</span>
       </NavLink>
+      <NavLink to="/invites/accept" className={current === 'invite' ? 'active' : ''} aria-current={current === 'invite' ? 'page' : undefined}>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2a3 3 0 0 0 0 6v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2a3 3 0 0 0 0-6z" /><path d="M13 7v2m0 3v2m0 3v1" /></svg>
+        <span>Vincular personal</span>
+      </NavLink>
       <NavLink to="/profile" className={current === 'profile' ? 'active' : ''} aria-current={current === 'profile' ? 'page' : undefined}>
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5" /><path d="M5 20a7 7 0 0 1 14 0" /></svg>
         <span>Perfil</span>

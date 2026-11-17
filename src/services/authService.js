@@ -36,5 +36,5 @@ export function getApiErrorMessage(error, fallbackMessage) {
   if (!error.response) return 'Não foi possível conectar ao servidor. Verifique se a API está em execução.'
   return typeof error.response.data === 'string'
     ? error.response.data
-    : error.response.data?.message || fallbackMessage
+    : error.response.data?.message || error.response.data?.mensagem || fallbackMessage
 }

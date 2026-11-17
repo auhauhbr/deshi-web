@@ -177,7 +177,7 @@ function ProfilePage() {
   return (
     <main className="start-session-page profile-page">
       <header className="session-header profile-header">
-        <div className="session-brand"><BrandLogo className="session-brand-logo" /></div>
+        <div className="session-brand"><BrandLogo className="session-brand-logo" to="/home" /></div>
         <button
           type="button"
           className="profile-logout-icon"
@@ -253,7 +253,7 @@ function ProfilePage() {
           {isLoadingSessions ? (
             <p className="profile-calendar-note" role="status">Carregando sessões...</p>
           ) : (
-            <p className="profile-calendar-note">Deslize para ver outras semanas. Os dias marcados têm sessões concluídas.</p>
+            <p className="profile-calendar-note"></p>
           )}
         </section>
 

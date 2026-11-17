@@ -120,7 +120,17 @@ function RegisterExecution() {
           session: {
             ...updatedSession,
             professionalName: updatedSession.professionalName || session.professionalName,
+            activities: updatedSession.activities.map((updatedActivity) => {
+              const currentActivity = session.activities.find((item) => item.activityId === updatedActivity.activityId)
+              return {
+                ...updatedActivity,
+                nome: updatedActivity.nome || currentActivity?.nome,
+                descricao: updatedActivity.descricao || currentActivity?.descricao,
+                midiaUrl: updatedActivity.midiaUrl || currentActivity?.midiaUrl,
+              }
+            }),
           },
+          programName: state?.programName,
         },
       })
     } catch (error) {
@@ -134,8 +144,7 @@ function RegisterExecution() {
     return (
       <main className="start-session-page">
         <header className="session-header">
-          <div className="session-brand"><BrandLogo className="session-brand-logo" /></div>
-          <span className="session-header-label">Área do aluno</span>
+          <div className="session-brand"><BrandLogo className="session-brand-logo" to="/home" /></div>
         </header>
         <section className="session-details-content">
           <div className="session-details-card" role="status" aria-live="polite">
@@ -150,7 +159,7 @@ function RegisterExecution() {
   return (
     <main className="start-session-page">
       <header className="session-header">
-        <div className="session-brand"><BrandLogo className="session-brand-logo" /></div>
+        <div className="session-brand"><BrandLogo className="session-brand-logo" to="/home" /></div>
         <span className="session-header-label">Registro de execução</span>
       </header>
 
@@ -210,7 +219,7 @@ function RegisterExecution() {
           {message && <p className="session-message" role="alert">{message}</p>}
 
           <div className="execution-actions">
-            <button type="button" className="session-secondary-button" onClick={() => navigate(`/sessions/${sessionId}`, { state: { session } })} disabled={isSubmitting}>Voltar à sessão</button>
+      <button type="button" className="session-secondary-button" onClick={() => navigate(`/sessions/${sessionId}`, { state: { session, programName: state?.programName } })} disabled={isSubmitting}>Voltar à sessão</button>
             <button type="submit" className="session-start-button" disabled={isSubmitting}>
               {isSubmitting ? 'Salvando execução...' : 'Salvar execução'}
             </button>

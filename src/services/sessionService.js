@@ -69,3 +69,13 @@ export async function interruptSession(sessionId) {
 
   return data
 }
+
+export async function pauseSession(sessionId) {
+  const { data } = await api.post(`/sessions/${sessionId}/pause`)
+  return data
+}
+
+export async function resumeSession(sessionId) {
+  const { data } = await api.post(`/sessions/${sessionId}/resume`)
+  return data
+}

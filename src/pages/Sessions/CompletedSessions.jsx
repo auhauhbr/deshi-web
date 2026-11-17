@@ -54,16 +54,14 @@ function CompletedSessions() {
     <main className="start-session-page completed-sessions-page">
       <header className="session-header">
         <div className="session-brand">
-          <BrandLogo className="session-brand-logo" />
+          <BrandLogo className="session-brand-logo" to="/home" />
         </div>
-        <span className="session-header-label">Área do aluno</span>
       </header>
 
       <section className="session-details-content">
         <div className="session-heading">
           <p className="session-eyebrow">SEU HISTÓRICO</p>
           <h1>Treinos concluídos</h1>
-          <p>Consulte as sessões que você já finalizou.</p>
         </div>
 
         {isLoading && <div className="session-details-card" role="status">Carregando seus treinos...</div>}
