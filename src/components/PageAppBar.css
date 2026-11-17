@@ -1,0 +1,8 @@
+.page-app-bar { display: grid; grid-template-columns: 2.9rem 1fr 2.9rem; align-items: center; gap: .7rem; margin: 0 0 1.35rem; }
+.page-app-bar h1 { margin: 0; font-size: clamp(1.3rem, 5vw, 1.65rem); line-height: 1.15; letter-spacing: -.04em; }
+.app-back-button { width: 2.9rem; height: 2.9rem; display: grid; place-items: center; border: 1px solid var(--color-professional-border); border-radius: var(--radius-md); background: var(--color-surface); color: var(--color-professional-forest); cursor: pointer; transition: background var(--transition-fast), transform var(--transition-fast); }
+.app-back-button svg { width: 1.2rem; height: 1.2rem; }
+.app-back-button:hover { background: var(--color-professional-green-light); transform: translateX(-2px); }
+.app-back-button:active { transform: scale(.96); }
+.app-back-button:focus-visible { outline: 3px solid var(--color-border-focus); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { .app-back-button { transition: none; } }

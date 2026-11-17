@@ -8,6 +8,10 @@ import ModalidadesPage from './pages/Modalidades/Modalidades.jsx'
 import StudentsPage from './pages/Students/Students.jsx'
 import StudentProfilePage from './pages/Students/StudentProfile.jsx'
 import TrainingProgramEditorPage from './pages/TrainingProgram/TrainingProgramEditor.jsx'
+import AtividadesPage from './pages/Atividades/Atividades.jsx'
+import NovaAtividadePage from './pages/NovaAtividade/NovaAtividade.jsx'
+import ConfigurarAtividadePage from './pages/ConfigurarAtividade/ConfigurarAtividade.jsx'
+import BibliotecaPage from './pages/Biblioteca/Biblioteca.jsx'
 
 function AppRoutes() {
   return (
@@ -17,6 +21,10 @@ function AppRoutes() {
       <Route path="/" element={<LandingPage />} />
       <Route path="/home" element={<ProtectedRoute profile="PROFESSIONAL"><ProfessionalHomeEntry /></ProtectedRoute>} />
       <Route path="/modalidades" element={<ProtectedRoute profile="PROFESSIONAL"><ModalidadesPage /></ProtectedRoute>} />
+      <Route path="/atividades" element={<ProtectedRoute profile="PROFESSIONAL"><AtividadesPage /></ProtectedRoute>} />
+      <Route path="/biblioteca" element={<ProtectedRoute profile="PROFESSIONAL"><BibliotecaPage /></ProtectedRoute>} />
+      <Route path="/atividades/nova" element={<ProtectedRoute profile="PROFESSIONAL"><NovaAtividadePage /></ProtectedRoute>} />
+      <Route path="/atividades/:id/configurar" element={<ProtectedRoute profile="PROFESSIONAL"><ConfigurarAtividadePage /></ProtectedRoute>} />
       <Route path="/alunos" element={<ProtectedRoute profile="PROFESSIONAL"><StudentsPage /></ProtectedRoute>} />
       <Route path="/alunos/:studentId" element={<ProtectedRoute profile="PROFESSIONAL"><StudentProfilePage /></ProtectedRoute>} />
       <Route path="/alunos/:studentId/programas/novo" element={<ProtectedRoute profile="PROFESSIONAL"><TrainingProgramEditorPage /></ProtectedRoute>} />
