@@ -2,11 +2,13 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import {
   getStudentPrograms,
+  getStudentProfessionals,
   getStudentSessions,
   startSession
 } from '../../services/sessionService.js'
 import { getApiErrorMessage } from '../../services/authService.js'
 import StudentBottomNav from '../../components/StudentBottomNav.jsx'
+import StudentButton from '../../components/StudentButton.jsx'
 import BrandLogo from '../../components/BrandLogo.jsx'
 import './StartSession.css'
 
@@ -15,11 +17,14 @@ function StartSession() {
 
   const [programs, setPrograms] = useState([])
   const [completedProgramsCount, setCompletedProgramsCount] = useState(0)
+  const [hasActiveProfessional, setHasActiveProfessional] = useState(null)
   const [selectedProgram, setSelectedProgram] = useState('')
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [message, setMessage] = useState('')
+  const [isProgramLoadError, setIsProgramLoadError] = useState(false)
   const [historyWarning, setHistoryWarning] = useState('')
+  const [loadAttempt, setLoadAttempt] = useState(0)
 
   useEffect(() => {
     let isCurrent = true
@@ -28,9 +33,13 @@ function StartSession() {
       try {
         setIsLoading(true)
         setMessage('')
+        setIsProgramLoadError(false)
         setHistoryWarning('')
+        setPrograms([])
+        setCompletedProgramsCount(0)
+        setHasActiveProfessional(null)
 
-        const [data, history] = await Promise.all([
+        const [data, history, professionals] = await Promise.all([
           getStudentPrograms(),
           getStudentSessions().catch((error) => {
             if (isCurrent) {
@@ -38,12 +47,20 @@ function StartSession() {
             }
             return null
           }),
+          getStudentProfessionals(),
         ])
 
         if (!isCurrent) return
 
+        if (professionals.length === 0) {
+          setHasActiveProfessional(false)
+          return
+        }
+
+        setHasActiveProfessional(true)
+
         if (!history) {
-          setPrograms(data)
+          setPrograms([])
           setCompletedProgramsCount(0)
           return
         }
@@ -58,7 +75,10 @@ function StartSession() {
         setPrograms(availablePrograms)
         setCompletedProgramsCount(data.length - availablePrograms.length)
       } catch (error) {
-        if (isCurrent) setMessage(getApiErrorMessage(error, 'Não foi possível carregar seus programas.'))
+        if (isCurrent) {
+          setIsProgramLoadError(true)
+          setMessage(getApiErrorMessage(error, 'Não foi possível carregar seus programas.'))
+        }
       } finally {
         if (isCurrent) setIsLoading(false)
       }
@@ -66,7 +86,7 @@ function StartSession() {
 
     loadPrograms()
     return () => { isCurrent = false }
-  }, [])
+  }, [loadAttempt])
 
 async function handleStartSession(event, programId = selectedProgram) {
   event?.preventDefault()
@@ -82,6 +102,13 @@ async function handleStartSession(event, programId = selectedProgram) {
 
     setSelectedProgram(programId)
     const session = await startSession(programId)
+    const selectedProgramData = programs.find((program) => String(program.id) === String(programId))
+    if (session && Array.isArray(session.activities)) {
+      session.activities = session.activities.map((activity) => {
+        const source = selectedProgramData?.activities?.find((item) => String(item.activityId) === String(activity.activityId))
+        return { ...activity, prescribed: activity.prescribed || source?.prescribed }
+      })
+    }
 
     if (!session?.id) {
       setMessage('A API iniciou a sessão, mas não retornou o identificador esperado.')
@@ -90,7 +117,7 @@ async function handleStartSession(event, programId = selectedProgram) {
 
     navigate(`/sessions/${session.id}`, {
       replace: true,
-      state: { session, programName: programs.find((program) => program.id === programId)?.name }
+      state: { session, programName: selectedProgramData?.name }
     })
   } catch (error) {
     setMessage(
@@ -142,14 +169,31 @@ async function handleStartSession(event, programId = selectedProgram) {
             </div>
           )}
 
-          {!isLoading && programs.length === 0 && (
+          {!isLoading && historyWarning && (
+            <div className="session-empty" role="alert">
+              <h3>Não foi possível atualizar seus programas</h3>
+              <p>{historyWarning}</p>
+              <StudentButton variant="secondary" onClick={() => { setHistoryWarning(''); setIsLoading(true); setLoadAttempt((attempt) => attempt + 1) }}>
+                Tentar novamente
+              </StudentButton>
+            </div>
+          )}
+
+          {!isLoading && !historyWarning && !isProgramLoadError && programs.length === 0 && (
             <div className="session-empty">
-              {completedProgramsCount > 0 ? (
+              {!hasActiveProfessional ? (
+                <>
+                  <span className="empty-icon">◎</span>
+                  <h3>Vincule-se a um profissional</h3>
+                  <p>Seus programas aparecerão aqui quando você estiver vinculado a um profissional e receber um programa.</p>
+                  <Link className="completed-program-link" to="/invites/accept">Vincular profissional <span aria-hidden="true">→</span></Link>
+                </>
+              ) : completedProgramsCount > 0 ? (
                 <>
                   <span className="empty-icon">✓</span>
                   <h3>Todos os programas foram concluídos</h3>
                   <p>Os programas com sessões concluídas não aparecem mais nesta lista.</p>
-                  <Link className="completed-program-link" to="/sessions/completed">Ver sessões concluídas <span aria-hidden="true">→</span></Link>
+                  <Link className="completed-program-link" to="/sessions/completed">Ver histórico de treinos <span aria-hidden="true">→</span></Link>
                 </>
               ) : (
                 <>
@@ -164,7 +208,7 @@ async function handleStartSession(event, programId = selectedProgram) {
             </div>
           )}
 
-          {!isLoading && programs.length > 0 && (
+          {!isLoading && !historyWarning && !isProgramLoadError && programs.length > 0 && (
             <div className="program-grid">
               {programs.map((program) => (
                 <article
@@ -188,10 +232,11 @@ async function handleStartSession(event, programId = selectedProgram) {
                     <div className="program-card-content">
                       <h3>{program.name}</h3>
                       <p>{program.description || `${program.activities?.length ?? 0} ${program.activities?.length === 1 ? 'atividade' : 'atividades'} neste programa.`}</p>
-                      <p className="program-professional">Personal: {program.professionalName || 'não informado'}</p>
+                      <p className="program-professional">Profissional: {program.professionalName || 'não informado'}</p>
                     </div>
                   </label>
-                  <button
+                  <StudentButton
+                    variant="icon"
                     className="program-start-button"
                     type="button"
                     onClick={(event) => handleStartSession(event, program.id)}
@@ -199,23 +244,24 @@ async function handleStartSession(event, programId = selectedProgram) {
                     aria-label={`${isSubmitting && selectedProgram === program.id ? 'Iniciando' : 'Iniciar sessão do programa'} ${program.name}`}
                     title="Iniciar sessão"
                   >
-                    {isSubmitting && selectedProgram === program.id ? <span className="program-start-spinner" /> : <span aria-hidden="true">›</span>}
-                  </button>
+                    {isSubmitting && selectedProgram === program.id
+                      ? <span className="program-start-spinner" />
+                      : <svg className="program-start-arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" /></svg>}
+                  </StudentButton>
                 </article>
               ))}
             </div>
           )}
 
           {message && (
-            <p className="session-message" role="alert">
-              {message}
-            </p>
-          )}
-
-          {historyWarning && (
-            <p className="session-history-warning" role="status">
-              {historyWarning} Programas concluídos podem continuar aparecendo.
-            </p>
+            <div className="session-message-history" role="alert">
+              <p>{message}</p>
+              {isProgramLoadError && (
+                <StudentButton variant="secondary" onClick={() => { setMessage(''); setIsLoading(true); setLoadAttempt((attempt) => attempt + 1) }}>
+                  Tentar novamente
+                </StudentButton>
+              )}
+            </div>
           )}
 
         </form>

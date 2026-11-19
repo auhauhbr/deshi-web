@@ -2,8 +2,10 @@ import { useEffect, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { getApiErrorMessage } from '../../services/authService.js'
 import StudentBottomNav from '../../components/StudentBottomNav.jsx'
+import StudentButton from '../../components/StudentButton.jsx'
 import BrandLogo from '../../components/BrandLogo.jsx'
 import { getStudentSessions, registerExecution } from '../../services/sessionService.js'
+import { METRICAS_ATIVIDADE } from '../../utils/metricas-atividade.js'
 import './StartSession.css'
 import './SessionDetails.css'
 import './RegisterExecution.css'
@@ -23,6 +25,18 @@ function RegisterExecution() {
   const [isLoading, setIsLoading] = useState(!session || !activity)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [message, setMessage] = useState('')
+  const prescribedMetricKeys = Object.keys(activity?.prescribed || {}).filter((key) => Object.hasOwn(METRICAS_ATIVIDADE, key))
+  const metricOptions = prescribedMetricKeys.length ? prescribedMetricKeys : Object.keys(METRICAS_ATIVIDADE)
+
+  useEffect(() => {
+    const prescribedValues = activity?.prescribed
+    if (!prescribedValues || typeof prescribedValues !== 'object' || Array.isArray(prescribedValues)) return
+
+    const prescribedKeys = Object.keys(prescribedValues).filter((key) => Object.hasOwn(METRICAS_ATIVIDADE, key))
+    if (prescribedKeys.length) {
+      setFields(prescribedKeys.map((name, index) => ({ id: index + 1, name, value: '' })))
+    }
+  }, [activity])
 
   useEffect(() => {
     if (session && activity) return
@@ -68,10 +82,17 @@ function RegisterExecution() {
   }
 
   function addField() {
-    setFields((current) => [
-      ...current,
-      { id: Math.max(0, ...current.map((field) => field.id)) + 1, name: '', value: '' },
-    ])
+    setFields((current) => {
+      const nextName = metricOptions.find((key) => !current.some((field) => field.name === key))
+      if (!nextName) return current
+
+      const emptyField = current.find((field) => !field.name)
+      if (emptyField) {
+        return current.map((field) => field.id === emptyField.id ? { ...field, name: nextName } : field)
+      }
+
+      return [...current, { id: Math.max(0, ...current.map((field) => field.id)) + 1, name: nextName, value: '' }]
+    })
   }
 
   function removeField(id) {
@@ -88,12 +109,24 @@ function RegisterExecution() {
     }))
 
     if (!normalizedFields.length || normalizedFields.some((field) => !field.name || field.value === '')) {
-      setMessage('Informe o nome e o valor de cada indicador.')
+      setMessage('Selecione um indicador e informe o valor realizado.')
       return
     }
 
     if (normalizedFields.some((field) => !Number.isFinite(Number(field.value)))) {
       setMessage('Os valores dos indicadores devem ser numéricos.')
+      return
+    }
+
+    const invalidMetric = normalizedFields.find((field) => {
+      const metric = METRICAS_ATIVIDADE[field.name]
+      const value = Number(field.value)
+      return !metric
+        || (metric.tipo !== 'decimal' && !Number.isSafeInteger(value))
+        || (metric.min !== undefined && value < metric.min)
+    })
+    if (invalidMetric) {
+      setMessage(`Confira o valor de ${METRICAS_ATIVIDADE[invalidMetric.name]?.label || 'cada indicador'} e a unidade.`)
       return
     }
 
@@ -127,6 +160,9 @@ function RegisterExecution() {
                 nome: updatedActivity.nome || currentActivity?.nome,
                 descricao: updatedActivity.descricao || currentActivity?.descricao,
                 midiaUrl: updatedActivity.midiaUrl || currentActivity?.midiaUrl,
+                prescribed: updatedActivity.prescribed || currentActivity?.prescribed,
+                executionValues: updatedActivity.executionValues
+                  || (String(updatedActivity.activityId) === String(activityId) ? values : currentActivity?.executionValues),
               }
             }),
           },
@@ -175,6 +211,18 @@ function RegisterExecution() {
           <p className="execution-prescription-note">
             Os valores serão salvos nesta sessão e não alteram a prescrição original do programa.
           </p>
+          {activity.prescribed && Object.keys(activity.prescribed).length > 0 && (
+            <dl className="execution-prescription-list" aria-label="Valores prescritos">
+              {Object.entries(activity.prescribed)
+                .filter(([key]) => Object.hasOwn(METRICAS_ATIVIDADE, key))
+                .map(([key, value]) => (
+                  <div key={key}>
+                    <dt>{METRICAS_ATIVIDADE[key].label}</dt>
+                    <dd>{value} {METRICAS_ATIVIDADE[key].unidade}</dd>
+                  </div>
+                ))}
+            </dl>
+          )}
 
           <fieldset className="execution-status-fieldset">
             <legend>Resultado da atividade</legend>
@@ -193,9 +241,16 @@ function RegisterExecution() {
           <div className="execution-fields-heading">
             <div>
               <h2>Indicadores</h2>
-              <p>Use os nomes de campo definidos para esta atividade.</p>
+              <p>Os indicadores seguem a prescrição da atividade e usam unidades padronizadas.</p>
             </div>
-            <button type="button" className="execution-add-field" onClick={addField}>Adicionar indicador</button>
+            <StudentButton
+              variant="secondary"
+              className="execution-add-field"
+              onClick={addField}
+              disabled={fields.length >= metricOptions.length}
+            >
+              Adicionar indicador
+            </StudentButton>
           </div>
 
           <div className="execution-fields-list">
@@ -203,14 +258,37 @@ function RegisterExecution() {
               <div className="execution-field-row" key={field.id}>
                 <div className="execution-input">
                   <label htmlFor={`execution-name-${field.id}`}>Indicador {index + 1}</label>
-                  <input id={`execution-name-${field.id}`} type="text" value={field.name} onChange={(event) => updateField(field.id, 'name', event.target.value)} placeholder="Ex.: repetições" required />
+                  <select id={`execution-name-${field.id}`} value={field.name} onChange={(event) => updateField(field.id, 'name', event.target.value)} required>
+                    <option value="">Selecione um indicador</option>
+                    {metricOptions.map((key) => {
+                      const metric = METRICAS_ATIVIDADE[key]
+                      return (
+                      <option key={key} value={key} disabled={fields.some((item) => item.id !== field.id && item.name === key)}>
+                        {metric.label} ({metric.unidade})
+                      </option>
+                      )
+                    })}
+                  </select>
                 </div>
                 <div className="execution-input">
-                  <label htmlFor={`execution-value-${field.id}`}>Valor numérico</label>
-                  <input id={`execution-value-${field.id}`} type="number" step="any" value={field.value} onChange={(event) => updateField(field.id, 'value', event.target.value)} placeholder="Ex.: 12" required />
+                  <label htmlFor={`execution-value-${field.id}`}>
+                    {METRICAS_ATIVIDADE[field.name]?.label || 'Valor'} ({METRICAS_ATIVIDADE[field.name]?.unidade || 'unidade'})
+                  </label>
+                  <input
+                    id={`execution-value-${field.id}`}
+                    type="number"
+                    step={METRICAS_ATIVIDADE[field.name]?.tipo === 'inteiro' ? '1' : 'any'}
+                    min={METRICAS_ATIVIDADE[field.name]?.min}
+                    value={field.value}
+                    onChange={(event) => updateField(field.id, 'value', event.target.value)}
+                    placeholder="Informe o valor realizado"
+                    required
+                  />
                 </div>
                 {fields.length > 1 && (
-                  <button type="button" className="execution-remove-field" onClick={() => removeField(field.id)} aria-label={`Remover indicador ${index + 1}`}>Remover</button>
+                  <StudentButton variant="secondary" className="execution-remove-field" onClick={() => removeField(field.id)} aria-label={`Remover indicador ${index + 1}`}>
+                    Remover
+                  </StudentButton>
                 )}
               </div>
             ))}
@@ -219,10 +297,10 @@ function RegisterExecution() {
           {message && <p className="session-message" role="alert">{message}</p>}
 
           <div className="execution-actions">
-      <button type="button" className="session-secondary-button" onClick={() => navigate(`/sessions/${sessionId}`, { state: { session, programName: state?.programName } })} disabled={isSubmitting}>Voltar à sessão</button>
-            <button type="submit" className="session-start-button" disabled={isSubmitting}>
+            <StudentButton variant="secondary" className="session-secondary-button" onClick={() => navigate(`/sessions/${sessionId}`, { state: { session, programName: state?.programName } })} disabled={isSubmitting}>Voltar à sessão</StudentButton>
+            <StudentButton type="submit" particles className="session-start-button" busy={isSubmitting}>
               {isSubmitting ? 'Salvando execução...' : 'Salvar execução'}
-            </button>
+            </StudentButton>
           </div>
         </form>
       </section>

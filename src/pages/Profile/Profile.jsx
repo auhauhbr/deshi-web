@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import StudentBottomNav from '../../components/StudentBottomNav.jsx'
+import StudentButton from '../../components/StudentButton.jsx'
 import BrandLogo from '../../components/BrandLogo.jsx'
 import { getApiErrorMessage, getStoredUser, logoutUser } from '../../services/authService.js'
 import { getStudentSessions } from '../../services/sessionService.js'
@@ -72,7 +73,7 @@ function ExitIcon() {
   )
 }
 
-function CircularMetric({ value, label, progress = 1, variant = '' }) {
+function CircularMetric({ value, label, progress = 1, showProgress = true, variant = '' }) {
   const circumference = 2 * Math.PI * 36
   const normalizedProgress = Math.max(0, Math.min(1, progress))
 
@@ -85,7 +86,7 @@ function CircularMetric({ value, label, progress = 1, variant = '' }) {
           cx="44"
           cy="44"
           r="36"
-          style={{ strokeDasharray: circumference, strokeDashoffset: circumference * (1 - normalizedProgress) }}
+          style={{ strokeDasharray: circumference, strokeDashoffset: circumference * (1 - normalizedProgress), opacity: showProgress ? 1 : 0 }}
         />
       </svg>
       <span className="profile-ring-center">{value}</span>
@@ -100,6 +101,7 @@ function ProfilePage() {
   const [sessions, setSessions] = useState([])
   const [isLoadingSessions, setIsLoadingSessions] = useState(true)
   const [sessionsMessage, setSessionsMessage] = useState('')
+  const [loadAttempt, setLoadAttempt] = useState(0)
   const [weekOffset, setWeekOffset] = useState(0)
   const swipeStartX = useRef(null)
 
@@ -109,9 +111,13 @@ function ProfilePage() {
     async function loadSessions() {
       try {
         const history = await getStudentSessions()
-        if (isCurrent) setSessions(history.filter((session) => session.status === 'COMPLETED'))
+        if (isCurrent) {
+          setSessions(history.filter((session) => session.status === 'COMPLETED'))
+          setSessionsMessage('')
+        }
       } catch (error) {
         if (isCurrent) {
+          setSessions([])
           setSessionsMessage(getApiErrorMessage(error, 'Não foi possível carregar seu histórico de sessões.'))
         }
       } finally {
@@ -121,7 +127,7 @@ function ProfilePage() {
 
     loadSessions()
     return () => { isCurrent = false }
-  }, [])
+  }, [loadAttempt])
 
   async function handleLogout() {
     setIsLoggingOut(true)
@@ -178,7 +184,8 @@ function ProfilePage() {
     <main className="start-session-page profile-page">
       <header className="session-header profile-header">
         <div className="session-brand"><BrandLogo className="session-brand-logo" to="/home" /></div>
-        <button
+        <StudentButton
+          variant="icon"
           type="button"
           className="profile-logout-icon"
           onClick={handleLogout}
@@ -187,7 +194,7 @@ function ProfilePage() {
           title="Sair da conta"
         >
           <ExitIcon />
-        </button>
+        </StudentButton>
       </header>
 
       <section className="profile-dashboard-content">
@@ -210,13 +217,13 @@ function ProfilePage() {
               <h2 id="profile-week-title">Sua semana</h2>
             </div>
             <div className="profile-week-navigation" aria-label="Navegar entre semanas">
-              <button type="button" onClick={() => setWeekOffset((offset) => offset - 1)} aria-label="Ver semana anterior">
+              <StudentButton variant="icon" onClick={() => setWeekOffset((offset) => offset - 1)} aria-label="Ver semana anterior">
                 <ChevronIcon direction="previous" />
-              </button>
+              </StudentButton>
               <span className="profile-month-label" aria-live="polite">{formatWeekRange(weekDays)}</span>
-              <button type="button" onClick={() => setWeekOffset((offset) => offset + 1)} aria-label="Ver próxima semana">
+              <StudentButton variant="icon" onClick={() => setWeekOffset((offset) => offset + 1)} aria-label="Ver próxima semana">
                 <ChevronIcon direction="next" />
-              </button>
+              </StudentButton>
             </div>
           </div>
 
@@ -252,13 +259,21 @@ function ProfilePage() {
           </div>
           {isLoadingSessions ? (
             <p className="profile-calendar-note" role="status">Carregando sessões...</p>
+          ) : sessionsMessage ? (
+            <p className="profile-calendar-note">O calendário será atualizado quando o histórico estiver disponível.</p>
           ) : (
-            <p className="profile-calendar-note"></p>
+            <p className="profile-calendar-note">Os dias marcados indicam sessões concluídas.</p>
           )}
         </section>
 
-        {sessionsMessage && <p className="profile-history-message" role="alert">{sessionsMessage}</p>}
-
+        {sessionsMessage ? (
+          <div className="profile-history-message" role="alert">
+            <p>{sessionsMessage}</p>
+            <StudentButton variant="secondary" onClick={() => { setSessionsMessage(''); setIsLoadingSessions(true); setLoadAttempt((attempt) => attempt + 1) }}>
+              Tentar novamente
+            </StudentButton>
+          </div>
+        ) : (
         <section className="profile-stats-grid" aria-label="Resumo das sessões">
           <article className="profile-stat-card profile-count-card">
             <div className="profile-section-heading">
@@ -274,6 +289,7 @@ function ProfilePage() {
                 <CircularMetric
                   value={sessions.length}
                   label={`${sessions.length} ${sessions.length === 1 ? 'sessão concluída' : 'sessões concluídas'}`}
+                  showProgress={false}
                   variant="profile-ring-count"
                 />
                 <p>{sessions.length === 1 ? 'sessão registrada' : 'sessões registradas'}</p>
@@ -318,9 +334,10 @@ function ProfilePage() {
             )}
           </article>
         </section>
+        )}
       </section>
 
-      <StudentBottomNav active="profile" />
+      <StudentBottomNav active="profile" showAccountMenu={false} />
     </main>
   )
 }

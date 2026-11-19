@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { logoutUser } from '../../services/authService.js'
 import StudentBottomNav from '../../components/StudentBottomNav.jsx'
+import StudentButton from '../../components/StudentButton.jsx'
 import BrandLogo from '../../components/BrandLogo.jsx'
 import './Home.css'
 
@@ -11,7 +11,6 @@ function HomePage() {
   const location = useLocation()
   const navigate = useNavigate()
   const videoRef = useRef(null)
-  const [isLoggingOut, setIsLoggingOut] = useState(false)
   const [isLoginRevealVisible, setIsLoginRevealVisible] = useState(() => (
     Boolean(location.state?.playLoginReveal)
     && !window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -39,18 +38,6 @@ function HomePage() {
     return () => window.removeEventListener('keydown', skipOnEscape)
   }, [isLoginRevealVisible])
 
-  async function handleLogout() {
-    setIsLoggingOut(true)
-    try {
-      await logoutUser()
-    } finally {
-      navigate('/login', {
-        replace: true,
-        state: { message: 'Você saiu da sua conta com segurança.' },
-      })
-    }
-  }
-
   return (
     <main className="home-page">
       <header className="home-header">
@@ -64,9 +51,9 @@ function HomePage() {
             <p className="home-eyebrow">SUA ROTINA ESPORTIVA</p>
             <h1>Pronto para treinar?</h1>
             <p>Acesse seus programas e inicie uma sessão de treino.</p>
-            <button type="button" className="home-start-session" onClick={() => navigate('/sessions/start')}>
+            <StudentButton variant="primary" className="home-start-session" onClick={() => navigate('/sessions/start')}>
               Iniciar sessão <span aria-hidden="true">→</span>
-            </button>
+            </StudentButton>
           </div>
           <div className="home-visual">
             <div className="home-visual-orbit home-visual-orbit-outer" />

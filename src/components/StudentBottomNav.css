@@ -54,7 +54,7 @@
   transform: translate(-50%, -50%);
 }
 
-.student-bottom-nav a:hover:not(.active) { color: #fff; }
+.student-bottom-nav a:hover:not(.active) { color: var(--color-primary-active); }
 .student-bottom-nav a:active { transform: scale(.96); }
 
 .student-bottom-nav a.active:active { transform: translateY(-.78rem) scale(.96); }

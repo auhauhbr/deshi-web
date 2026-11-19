@@ -20,6 +20,16 @@ export async function getStudentPrograms() {
   }))
 }
 
+export async function getStudentProfessionals() {
+  const { data } = await api.get('/vinculos/profissionais')
+
+  if (!Array.isArray(data)) {
+    throw new Error('A API retornou uma lista de profissionais inválida.')
+  }
+
+  return data
+}
+
 export async function startSession(programId) {
   const { data } = await api.post('/sessions', {
     programId

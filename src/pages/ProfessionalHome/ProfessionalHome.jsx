@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { api } from '../../services/api.js'
-import { logoutUser } from '../../services/authService.js'
 import ProfessionalNavigation from '../../components/ProfessionalNavigation.jsx'
+import AccountMenu from '../../components/AccountMenu.jsx'
 import './ProfessionalHome.css'
 
 function getGreeting() {
@@ -22,7 +22,6 @@ function formatDuration(startedAt) {
 }
 
 function ProfessionalHomePage() {
-  const navigate = useNavigate()
   const user = JSON.parse(localStorage.getItem('deshi.user') || '{}')
   const [dashboard, setDashboard] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -40,10 +39,6 @@ function ProfessionalHomePage() {
       .finally(() => setLoading(false))
   }, [])
 
-  async function handleLogout() {
-    try { await logoutUser() } finally { navigate('/login', { replace: true, state: { message: 'Você saiu da sua conta com segurança.' } }) }
-  }
-
   const today = new Intl.DateTimeFormat('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date())
 
   return <main className="professional-home">
@@ -55,14 +50,7 @@ function ProfessionalHomePage() {
           <h1>{getGreeting()}, {user.name?.trim().split(/\s+/)[0] || 'profissional'}.</h1>
           <p className="professional-home__date">Acompanhe a rotina dos seus alunos e veja o que está acontecendo hoje.</p>
         </div>
-        <details className="profile-menu">
-          <summary className="professional-home__avatar" aria-label={`Abrir opções de ${user.name || 'usuário'}`} title="Opções da conta">{initials(user.name)}<span className="profile-menu__chevron" aria-hidden="true">⌄</span></summary>
-          <div className="profile-menu__panel">
-            <span className="profile-menu__name">{user.name || 'Profissional'}</span>
-            {user.email && <span className="profile-menu__email">{user.email}</span>}
-            <button type="button" onClick={handleLogout}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 17l5-5-5-5M15 12H3m9-7h7a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-7" /></svg>Sair da conta</button>
-          </div>
-        </details>
+        <AccountMenu fallbackLabel="Profissional" />
       </header>
 
       {error && <p className="professional-home__error" role="alert">{error}</p>}

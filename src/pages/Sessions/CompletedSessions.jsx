@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import StudentBottomNav from '../../components/StudentBottomNav.jsx'
+import StudentButton from '../../components/StudentButton.jsx'
 import BrandLogo from '../../components/BrandLogo.jsx'
 import { getApiErrorMessage } from '../../services/authService.js'
 import { getStudentSessions } from '../../services/sessionService.js'
+import { useStudentEntrance } from '../../hooks/useStudentEntrance.js'
 import './StartSession.css'
 import './SessionDetails.css'
 import './CompletedSessions.css'
@@ -24,6 +26,8 @@ function CompletedSessions() {
   const [sessions, setSessions] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [message, setMessage] = useState('')
+  const [loadAttempt, setLoadAttempt] = useState(0)
+  const pageRef = useStudentEntrance([isLoading, sessions.length])
 
   useEffect(() => {
     let isCurrent = true
@@ -31,13 +35,13 @@ function CompletedSessions() {
     async function loadSessions() {
       try {
         const history = await getStudentSessions()
-        const completed = history
-          .filter((session) => session.status === 'COMPLETED')
+        const visibleSessions = history
+          .filter((session) => ['COMPLETED', 'INTERRUPTED'].includes(session.status))
           .sort((first, second) => new Date(second.finishedAt || second.startedAt) - new Date(first.finishedAt || first.startedAt))
 
-        if (isCurrent) setSessions(completed)
+        if (isCurrent) setSessions(visibleSessions)
       } catch (error) {
-        if (isCurrent) setMessage(getApiErrorMessage(error, 'Não foi possível carregar seus treinos concluídos.'))
+        if (isCurrent) setMessage(getApiErrorMessage(error, 'Não foi possível carregar seu histórico de treinos.'))
       } finally {
         if (isCurrent) setIsLoading(false)
       }
@@ -48,10 +52,10 @@ function CompletedSessions() {
     return () => {
       isCurrent = false
     }
-  }, [])
+  }, [loadAttempt])
 
   return (
-    <main className="start-session-page completed-sessions-page">
+    <main ref={pageRef} className="start-session-page completed-sessions-page">
       <header className="session-header">
         <div className="session-brand">
           <BrandLogo className="session-brand-logo" to="/home" />
@@ -61,27 +65,35 @@ function CompletedSessions() {
       <section className="session-details-content">
         <div className="session-heading">
           <p className="session-eyebrow">SEU HISTÓRICO</p>
-          <h1>Treinos concluídos</h1>
+          <h1>Histórico de treinos</h1>
         </div>
 
         {isLoading && <div className="session-details-card" role="status">Carregando seus treinos...</div>}
-        {!isLoading && message && <p className="session-message" role="alert">{message}</p>}
+        {!isLoading && message && (
+          <div className="session-message-history" role="alert">
+            <p>{message}</p>
+            <StudentButton variant="secondary" onClick={() => { setMessage(''); setIsLoading(true); setLoadAttempt((attempt) => attempt + 1) }}>
+              Tentar novamente
+            </StudentButton>
+          </div>
+        )}
         {!isLoading && !message && sessions.length === 0 && (
           <div className="session-details-card completed-sessions-empty">
             <span aria-hidden="true">✓</span>
-            <h2>Nenhum treino concluído</h2>
-            <p>Quando você finalizar uma sessão, ela aparecerá aqui.</p>
+            <h2>Nenhum treino no histórico</h2>
+            <p>As sessões concluídas ou interrompidas aparecerão aqui.</p>
           </div>
         )}
         {!isLoading && !message && sessions.length > 0 && (
           <ol className="completed-sessions-list">
             {sessions.map((session) => (
-              <li key={session.id}>
+              <li key={session.id} data-student-enter>
                 <Link to={`/sessions/${session.id}`} className="completed-session-card">
-                  <span className="completed-session-icon" aria-hidden="true">✓</span>
+                  <span className={`completed-session-icon${session.status === 'INTERRUPTED' ? ' is-interrupted' : ''}`} aria-hidden="true">{session.status === 'INTERRUPTED' ? '!' : '✓'}</span>
                   <span className="completed-session-info">
-                    <strong>Treino concluído</strong>
-                    <small>{formatSessionDate(session.finishedAt || session.startedAt)}</small>
+                    <strong>{session.status === 'INTERRUPTED' ? 'Treino interrompido' : 'Treino concluído'}</strong>
+                    <small>Início: {formatSessionDate(session.startedAt)}</small>
+                    {session.finishedAt && <small>Término: {formatSessionDate(session.finishedAt)}</small>}
                     <small>{session.activities?.length || 0} {session.activities?.length === 1 ? 'atividade' : 'atividades'}</small>
                   </span>
                   <span className="completed-session-arrow" aria-hidden="true">→</span>

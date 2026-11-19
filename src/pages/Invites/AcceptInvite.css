@@ -52,6 +52,25 @@
   line-height: 1.55;
 }
 
+.invite-links-loading {
+  margin: -1rem 0 1.5rem;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+.invite-links-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  margin: -1rem 0 1.5rem;
+  padding: .85rem;
+  border: 1px solid rgb(217 54 54 / 18%);
+  border-radius: .8rem;
+  background: rgb(217 54 54 / 5%);
+}
+.invite-links-error p { margin: 0; color: var(--color-error); font-size: var(--font-size-sm); line-height: 1.4; }
+.invite-links-error .student-button { min-width: auto; min-height: 2.4rem; flex: 0 0 auto; font-size: var(--font-size-xs); }
+
 .invite-form {
   --stub-width: 7.2rem;
   position: relative;
@@ -215,6 +234,11 @@
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-semibold);
 }
+.invite-active-actions { display: grid; justify-items: start; gap: .75rem; margin-bottom: 1.25rem; }
+.invite-active-actions .invite-confirmation { margin: 0; }
+.invite-active-actions .student-button,
+.invite-cancel-add { min-height: 2.65rem; }
+.invite-cancel-add { margin-top: .9rem; }
 
 .training-pass {
   --pass-ink: #f3fff9;
@@ -243,7 +267,7 @@
   letter-spacing: .12em;
 }
 .training-pass-brand { color: rgb(243 255 249 / 72%); }
-.training-pass-mark { width: 1.35rem; height: 1.35rem; display: grid; place-items: center; border-radius: .42rem; background: var(--color-primary); color: #073c2c; font-size: .78rem; letter-spacing: 0; }
+.training-pass-logo { width: 2.35rem; height: 1.5rem; object-fit: contain; }
 .training-pass-status { color: #84edbc; white-space: nowrap; }
 .training-pass-status i { width: .42rem; height: .42rem; border-radius: 50%; background: currentColor; box-shadow: 0 0 0 .2rem rgb(132 237 188 / 12%); }
 .training-pass h2 { margin: 1.05rem 0 1.1rem; color: #fff; font-family: var(--font-family-secondary); font-size: 1.75rem; line-height: 1; letter-spacing: -.025em; }
@@ -274,7 +298,7 @@
   .training-pass-main { padding: 1.1rem .95rem 1rem; }
   .training-pass-brand { font-size: .52rem; }
   .training-pass-status { font-size: .5rem; letter-spacing: .08em; }
-  .training-pass-mark { width: 1.2rem; height: 1.2rem; }
+  .training-pass-logo { width: 2rem; height: 1.3rem; }
   .training-pass h2 { margin: .9rem 0 1rem; font-size: 1.55rem; }
   .training-pass-route { grid-template-columns: minmax(0, 1fr) 1.5rem minmax(0, 1fr); gap: .4rem; }
   .training-pass-person strong { font-size: .82rem; }

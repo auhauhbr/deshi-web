@@ -160,23 +160,15 @@ function FitnessScene() {
     const equipment = createGymObjects()
     scene.add(equipment)
 
-    const resize = () => {
-      const { width, height } = container.getBoundingClientRect()
-      if (!width || !height) return
-      renderer.setSize(width, height, false)
-      camera.aspect = width / height
-      camera.position.z = width < 480 ? 8.8 : 8.1
-      camera.updateProjectionMatrix()
-    }
-
-    const resizeObserver = new ResizeObserver(resize)
-    resizeObserver.observe(container)
-    resize()
-
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
     const clock = new THREE.Clock()
-    let frameId
+    let frameId = null
+    let isVisible = true
+
     const renderFrame = () => {
+      frameId = null
+      if (!isVisible) return
+
       const elapsed = clock.getElapsedTime()
       if (!reducedMotion.matches) {
         equipment.rotation.y = Math.sin(elapsed * 0.28) * 0.13
@@ -184,14 +176,55 @@ function FitnessScene() {
         equipment.userData.floatingParts.forEach((part, index) => {
           part.position.y = part.userData.floatBaseY + Math.sin(elapsed * 1.25 + index * 1.7) * 0.08
         })
+        renderer.render(scene, camera)
+        frameId = window.requestAnimationFrame(renderFrame)
+        return
       }
+
       renderer.render(scene, camera)
-      frameId = window.requestAnimationFrame(renderFrame)
     }
-    renderFrame()
+
+    const syncMotion = () => {
+      if (frameId !== null) {
+        window.cancelAnimationFrame(frameId)
+        frameId = null
+      }
+      if (isVisible && !reducedMotion.matches) {
+        frameId = window.requestAnimationFrame(renderFrame)
+        return
+      }
+      equipment.rotation.set(0, 0, 0)
+      equipment.userData.floatingParts.forEach((part) => { part.position.y = part.userData.floatBaseY })
+      if (isVisible) renderer.render(scene, camera)
+    }
+
+    const resize = () => {
+      const { width, height } = container.getBoundingClientRect()
+      if (!width || !height) return
+      renderer.setSize(width, height, false)
+      camera.aspect = width / height
+      camera.position.z = width < 480 ? 8.8 : 8.1
+      camera.updateProjectionMatrix()
+      if (reducedMotion.matches) renderer.render(scene, camera)
+    }
+
+    const resizeObserver = new ResizeObserver(resize)
+    resizeObserver.observe(container)
+    resize()
+    const visibilityObserver = 'IntersectionObserver' in window
+      ? new IntersectionObserver(([entry]) => {
+        isVisible = entry.isIntersecting
+        syncMotion()
+      })
+      : null
+    visibilityObserver?.observe(container)
+    reducedMotion.addEventListener?.('change', syncMotion)
+    syncMotion()
 
     return () => {
-      window.cancelAnimationFrame(frameId)
+      if (frameId !== null) window.cancelAnimationFrame(frameId)
+      visibilityObserver?.disconnect()
+      reducedMotion.removeEventListener?.('change', syncMotion)
       resizeObserver.disconnect()
       equipment.traverse((object) => {
         if (object.geometry) object.geometry.dispose()

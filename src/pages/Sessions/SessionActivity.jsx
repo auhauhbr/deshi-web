@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { getApiErrorMessage } from '../../services/authService.js'
+import StudentButton from '../../components/StudentButton.jsx'
+import StudentAccountMenu from '../../components/StudentAccountMenu.jsx'
 import {
   completeActivity,
   endActivityRest,
@@ -104,6 +106,8 @@ function SessionActivity() {
         nome: nextActivity?.nome || activity.nome,
         descricao: nextActivity?.descricao || activity.descricao,
         midiaUrl: nextActivity?.midiaUrl || activity.midiaUrl,
+        prescribed: nextActivity?.prescribed || activity.prescribed,
+        executionValues: nextActivity?.executionValues || activity.executionValues,
       }
       const sessionWithMetadata = {
         ...updatedSession,
@@ -185,6 +189,7 @@ function SessionActivity() {
         </button>
         <span>ATIVIDADE {activity.order}</span>
       </header>
+      <StudentAccountMenu />
 
       <section className="activity-player-main" aria-label={label}>
         <div className="activity-player-title">
@@ -206,27 +211,27 @@ function SessionActivity() {
           ) : (
             <>
               {mainAction && (
-                <button type="button" className="activity-main-action" onClick={() => runAction(mainAction.action)} disabled={busy}>
+                <StudentButton variant="primary" className="activity-main-action" onClick={() => runAction(mainAction.action)} busy={busy}>
                   {busy ? <span className="activity-action-spinner" aria-hidden="true" /> : <ActionIcon kind={mainAction.icon} />}
                   {busy ? 'Atualizando...' : mainAction.label}
-                </button>
+                </StudentButton>
               )}
 
               <div className="activity-secondary-actions">
                 {canRest && (
-                  <button type="button" onClick={() => runAction(startActivityRest)} disabled={busy}>
+                  <StudentButton variant="secondary" onClick={() => runAction(startActivityRest)} disabled={busy}>
                     <ActionIcon kind="rest" /> Iniciar descanso
-                  </button>
+                  </StudentButton>
                 )}
                 {canComplete && (
-                  <button type="button" onClick={() => runAction(completeActivity)} disabled={busy}>
+                  <StudentButton variant="secondary" particles onClick={() => runAction(completeActivity)} disabled={busy}>
                     <ActionIcon kind="check" /> Concluir atividade
-                  </button>
+                  </StudentButton>
                 )}
                 {['COMPLETED', 'INCOMPLETE'].includes(activity.status) && session.status === 'IN_PROGRESS' && (
-                  <button type="button" onClick={openExecutionForm} disabled={busy}>
+                  <StudentButton variant="secondary" onClick={openExecutionForm} disabled={busy}>
                     Registrar execução
-                  </button>
+                  </StudentButton>
                 )}
               </div>
             </>

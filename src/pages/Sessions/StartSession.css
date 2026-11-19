@@ -463,29 +463,25 @@
 .program-radio-indicator { display: none; }
 
 .program-start-button {
-  width: 2.55rem;
-  height: 2.55rem;
+  width: 2.75rem;
+  height: 2.75rem;
   align-self: center;
   display: grid;
   place-items: center;
-  padding: 0 0 .15rem .1rem;
+  padding: 0;
   border: 0;
   border-radius: 50%;
-  background: var(--color-primary);
-  color: var(--color-text-on-primary);
-  font: inherit;
-  font-size: 2.3rem;
-  font-weight: var(--font-weight-medium);
-  line-height: 1;
-  cursor: pointer;
-  box-shadow: 0 4px 14px rgb(0 217 160 / 18%);
-  transition: transform 160ms ease, background 160ms ease, opacity 160ms ease;
+  background: transparent;
+  color: var(--color-text-secondary);
+  box-shadow: none;
+  transition: transform 160ms ease, color 160ms ease, opacity 160ms ease;
 }
-.program-start-button:hover:not(:disabled) { background: var(--color-primary-hover); transform: scale(1.06); }
+.program-start-button.student-button--icon:hover:not(:disabled) { background: transparent; color: var(--color-primary-active); transform: translateX(2px); }
 .program-start-button:active:not(:disabled) { transform: scale(.94); }
 .program-start-button:disabled { opacity: .65; cursor: wait; }
 .program-start-button:focus-visible { outline: 3px solid rgb(0 217 160 / 45%); outline-offset: 3px; }
-.program-start-spinner { width: 1rem; height: 1rem; border: 2px solid rgb(6 41 31 / 28%); border-top-color: var(--color-text-on-primary); border-radius: 50%; animation: program-spin 700ms linear infinite; }
+.program-start-arrow { width: 1.25rem; height: 1.25rem; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.program-start-spinner { width: 1rem; height: 1rem; border: 2px solid var(--color-border); border-top-color: var(--color-primary-active); border-radius: 50%; animation: program-spin 700ms linear infinite; }
 @keyframes program-spin { to { transform: rotate(360deg); } }
 
 .programs-page .session-empty { padding: 2.5rem 1rem; border: 0; border-radius: 0; background: transparent; color: var(--color-text-secondary); }
@@ -498,7 +494,7 @@
   .programs-page .program-selection { padding: 0; }
   .programs-page .program-section-heading { flex-direction: row; align-items: center; }
   .program-card { grid-template-columns: minmax(0, 1fr) 2.45rem; }
-  .program-start-button { width: 2.35rem; height: 2.35rem; }
+  .program-start-button { width: 2.45rem; height: 2.45rem; }
 }
 
 @media (max-width: 390px) {

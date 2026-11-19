@@ -1,0 +1,74 @@
+.student-button {
+  position: relative;
+  isolation: isolate;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  font: inherit;
+  cursor: pointer;
+  transition: transform 150ms cubic-bezier(.2, 0, 0, 1), filter 150ms ease;
+}
+
+.student-button:active:not(:disabled) { transform: scale(.98); }
+.student-button:focus-visible { outline: 3px solid rgb(0 159 117 / 38%); outline-offset: 3px; }
+.student-button:disabled { cursor: not-allowed; opacity: .62; }
+.home-page button:focus-visible,
+.start-session-page button:focus-visible,
+.profile-page button:focus-visible { outline: 3px solid rgb(0 159 117 / 38%); outline-offset: 3px; }
+
+.student-button--primary {
+  padding: 0 1rem;
+  border: 0;
+  border-radius: .9rem;
+  background: var(--color-primary);
+  color: var(--color-text-on-primary);
+  font-weight: var(--font-weight-bold);
+}
+.student-button--primary:hover:not(:disabled) { filter: brightness(.96); }
+
+.student-button--secondary {
+  padding: 0 .9rem;
+  border: 1px solid var(--color-border);
+  border-radius: .9rem;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-weight: var(--font-weight-semibold);
+}
+.student-button--secondary:hover:not(:disabled) { border-color: var(--color-primary); background: var(--color-primary-light); }
+
+.student-button--danger {
+  padding: 0 .9rem;
+  border: 1px solid #efcaca;
+  border-radius: .9rem;
+  background: #fff7f7;
+  color: var(--color-error);
+  font-weight: var(--font-weight-semibold);
+}
+.student-button--danger:hover:not(:disabled) { background: #ffeded; }
+.student-button--icon { padding: 0; border: 0; border-radius: 50%; background: transparent; }
+.student-button--icon:hover:not(:disabled) { background: var(--color-primary-light); }
+
+.student-particle-layer {
+  position: absolute;
+  z-index: 4;
+  inset: 0;
+  overflow: visible;
+  pointer-events: none;
+}
+.student-particle {
+  position: absolute;
+  top: 0;
+  display: block;
+  border-radius: 1px;
+  background: var(--color-primary);
+  animation: student-particle-burst var(--particle-duration) cubic-bezier(.2, 0, 0, 1) both;
+}
+.student-particle-layer--danger .student-particle { background: var(--color-error); }
+@keyframes student-particle-burst {
+  0% { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(0); }
+  100% { opacity: 0; transform: translate(calc(-50% + var(--particle-x)), var(--particle-y)) scale(.25) rotate(var(--particle-rotation)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .student-button { transition: none; }
+  .student-particle { display: none; animation: none; }
+}

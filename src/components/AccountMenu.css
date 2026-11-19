@@ -1,0 +1,113 @@
+.account-menu {
+  position: relative;
+  z-index: 10;
+  flex: none;
+}
+
+.account-menu__avatar {
+  position: relative;
+  width: 3rem;
+  height: 3rem;
+  display: grid;
+  place-items: center;
+  border: 1px solid #c5ddd0;
+  border-radius: 50%;
+  background: #dceee4;
+  color: #1c634c;
+  font-size: .88rem;
+  font-weight: 800;
+  list-style: none;
+  cursor: pointer;
+  user-select: none;
+}
+
+.account-menu__avatar::-webkit-details-marker { display: none; }
+.account-menu__avatar:focus-visible { outline: 3px solid rgb(0 159 117 / 35%); outline-offset: 3px; }
+
+.account-menu__chevron {
+  position: absolute;
+  right: -.2rem;
+  bottom: -.15rem;
+  width: 1.15rem;
+  height: 1.15rem;
+  display: grid;
+  place-items: center;
+  border: 2px solid #f3f6f3;
+  border-radius: 50%;
+  background: #fff;
+  color: #527464;
+  font-size: .8rem;
+  line-height: 1;
+}
+
+.account-menu__panel {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + .65rem);
+  right: 0;
+  width: min(17rem, calc(100vw - 2rem));
+  padding: .55rem;
+  border: 1px solid #dce5df;
+  border-radius: 1rem;
+  background: #fff;
+  box-shadow: 0 14px 36px #152d211c;
+  animation: account-menu-in .16s ease-out;
+}
+
+.account-menu__name,
+.account-menu__email {
+  display: block;
+  overflow: hidden;
+  padding: .35rem .55rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account-menu__name { color: #17231e; font-size: .9rem; font-weight: 750; }
+.account-menu__email { padding-top: 0; color: #77867e; font-size: .76rem; }
+
+.account-menu__panel button {
+  width: 100%;
+  min-height: 2.75rem;
+  margin-top: .4rem;
+  padding: 0 .6rem;
+  display: flex;
+  align-items: center;
+  gap: .65rem;
+  border: 0;
+  border-top: 1px solid #edf1ee;
+  border-radius: .55rem;
+  background: transparent;
+  color: #9a443e;
+  text-align: left;
+  font: inherit;
+  font-size: .85rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.account-menu__panel button:hover:not(:disabled) { background: #fff3f1; }
+.account-menu__panel button:disabled { cursor: wait; opacity: .65; }
+
+.account-menu__panel button svg {
+  width: 1.1rem;
+  height: 1.1rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+@keyframes account-menu-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 700px) {
+  .account-menu__avatar { width: 2.65rem; height: 2.65rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .account-menu__panel { animation: none; }
+}

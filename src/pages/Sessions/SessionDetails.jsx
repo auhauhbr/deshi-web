@@ -3,7 +3,9 @@ import { createPortal } from 'react-dom'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { getApiErrorMessage } from '../../services/authService.js'
 import StudentBottomNav from '../../components/StudentBottomNav.jsx'
+import StudentButton from '../../components/StudentButton.jsx'
 import BrandLogo from '../../components/BrandLogo.jsx'
+import { METRICAS_ATIVIDADE } from '../../utils/metricas-atividade.js'
 import SessionActionSlider from './SessionActionSlider.jsx'
 import {
   finishSession,
@@ -25,10 +27,30 @@ function formatSessionClock(milliseconds = 0) {
   return hours ? [String(hours).padStart(2, '0'), ...clock].join(':') : clock.join(':')
 }
 
+function formatSessionDateTime(value) {
+  if (!value) return ''
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return ''
+  return new Intl.DateTimeFormat('pt-BR', { dateStyle: 'medium', timeStyle: 'short' }).format(date)
+}
+
 function getDurationFromStart(value, now) {
   if (!value) return 0
   const startedAt = new Date(value).getTime()
   return Number.isNaN(startedAt) ? 0 : Math.max(0, now - startedAt)
+}
+
+function getActivityTimeSummary(activity, session, now) {
+  const tracking = activity.timeTracking || {}
+  const active = (tracking.activeTimeMs || 0)
+    + (activity.status === 'IN_PROGRESS' && session.status === 'IN_PROGRESS' ? getDurationFromStart(tracking.activeStartedAt, now) : 0)
+  const pause = (tracking.pauseTimeMs || 0)
+    + (activity.status === 'PAUSED' && session.status === 'IN_PROGRESS' ? getDurationFromStart(tracking.pauseStartedAt, now) : 0)
+  const rest = (tracking.restTimeMs || 0)
+    + (activity.status === 'RESTING' && session.status === 'IN_PROGRESS' ? getDurationFromStart(tracking.restStartedAt, now) : 0)
+  return active || pause || rest || tracking.activeStartedAt || tracking.pauseStartedAt || tracking.restStartedAt
+    ? `Ativo ${formatSessionClock(active)} · pausa ${formatSessionClock(pause)} · descanso ${formatSessionClock(rest)}`
+    : ''
 }
 
 function ExerciseThumbnail({ activity, label }) {
@@ -129,9 +151,9 @@ function SessionDetails() {
               <>
                 <h1>Não foi possível carregar esta sessão</h1>
                 <p>{message}</p>
-                <button type="button" className="session-secondary-button" onClick={() => navigate('/sessions/start')}>
+                <StudentButton variant="secondary" className="session-secondary-button" onClick={() => navigate('/sessions/start')}>
                   Iniciar outra sessão
-                </button>
+                </StudentButton>
               </>
             )}
           </div>
@@ -180,6 +202,8 @@ function SessionDetails() {
             nome: updatedActivity.nome || currentActivity?.nome,
             descricao: updatedActivity.descricao || currentActivity?.descricao,
             midiaUrl: updatedActivity.midiaUrl || currentActivity?.midiaUrl,
+            prescribed: updatedActivity.prescribed || currentActivity?.prescribed,
+            executionValues: updatedActivity.executionValues || currentActivity?.executionValues,
           }
         }),
       }))
@@ -204,6 +228,8 @@ function SessionDetails() {
       return false
     }
 
+    if (resolvedAction === 'interrupt' && !window.confirm('Interromper agora? Os registros feitos até aqui serão mantidos.')) return false
+
     return executeSessionAction(resolvedAction)
   }
 
@@ -225,6 +251,11 @@ function SessionDetails() {
             </div>
             {session.professionalName && <span className="workout-coach-name">com {session.professionalName}</span>}
           </div>
+
+          <p className="workout-session-times">
+            Início: {formatSessionDateTime(session.startedAt) || 'não informado'}
+            {session.finishedAt && <> · término: {formatSessionDateTime(session.finishedAt)}</>}
+          </p>
 
           <div className="workout-live-clock" aria-live="off">
             <strong>{formatSessionClock(elapsedSessionMs)}</strong>
@@ -258,12 +289,12 @@ function SessionDetails() {
                 </p>
                 {timeActionMessage && <p className="session-message" role="alert">{timeActionMessage}</p>}
                 <div className="session-confirm-actions">
-                  <button type="button" className="session-secondary-button" disabled={isUpdatingSession} onClick={() => { setShowFinishConfirm(false); setTimeActionMessage('') }}>
+                  <StudentButton variant="secondary" className="session-secondary-button" disabled={isUpdatingSession} onClick={() => { setShowFinishConfirm(false); setTimeActionMessage('') }}>
                     Voltar ao treino
-                  </button>
-                  <button type="button" className="session-start-button" disabled={isUpdatingSession} onClick={() => executeSessionAction('finish')}>
+                  </StudentButton>
+                  <StudentButton variant="primary" className="session-start-button" busy={isUpdatingSession} onClick={() => executeSessionAction('finish')}>
                     {isUpdatingSession ? 'Finalizando...' : 'Finalizar mesmo assim'}
-                  </button>
+                  </StudentButton>
                 </div>
               </section>
             </div>, document.body)
@@ -290,10 +321,27 @@ function SessionDetails() {
                     onClick={() => navigate(`/sessions/${session.id}/activities/${activity.activityId}`, {
                       state: { session, activity, programName },
                     })}
-                    aria-label={`Abrir ${activity.nome || `atividade ${index + 1}`}`}
                   >
                     <ExerciseThumbnail activity={activity} label={activity.nome || `atividade ${index + 1}`} />
-                    <span>{activity.nome || `Atividade ${index + 1}`}</span>
+                    <span className="session-activity-copy">
+                      <span>{activity.nome || `Atividade ${index + 1}`}</span>
+                      <small className={`session-activity-status status-${String(activity.status || 'PENDING').toLowerCase()}`}>
+                        {activity.status === 'COMPLETED' ? 'Concluída' : activity.status === 'INCOMPLETE' ? 'Incompleta' : activity.status === 'IN_PROGRESS' ? 'Em execução' : activity.status === 'PAUSED' ? 'Pausada' : activity.status === 'RESTING' ? 'Em descanso' : 'Pendente'}
+                      </small>
+                      {getActivityTimeSummary(activity, session, now) && (
+                        <small className="session-activity-values">{getActivityTimeSummary(activity, session, now)}</small>
+                      )}
+                      {activity.prescribed && (
+                        <small className="session-activity-values">
+                          Prescrito: {Object.entries(activity.prescribed).map(([key, value]) => `${METRICAS_ATIVIDADE[key]?.label || key}: ${value} ${METRICAS_ATIVIDADE[key]?.unidade || ''}`).join(' · ')}
+                        </small>
+                      )}
+                      {activity.executionValues && (
+                        <small className="session-activity-values">
+                          Executado: {Object.entries(activity.executionValues).map(([key, value]) => `${METRICAS_ATIVIDADE[key]?.label || key}: ${value} ${METRICAS_ATIVIDADE[key]?.unidade || ''}`).join(' · ')}
+                        </small>
+                      )}
+                    </span>
                   </button>
                 </li>
               ))}

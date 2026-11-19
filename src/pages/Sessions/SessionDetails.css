@@ -236,6 +236,10 @@
 .session-activity-thumbnail-empty { color: var(--color-primary); }
 .session-activity-thumbnail-empty svg { width: 2rem; fill: none; stroke: currentColor; stroke-linecap: round; stroke-width: 2; }
 .session-activity-card > span:last-child { min-width: 0; overflow-wrap: anywhere; }
+.session-activity-copy { display: grid; gap: .25rem; }
+.session-activity-copy .session-activity-status { justify-self: start; }
+.session-activity-copy .session-activity-values { color: var(--color-text-secondary); font-size: var(--font-size-xs); font-weight: var(--font-weight-regular); }
+.workout-session-times { margin: .2rem 0 .75rem; color: var(--color-text-secondary); font-size: var(--font-size-xs); }
 
 .session-activity-action {
   flex: 0 0 auto;
