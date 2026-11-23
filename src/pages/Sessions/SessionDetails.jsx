@@ -105,6 +105,12 @@ function SessionDetails() {
           if (foundSession) {
             setSession((current) => ({
               ...foundSession,
+              activities: (foundSession.activities || []).map((activity) => ({
+                ...activity,
+                nome: activity.nome || matchingProgram?.activities?.find(
+                  (programActivity) => String(programActivity.activityId) === String(activity.activityId),
+                )?.nome,
+              })),
               professionalName: foundSession.professionalName || matchingProgram?.professionalName || current?.professionalName,
             }))
           }
@@ -239,7 +245,6 @@ function SessionDetails() {
         <div className="session-brand">
           <BrandLogo className="session-brand-logo" to="/home" />
         </div>
-        <span className="session-header-label">Sessão de treino</span>
       </header>
 
       <section className="session-details-content">

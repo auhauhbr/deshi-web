@@ -106,7 +106,11 @@ async function handleStartSession(event, programId = selectedProgram) {
     if (session && Array.isArray(session.activities)) {
       session.activities = session.activities.map((activity) => {
         const source = selectedProgramData?.activities?.find((item) => String(item.activityId) === String(activity.activityId))
-        return { ...activity, prescribed: activity.prescribed || source?.prescribed }
+        return {
+          ...activity,
+          nome: activity.nome || source?.nome,
+          prescribed: activity.prescribed || source?.prescribed,
+        }
       })
     }
 
