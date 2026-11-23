@@ -18,11 +18,24 @@ export default function AtividadesPage() {
   const [created] = useState(Boolean(location.state?.atividadeCriada))
   const [busca, setBusca] = useState('')
   const [modalidadeId, setModalidadeId] = useState(programDraft?.modalidadeId || searchParams.get('modalidadeId') || '')
+  const [grupoMuscular, setGrupoMuscular] = useState('')
   const [result, setResult] = useState({ key: null, atividades: [], error: '' })
   const [attempt, setAttempt] = useState(0)
   const requestKey = JSON.stringify([busca, modalidadeId, attempt])
   const loading = result.key !== requestKey
   const { atividades, error } = result
+  const normalizarGrupo = (valor = '') => valor.trim().toLocaleLowerCase('pt-BR').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+  const gruposMusculares = [...new Map(atividades
+    .map((atividade) => atividade.grupoMuscular?.trim())
+    .filter(Boolean)
+    .map((grupo) => [normalizarGrupo(grupo), grupo])).values()]
+    .sort((first, second) => first[1].localeCompare(second[1], 'pt-BR'))
+  const atividadesVisiveis = grupoMuscular
+    ? atividades.filter((atividade) => normalizarGrupo(atividade.grupoMuscular) === normalizarGrupo(grupoMuscular))
+    : atividades
+  const nomeGrupo = (grupo) => ({
+    abdomen: 'Abdômen', biceps: 'Bíceps', gluteos: 'Glúteos', triceps: 'Tríceps',
+  })[normalizarGrupo(grupo)] || grupo
 
   useEffect(() => {
     if (location.state?.atividadeCriada) {
@@ -49,7 +62,9 @@ export default function AtividadesPage() {
   }, [busca, modalidadeId, requestKey])
 
   const nomesModalidades = new Map(catalogo.modalidades.map((item) => [item.id, item.nome]))
-  const emptyMessage = busca.trim() && modalidadeId
+  const emptyMessage = grupoMuscular
+    ? `Nenhuma atividade encontrada para o grupo ${nomeGrupo(grupoMuscular)} com os filtros selecionados.`
+    : busca.trim() && modalidadeId
     ? 'Nenhuma atividade encontrada para esta busca nesta modalidade.'
     : busca.trim()
       ? 'Nenhuma atividade encontrada para esta busca.'
@@ -84,6 +99,13 @@ export default function AtividadesPage() {
             <button key={item.id} type="button" className="activity-chip" aria-pressed={modalidadeId === item.id} onClick={() => setModalidadeId(item.id)}><span className="activity-chip-label">{item.nome}</span></button>
           ))}
         </div>}
+        <div className="activity-category-filter">
+          <label htmlFor="activity-group-filter">Grupo muscular</label>
+          <select id="activity-group-filter" value={grupoMuscular} onChange={(event) => setGrupoMuscular(event.target.value)} disabled={loading || gruposMusculares.length === 0}>
+            <option value="">Todos os grupos</option>
+            {gruposMusculares.map((grupo) => <option key={normalizarGrupo(grupo)} value={grupo}>{nomeGrupo(grupo)}</option>)}
+          </select>
+        </div>
         {catalogo.loading ? <p className="catalog-status" role="status">Carregando modalidades...</p> : catalogo.error ? (
           <div className="catalog-error">
             <p className="feedback error" role="alert">Não foi possível carregar as modalidades. {catalogo.error}</p>
@@ -98,18 +120,18 @@ export default function AtividadesPage() {
               <p className="feedback error" role="alert">{error}</p>
               <button className="secondary-button compact-button" type="button" onClick={() => setAttempt((value) => value + 1)}>Tentar novamente</button>
             </div>
-          ) : atividades.length === 0 ? (
+          ) : atividadesVisiveis.length === 0 ? (
             <div className="empty-state">
               <p role="status">{emptyMessage}</p>
-              {busca.trim() || modalidadeId ? (
-                <button className="secondary-button compact-button" type="button" onClick={() => { setBusca(''); setModalidadeId('') }}>Limpar filtros</button>
+              {busca.trim() || modalidadeId || grupoMuscular ? (
+                <button className="secondary-button compact-button" type="button" onClick={() => { setBusca(''); setModalidadeId(''); setGrupoMuscular('') }}>Limpar filtros</button>
               ) : (
               <button className="secondary-button compact-button" type="button" onClick={() => setAttempt((value) => value + 1)}>Atualizar biblioteca</button>
               )}
             </div>
           ) : (
             <ul className="activity-list">
-              {atividades.map((atividade) => (
+              {atividadesVisiveis.map((atividade) => (
                 <ActivityListItem key={atividade.id} atividade={atividade} modalidade={nomesModalidades.get(atividade.modalidadeId) ?? (catalogo.loading ? 'Carregando modalidade...' : 'Modalidade indisponível')} programContext={programContext} alreadyAdded={Boolean(programContext && programDraft.atividades.some((item) => item.atividadeId === atividade.id))} />
               ))}
             </ul>

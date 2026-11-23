@@ -5,6 +5,7 @@ import { getApiErrorMessage } from '../../services/authService.js'
 import StudentBottomNav from '../../components/StudentBottomNav.jsx'
 import StudentButton from '../../components/StudentButton.jsx'
 import BrandLogo from '../../components/BrandLogo.jsx'
+import ExerciseMedia from '../../components/ExerciseMedia.jsx'
 import { METRICAS_ATIVIDADE } from '../../utils/metricas-atividade.js'
 import SessionActionSlider from './SessionActionSlider.jsx'
 import {
@@ -51,24 +52,6 @@ function getActivityTimeSummary(activity, session, now) {
   return active || pause || rest || tracking.activeStartedAt || tracking.pauseStartedAt || tracking.restStartedAt
     ? `Ativo ${formatSessionClock(active)} · pausa ${formatSessionClock(pause)} · descanso ${formatSessionClock(rest)}`
     : ''
-}
-
-function ExerciseThumbnail({ activity, label }) {
-  const [imageFailed, setImageFailed] = useState(false)
-
-  return activity.midiaUrl && !imageFailed ? (
-    <img
-      className="session-activity-thumbnail"
-      src={activity.midiaUrl}
-      alt=""
-      loading="lazy"
-      onError={() => setImageFailed(true)}
-    />
-  ) : (
-    <span className="session-activity-thumbnail session-activity-thumbnail-empty" role="img" aria-label={`Imagem indisponível para ${label}`}>
-      <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 18v12m5-17v22m22-22v22m5-17v12M13 24h22" /></svg>
-    </span>
-  )
 }
 
 function SessionDetails() {
@@ -327,7 +310,15 @@ function SessionDetails() {
                       state: { session, activity, programName },
                     })}
                   >
-                    <ExerciseThumbnail activity={activity} label={activity.nome || `atividade ${index + 1}`} />
+                    <ExerciseMedia
+                      src={activity.midiaUrl}
+                      alt={`Demonstração de ${activity.nome || `atividade ${index + 1}`}`}
+                      className="session-activity-thumbnail"
+                      preview
+                      fallback={<span className="session-activity-thumbnail session-activity-thumbnail-empty" role="img" aria-label={`Mídia indisponível para ${activity.nome || `atividade ${index + 1}`}`}>
+                        <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M8 18v12m5-17v22m22-22v22m5-17v12M13 24h22" /></svg>
+                      </span>}
+                    />
                     <span className="session-activity-copy">
                       <span>{activity.nome || `Atividade ${index + 1}`}</span>
                       <small className={`session-activity-status status-${String(activity.status || 'PENDING').toLowerCase()}`}>

@@ -1,27 +1,26 @@
-import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import ExerciseMedia from './ExerciseMedia.jsx'
 
 export default function ActivityListItem({ atividade, modalidade, programContext, alreadyAdded = false, returnTo = '/atividades' }) {
   const navigate = useNavigate()
-  const [failedUrl, setFailedUrl] = useState(null)
-  const { nome, descricao, midiaUrl, origem } = atividade
-  const hasImage = /^https?:\/\//i.test(midiaUrl ?? '') && failedUrl !== midiaUrl
+  const { nome, descricao, midiaUrl, grupoMuscular, origem } = atividade
+  const emptyThumbnail = <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.25" aria-hidden="true">
+    <rect x="3" y="3" width="18" height="18" rx="3" />
+    <circle cx="9" cy="9" r="2" />
+    <path d="m4 18 5-5 4 3 3-5 4 7" />
+  </svg>
 
   const content = <>
         <div className="activity-thumbnail">
-          {hasImage ? (
-            <img src={midiaUrl} alt={`Imagem de ${nome}`} loading="lazy" onError={() => setFailedUrl(midiaUrl)} />
+          {midiaUrl ? (
+            <ExerciseMedia src={midiaUrl} alt={`Demonstração de ${nome}`} preview className="activity-thumbnail-media" fallback={emptyThumbnail} />
           ) : (
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.25" aria-hidden="true">
-              <rect x="3" y="3" width="18" height="18" rx="3" />
-              <circle cx="9" cy="9" r="2" />
-              <path d="m4 18 5-5 4 3 3-5 4 7" />
-            </svg>
+            emptyThumbnail
           )}
         </div>
         <div className="activity-info">
           <h2 className="activity-name">{nome}</h2>
-          <p className="activity-modality">{modalidade}</p>
+          <p className="activity-modality">{modalidade}{grupoMuscular ? ` · ${grupoMuscular}` : ''}</p>
           {descricao && <p className="activity-description">{descricao}</p>}
         </div>
         <div className="activity-actions">

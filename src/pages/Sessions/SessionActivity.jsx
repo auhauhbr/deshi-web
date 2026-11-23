@@ -3,6 +3,7 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { getApiErrorMessage } from '../../services/authService.js'
 import StudentButton from '../../components/StudentButton.jsx'
 import StudentAccountMenu from '../../components/StudentAccountMenu.jsx'
+import ExerciseMedia from '../../components/ExerciseMedia.jsx'
 import {
   completeActivity,
   endActivityRest,
@@ -57,7 +58,6 @@ function SessionActivity() {
   const [loading, setLoading] = useState(!cachedSession || !cachedActivity)
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState('')
-  const [imageFailed, setImageFailed] = useState(false)
   const [now, setNow] = useState(Date.now())
 
   useEffect(() => {
@@ -106,6 +106,7 @@ function SessionActivity() {
         nome: nextActivity?.nome || activity.nome,
         descricao: nextActivity?.descricao || activity.descricao,
         midiaUrl: nextActivity?.midiaUrl || activity.midiaUrl,
+        grupoMuscular: nextActivity?.grupoMuscular || activity.grupoMuscular,
         prescribed: nextActivity?.prescribed || activity.prescribed,
         executionValues: nextActivity?.executionValues || activity.executionValues,
       }
@@ -177,9 +178,12 @@ function SessionActivity() {
   return (
     <main className="activity-player-page">
       <div className="activity-player-backdrop" aria-hidden="true">
-        {activity.midiaUrl && !imageFailed
-          ? <img src={activity.midiaUrl} alt="" onError={() => setImageFailed(true)} />
-          : <ExerciseFallback label={label} />}
+        <ExerciseMedia
+          src={activity.midiaUrl}
+          alt=""
+          preview
+          fallback={<ExerciseFallback label={label} />}
+        />
       </div>
       <div className="activity-player-scrim" aria-hidden="true" />
 

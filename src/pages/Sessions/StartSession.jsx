@@ -109,6 +109,8 @@ async function handleStartSession(event, programId = selectedProgram) {
         return {
           ...activity,
           nome: activity.nome || source?.nome,
+            midiaUrl: activity.midiaUrl || source?.midiaUrl,
+            grupoMuscular: activity.grupoMuscular || source?.grupoMuscular,
           prescribed: activity.prescribed || source?.prescribed,
         }
       })

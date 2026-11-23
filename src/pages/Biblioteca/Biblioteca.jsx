@@ -14,6 +14,7 @@ export default function BibliotecaPage() {
   const [activities, setActivities] = useState({ key: null, data: [], error: '' })
   const [search, setSearch] = useState('')
   const [modalityId, setModalityId] = useState('')
+  const [muscleGroup, setMuscleGroup] = useState('')
   const [onlyMine, setOnlyMine] = useState(false)
   const [attempt, setAttempt] = useState(0)
   const [modalitiesAttempt, setModalitiesAttempt] = useState(0)
@@ -61,9 +62,18 @@ export default function BibliotecaPage() {
     const modalityIds = new Set(modalities.data.map((item) => item.id))
     return activities.data.filter((item) => modalityIds.has(item.modalidadeId))
   }, [activities.data, modalities.data])
-  const visibleActivities = onlyMine
+  const normalizeGroup = (value = '') => value.trim().toLocaleLowerCase('pt-BR').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+  const muscleGroups = [...new Map(availableActivities
+    .map((item) => item.grupoMuscular?.trim())
+    .filter(Boolean)
+    .map((group) => [normalizeGroup(group), group])).values()]
+    .sort((first, second) => first[1].localeCompare(second[1], 'pt-BR'))
+  const groupLabel = (group) => ({
+    abdomen: 'Abdômen', biceps: 'Bíceps', gluteos: 'Glúteos', triceps: 'Tríceps',
+  })[normalizeGroup(group)] || group
+  const visibleActivities = (onlyMine
     ? availableActivities.filter((item) => item.origem === 'PERSONALIZADA')
-    : availableActivities
+    : availableActivities).filter((item) => !muscleGroup || normalizeGroup(item.grupoMuscular) === normalizeGroup(muscleGroup))
 
   return (
     <div className="activities-page-shell library-page-shell">
@@ -104,6 +114,14 @@ export default function BibliotecaPage() {
           </button>
         </div>
 
+        <div className="library-group-filter">
+          <label htmlFor="library-group-filter">Grupo muscular</label>
+          <select id="library-group-filter" value={muscleGroup} onChange={(event) => setMuscleGroup(event.target.value)} disabled={loading || muscleGroups.length === 0}>
+            <option value="">Todos os grupos</option>
+            {muscleGroups.map((group) => <option key={normalizeGroup(group)} value={group}>{groupLabel(group)}</option>)}
+          </select>
+        </div>
+
         {modalities.phase === 'loading' && <p className="catalog-status" role="status">Carregando suas modalidades...</p>}
         {modalities.phase === 'error' && <div className="empty-state"><p className="feedback error" role="alert">Não foi possível carregar suas modalidades. {modalities.error}</p><button className="secondary-button compact-button" type="button" onClick={() => { setModalities((current) => ({ ...current, phase: 'loading' })); setModalitiesAttempt((value) => value + 1) }}>Tentar novamente</button></div>}
 
@@ -120,7 +138,7 @@ export default function BibliotecaPage() {
             {loading ? <div className="empty-state" role="status"><span className="loading-dot" aria-hidden="true" />Carregando exercícios...</div>
               : activities.error ? <div className="empty-state"><p className="feedback error" role="alert">{activities.error}</p><button className="secondary-button compact-button" type="button" onClick={() => setAttempt((value) => value + 1)}>Tentar novamente</button></div>
                 : visibleActivities.length ? <ul className="activity-list">{visibleActivities.map((atividade) => <ActivityListItem key={atividade.id} atividade={atividade} modalidade={modalityNames.get(atividade.modalidadeId) || 'Modalidade'} returnTo="/biblioteca" />)}</ul>
-                  : <div className="library-empty-state"><h2>{onlyMine ? 'Você ainda não criou atividades' : 'Nenhum exercício encontrado'}</h2><p>{onlyMine ? 'Crie uma atividade personalizada para adicioná-la à sua biblioteca.' : 'Tente outro termo de busca ou modalidade.'}</p>{onlyMine ? <Link className="secondary-button compact-button" to="/atividades/nova" state={{ returnTo: '/biblioteca' }}>Criar minha primeira atividade</Link> : <button className="secondary-button compact-button" type="button" onClick={() => { setSearch(''); setModalityId('') }}>Limpar filtros</button>}</div>}
+                  : <div className="library-empty-state"><h2>{onlyMine ? 'Você ainda não criou atividades' : 'Nenhum exercício encontrado'}</h2><p>{onlyMine ? 'Crie uma atividade personalizada para adicioná-la à sua biblioteca.' : 'Tente outro termo de busca ou modalidade.'}</p>{onlyMine ? <Link className="secondary-button compact-button" to="/atividades/nova" state={{ returnTo: '/biblioteca' }}>Criar minha primeira atividade</Link> : <button className="secondary-button compact-button" type="button" onClick={() => { setSearch(''); setModalityId(''); setMuscleGroup('') }}>Limpar filtros</button>}</div>}
           </section>
         )}
       </main>

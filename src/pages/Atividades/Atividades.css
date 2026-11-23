@@ -15,6 +15,10 @@
 .activity-search input:focus { outline: 3px solid color-mix(in srgb, var(--color-professional-green) 18%, transparent); border-color: var(--color-professional-green); }
 .search-clear { position: absolute; right: 10px; width: 34px; height: 34px; border: 0; border-radius: 50%; background: transparent; color: var(--color-professional-muted); font-size: 1.4rem; cursor: pointer; }
 .activity-filters { display: flex; gap: 8px; overflow-x: auto; padding: 3px 2px 15px; scrollbar-width: thin; }
+.activity-category-filter { display: grid; grid-template-columns: auto minmax(190px, 270px); align-items: center; justify-content: start; gap: 12px; margin: 0 0 18px; color: var(--color-professional-muted); font-size: .9rem; font-weight: 650; }
+.activity-category-filter select { min-height: 42px; border: 1px solid var(--color-professional-border); border-radius: 12px; padding: 0 38px 0 12px; background: var(--color-surface); color: var(--color-professional-ink); font: inherit; font-weight: 500; }
+.activity-category-filter select:focus-visible { outline: 3px solid color-mix(in srgb, var(--color-professional-green) 28%, transparent); border-color: var(--color-professional-green); }
+.activity-category-filter select:disabled { cursor: wait; opacity: .65; }
 .activity-chip { flex: 0 0 auto; min-height: 36px; padding: 0 13px; border: 1px solid var(--color-professional-border); border-radius: 999px; background: var(--color-surface); color: var(--color-professional-muted); font: inherit; font-size: .88rem; cursor: pointer; transition: .18s ease; }
 .activity-chip[aria-pressed="true"] { border-color: var(--color-professional-forest); background: var(--color-professional-forest); color: var(--color-text-inverse); }
 .catalog-status { color: var(--color-professional-muted); font-size: .9rem; }
@@ -27,7 +31,7 @@
 .activity-row--button { width: 100%; cursor: pointer; font: inherit; }
 .activity-row--button.is-added { background: var(--color-professional-green-light); cursor: default; opacity: .72; }
 .activity-thumbnail { display: grid; width: 64px; height: 64px; place-items: center; overflow: hidden; border-radius: 12px; background: var(--color-professional-surface-secondary); color: var(--color-professional-green); }
-.activity-thumbnail img { width: 100%; height: 100%; object-fit: cover; }
+.activity-thumbnail img, .activity-thumbnail video, .activity-thumbnail-media { width: 100%; height: 100%; object-fit: cover; }
 .activity-thumbnail svg { width: 28px; }
 .activity-info { min-width: 0; }
 .activity-name { margin: 0 0 4px; font-size: 1rem; font-weight: 700; }
@@ -44,5 +48,5 @@
 .feedback.success { border-radius: 12px; padding: 12px 14px; background: var(--color-professional-green-light); color: var(--color-professional-forest); }
 .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; clip-path: inset(50%); }
 @keyframes activities-enter { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-@media (max-width: 640px) { .activities-main { width: min(100% - 28px, 900px); padding: 22px 0 92px; } .activities-heading { align-items: start; flex-direction: column; margin-top: 8px; } .activities-heading .secondary-button { width: 100%; } .activity-row { grid-template-columns: 52px minmax(0,1fr) auto; gap: 11px; padding: 12px; } .activity-thumbnail { width: 52px; height: 52px; } .activity-origin { display: none; } .activity-actions { gap: 6px; } .activity-add-label { font-size: .78rem; } }
+@media (max-width: 640px) { .activities-main { width: min(100% - 28px, 900px); padding: 22px 0 92px; } .activities-heading { align-items: start; flex-direction: column; margin-top: 8px; } .activities-heading .secondary-button { width: 100%; } .activity-category-filter { grid-template-columns: 1fr; gap: 6px; } .activity-category-filter select { width: 100%; } .activity-row { grid-template-columns: 52px minmax(0,1fr) auto; gap: 11px; padding: 12px; } .activity-thumbnail { width: 52px; height: 52px; } .activity-origin { display: none; } .activity-actions { gap: 6px; } .activity-add-label { font-size: .78rem; } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; } }
