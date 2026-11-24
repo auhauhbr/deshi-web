@@ -296,6 +296,10 @@
   border-top: 1px solid #e9eeeb;
 }
 
+.student-row:last-child {
+  border-bottom: 0;
+}
+
 .student-avatar {
   width: 2.8rem;
   height: 2.8rem;
@@ -397,10 +401,24 @@
   color: #648743;
 }
 
+.activity-icon--interrupted {
+  background: #fbf1df;
+  color: #a77929;
+}
+
 .activity-row time {
   color: #78867f;
   font-size: .72rem;
   white-space: nowrap;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: .2rem;
+}
+
+.activity-row time span:last-child {
+  color: #34483c;
+  font-weight: 700;
 }
 
 .empty-state {

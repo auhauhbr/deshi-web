@@ -93,7 +93,15 @@ function ProfessionalHomePage() {
           <div className="dashboard-section__heading"><div><p className="section-kicker">ACONTECEU POR AQUI</p><h2>Atividade recente</h2></div></div>
           <div className="activity-list">
             {loading ? <p className="empty-state">Carregando atividades…</p> : dashboard?.recentActivities?.length ? dashboard.recentActivities.map((activity) => <article className="activity-row" key={activity.id}>
-              <span className={`activity-icon activity-icon--${activity.type}`} aria-hidden="true">{activity.type === 'completed' ? '✓' : '↗'}</span><div className="activity-row__main"><strong>{activity.title}</strong><span>{activity.description}</span></div><time>{new Intl.DateTimeFormat('pt-BR', { hour: '2-digit', minute: '2-digit' }).format(new Date(activity.at))}</time>
+              <span className={`activity-icon activity-icon--${activity.type}`} aria-hidden="true">{activity.type === 'completed' ? '✓' : '!'}</span>
+              <div className="activity-row__main">
+                <strong>{activity.studentName ? `${activity.studentName} · ${activity.programName}` : activity.title}</strong>
+                <span>{activity.completedActivities != null ? `${activity.type === 'interrupted' ? 'Treino interrompido' : 'Treino concluído'} · ${activity.completedActivities} de ${activity.totalActivities} atividades concluídas` : activity.description}</span>
+              </div>
+              <time dateTime={activity.at}>
+                <span>{new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'short' }).format(new Date(activity.at))}</span>
+                <span>{new Intl.DateTimeFormat('pt-BR', { hour: '2-digit', minute: '2-digit' }).format(new Date(activity.at))}</span>
+              </time>
             </article>) : <div className="empty-state"><span className="empty-state__mark" aria-hidden="true">◷</span><strong>Nenhuma movimentação ainda</strong><span>As atividades dos seus alunos aparecerão aqui.</span></div>}
           </div>
         </section>
