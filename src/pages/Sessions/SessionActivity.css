@@ -104,6 +104,10 @@
 }
 
 .activity-player-controls { display: grid; gap: 1rem; }
+.activity-prescription { display: flex; flex-wrap: wrap; gap: .6rem; margin: 0; }
+.activity-prescription > div { min-width: 6rem; border: 1px solid rgb(255 255 255 / 24%); border-radius: .85rem; padding: .65rem .8rem; background: rgb(0 0 0 / 28%); backdrop-filter: blur(12px); }
+.activity-prescription dt { color: rgb(255 255 255 / 72%); font-size: .72rem; }
+.activity-prescription dd { margin: .2rem 0 0; font-size: 1rem; font-weight: 750; }
 .activity-player-clock { display: grid; gap: .15rem; }
 .activity-player-clock strong { font-size: clamp(2.5rem, 11vw, 4.25rem); font-variant-numeric: tabular-nums; line-height: 1; letter-spacing: -.04em; }
 .activity-player-clock span { color: rgb(255 255 255 / 72%); font-size: .9rem; }

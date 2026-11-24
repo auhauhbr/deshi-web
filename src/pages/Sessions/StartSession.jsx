@@ -222,6 +222,14 @@ async function handleStartSession(event, programId = selectedProgram) {
                   className={`program-card ${
                     selectedProgram === program.id ? 'selected' : ''
                   }`}
+                  role="button"
+                  tabIndex={isSubmitting ? -1 : 0}
+                  aria-label={`Iniciar sessão de ${program.name}`}
+                  onClick={(event) => handleStartSession(event, program.id)}
+                  onKeyDown={(event) => {
+                    if (event.target !== event.currentTarget) return
+                    if (event.key === 'Enter' || event.key === ' ') handleStartSession(event, program.id)
+                  }}
                 >
                   <label className="program-card-choice">
                     <input
@@ -241,19 +249,11 @@ async function handleStartSession(event, programId = selectedProgram) {
                       <p className="program-professional">Profissional: {program.professionalName || 'não informado'}</p>
                     </div>
                   </label>
-                  <StudentButton
-                    variant="icon"
-                    className="program-start-button"
-                    type="button"
-                    onClick={(event) => handleStartSession(event, program.id)}
-                    disabled={isSubmitting}
-                    aria-label={`${isSubmitting && selectedProgram === program.id ? 'Iniciando' : 'Iniciar sessão do programa'} ${program.name}`}
-                    title="Iniciar sessão"
-                  >
+                  <span className="program-start-button" aria-hidden="true">
                     {isSubmitting && selectedProgram === program.id
                       ? <span className="program-start-spinner" />
                       : <svg className="program-start-arrow" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14m-6-6 6 6-6 6" /></svg>}
-                  </StudentButton>
+                  </span>
                 </article>
               ))}
             </div>

@@ -4,6 +4,7 @@ import { getApiErrorMessage } from '../../services/authService.js'
 import StudentButton from '../../components/StudentButton.jsx'
 import StudentAccountMenu from '../../components/StudentAccountMenu.jsx'
 import ExerciseMedia from '../../components/ExerciseMedia.jsx'
+import { METRICAS_ATIVIDADE } from '../../utils/metricas-atividade.js'
 import {
   completeActivity,
   endActivityRest,
@@ -203,6 +204,14 @@ function SessionActivity() {
           <h1>{label}</h1>
           {activity.descricao && <p>{activity.descricao}</p>}
         </div>
+
+        {activity.status === 'PENDING' && activity.prescribed && Object.keys(activity.prescribed).length > 0 && (
+          <dl className="activity-prescription" aria-label="Prescrição do profissional">
+            {Object.entries(activity.prescribed).filter(([key]) => Object.hasOwn(METRICAS_ATIVIDADE, key)).map(([key, value]) => (
+              <div key={key}><dt>{METRICAS_ATIVIDADE[key].label}</dt><dd>{value} {METRICAS_ATIVIDADE[key].unidade}</dd></div>
+            ))}
+          </dl>
+        )}
 
         <div className="activity-player-controls">
           <div className="activity-player-clock" aria-live="off">
