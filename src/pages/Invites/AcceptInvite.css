@@ -1,0 +1,327 @@
+.invite-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  height: auto;
+  overflow: auto;
+  background:
+    radial-gradient(circle at 82% 30%, rgb(0 217 160 / 12%), transparent 24rem),
+    var(--color-background);
+}
+
+.invite-header { flex-shrink: 0; }
+
+.invite-content {
+  width: min(100% - 2rem, 38rem);
+  flex: 1 0 auto;
+  display: grid;
+  align-content: center;
+  margin: 0 auto;
+  padding: clamp(2rem, 8vh, 5rem) 0 calc(6rem + env(safe-area-inset-bottom));
+}
+
+.invite-card {
+  padding: clamp(1.5rem, 5vw, 3rem);
+  border: 1px solid rgb(225 229 227 / 90%);
+  border-radius: 1.6rem;
+  background: rgb(255 255 255 / 94%);
+  box-shadow: 0 18px 48px rgb(24 29 27 / 8%);
+  animation: deshi-rise-in 420ms cubic-bezier(.2, 0, 0, 1) both;
+}
+
+.invite-eyebrow, .invite-preview-label {
+  margin: 0 0 .55rem;
+  color: var(--color-primary-active);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: .12em;
+}
+
+.invite-card h1 {
+  margin: 0;
+  color: var(--color-text);
+  font-family: var(--font-family-secondary);
+  font-size: clamp(2rem, 7vw, 3rem);
+  line-height: 1;
+  letter-spacing: -.035em;
+}
+
+.invite-description {
+  margin: 1rem 0 2rem;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-md);
+  line-height: 1.55;
+}
+
+.invite-links-loading {
+  margin: -1rem 0 1.5rem;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+.invite-links-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  margin: -1rem 0 1.5rem;
+  padding: .85rem;
+  border: 1px solid rgb(217 54 54 / 18%);
+  border-radius: .8rem;
+  background: rgb(217 54 54 / 5%);
+}
+.invite-links-error p { margin: 0; color: var(--color-error); font-size: var(--font-size-sm); line-height: 1.4; }
+.invite-links-error .student-button { min-width: auto; min-height: 2.4rem; flex: 0 0 auto; font-size: var(--font-size-xs); }
+
+.invite-form {
+  --stub-width: 7.2rem;
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 7.2rem;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: 1rem;
+  background: #fff;
+  box-shadow: 0 14px 30px rgb(8 25 20 / 9%);
+  color: var(--color-text);
+}
+
+.invite-form-body { min-width: 0; padding: 1.2rem 1.25rem 1.1rem; }
+
+.invite-form label {
+  display: block;
+  margin-bottom: .55rem;
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
+.invite-input-row { display: flex; gap: .65rem; }
+
+.invite-input-row input {
+  width: 100%;
+  min-width: 0;
+  min-height: 3.25rem;
+  padding: 0 1rem;
+  border: 1px solid rgb(243 255 249 / 25%);
+  border-radius: .85rem;
+  background: rgb(255 255 255 / 96%);
+  color: #172a26;
+  font: inherit;
+  font-size: 1.05rem;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: .12em;
+}
+
+.invite-input-row input:focus-visible {
+  border-color: var(--color-primary-active);
+  outline: 3px solid rgb(0 159 117 / 16%);
+}
+
+.invite-input-row button, .invite-accept-button {
+  min-height: 3.25rem;
+  flex: 0 0 auto;
+  padding: 0 1.2rem;
+  border: 0;
+  border-radius: .85rem;
+  background: linear-gradient(135deg, var(--color-primary), #53e6aa);
+  color: var(--color-text-on-primary);
+  font: inherit;
+  font-weight: var(--font-weight-bold);
+  cursor: pointer;
+  transition: transform 160ms ease, opacity 160ms ease;
+}
+
+.invite-input-row button:hover:not(:disabled), .invite-accept-button:hover:not(:disabled) { transform: translateY(-1px); }
+.invite-input-row button:disabled, .invite-accept-button:disabled { cursor: wait; opacity: .55; }
+.invite-hint { display: block; margin-top: .5rem; color: var(--color-text-secondary); font-size: var(--font-size-xs); }
+
+.invite-code-stub {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: .6rem;
+  padding: .8rem .45rem;
+  border-left: 1px dashed #cbd4d0;
+  color: var(--color-text-secondary);
+  text-align: center;
+}
+.invite-code-stub::before, .invite-code-stub::after {
+  position: absolute;
+  left: -.48rem;
+  width: .9rem;
+  height: .9rem;
+  border-radius: 50%;
+  background: #fff;
+  content: '';
+}
+.invite-code-stub::before { top: -.48rem; }
+.invite-code-stub::after { bottom: -.48rem; }
+.invite-code-stub > span, .invite-code-stub > strong { font-size: .5rem; font-weight: var(--font-weight-bold); letter-spacing: .1em; }
+.invite-code-stub > strong { color: var(--color-primary-active); }
+.invite-code-stub button {
+  width: 2.8rem;
+  height: 2.8rem;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-primary), #53e6aa);
+  color: var(--color-text-on-primary);
+  font: inherit;
+  font-size: 1.4rem;
+  line-height: 1;
+  font-weight: var(--font-weight-bold);
+  cursor: pointer;
+}
+.invite-code-stub button:disabled { cursor: not-allowed; opacity: .5; }
+.invite-check-loading { font-size: .9rem; letter-spacing: .12em; }
+.invite-form.is-cutting .invite-code-stub { border-left-color: var(--color-primary-active); }
+.invite-scissors {
+  position: absolute;
+  z-index: 2;
+  top: 8%;
+  left: calc(100% - var(--stub-width));
+  color: var(--color-primary-active);
+  font-size: 1.3rem;
+  line-height: 1;
+  pointer-events: none;
+  transform: translate(-50%, -50%) rotate(-38deg);
+  animation: invite-ticket-cut 1.25s cubic-bezier(.35, 0, .55, 1) forwards;
+}
+
+@keyframes invite-ticket-cut {
+  0% { top: 8%; opacity: 0; transform: translate(-50%, -50%) rotate(-38deg) scale(.75); }
+  8% { opacity: 1; }
+  48% { transform: translate(-50%, -50%) rotate(-18deg) scale(1); }
+  56% { transform: translate(-50%, -50%) rotate(-38deg) scale(.92); }
+  64% { transform: translate(-50%, -50%) rotate(-18deg) scale(1); }
+  72% { transform: translate(-50%, -50%) rotate(-38deg) scale(.92); }
+  80% { transform: translate(-50%, -50%) rotate(-18deg) scale(1); }
+  88% { transform: translate(-50%, -50%) rotate(-38deg) scale(.92); }
+  100% { top: 94%; opacity: 0; transform: translate(-50%, -50%) rotate(-18deg) scale(.8); }
+}
+.invite-code-barcode { width: 4rem; height: 2.5rem; background: repeating-linear-gradient(90deg, #f3fff9 0 2px, transparent 2px 4px, #f3fff9 4px 5px, transparent 5px 8px, #f3fff9 8px 11px, transparent 11px 13px); opacity: .82; }
+
+.invite-message {
+  margin: 1rem 0 0;
+  padding: .8rem 1rem;
+  border: 1px solid rgb(217 54 54 / 18%);
+  border-radius: .75rem;
+  background: rgb(217 54 54 / 5%);
+  color: var(--color-error);
+  font-size: var(--font-size-sm);
+}
+
+.invite-preview, .invite-result {
+  margin-top: 1.4rem;
+  padding: 1.25rem;
+  border: 1px solid var(--color-border);
+  border-radius: 1rem;
+  background: var(--color-surface-secondary);
+}
+
+.invite-preview h2, .invite-result h2 { margin: 0; color: var(--color-text); font-size: 1.3rem; }
+.invite-preview > p:not(.invite-preview-label), .invite-result p { margin: .35rem 0 0; color: var(--color-text-secondary); line-height: 1.5; }
+.invite-accept-button { width: 100%; margin-top: 1.15rem; }
+.invite-result { display: flex; align-items: flex-start; gap: .9rem; border-color: rgb(22 134 83 / 20%); background: rgb(22 134 83 / 6%); }
+.invite-result-icon { width: 2rem; height: 2rem; flex: 0 0 auto; display: grid; place-items: center; border-radius: 50%; background: var(--color-success); color: white; font-weight: var(--font-weight-bold); }
+
+.invite-confirmation {
+  margin: 0 0 1rem;
+  color: var(--color-success);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+}
+.invite-active-actions { display: grid; justify-items: start; gap: .75rem; margin-bottom: 1.25rem; }
+.invite-active-actions .invite-confirmation { margin: 0; }
+.invite-active-actions .student-button,
+.invite-cancel-add { min-height: 2.65rem; }
+.invite-cancel-add { margin-top: .9rem; }
+
+.training-pass {
+  --pass-ink: #f3fff9;
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 9rem;
+  overflow: hidden;
+  margin-top: 1.5rem;
+  border: 1px solid rgb(255 255 255 / 15%);
+  border-radius: 1.1rem;
+  background:
+    radial-gradient(ellipse at 15% 120%, rgb(0 217 160 / 23%), transparent 45%),
+    linear-gradient(135deg, #172a26, #0d1917 75%);
+  color: var(--pass-ink);
+  box-shadow: 0 18px 40px rgb(8 25 20 / 19%);
+}
+
+.training-pass-main { min-width: 0; padding: 1.4rem 1.45rem 1.25rem; }
+.training-pass-topline { display: flex; align-items: center; justify-content: space-between; gap: .8rem; }
+.training-pass-brand, .training-pass-status, .training-pass-stub-label {
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+  font-size: .62rem;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: .12em;
+}
+.training-pass-brand { color: rgb(243 255 249 / 72%); }
+.training-pass-logo { width: 2.35rem; height: 1.5rem; object-fit: contain; }
+.training-pass-status { color: #84edbc; white-space: nowrap; }
+.training-pass-status i { width: .42rem; height: .42rem; border-radius: 50%; background: currentColor; box-shadow: 0 0 0 .2rem rgb(132 237 188 / 12%); }
+.training-pass h2 { margin: 1.05rem 0 1.1rem; color: #fff; font-family: var(--font-family-secondary); font-size: 1.75rem; line-height: 1; letter-spacing: -.025em; }
+.training-pass-route { display: grid; grid-template-columns: minmax(0, 1fr) 2.6rem minmax(0, 1fr); align-items: center; gap: .65rem; }
+.training-pass-person { min-width: 0; display: flex; flex-direction: column; gap: .25rem; }
+.training-pass-person > span, .training-pass-details > div > span { color: rgb(243 255 249 / 48%); font-size: .58rem; font-weight: var(--font-weight-bold); letter-spacing: .12em; }
+.training-pass-person strong { overflow: hidden; color: #fff; font-size: clamp(.88rem, 3vw, 1.1rem); text-overflow: ellipsis; white-space: nowrap; }
+.training-pass-destination { text-align: right; }
+.training-pass-connector { position: relative; height: 1px; border-top: 1px dashed rgb(243 255 249 / 38%); text-align: center; }
+.training-pass-connector span { position: relative; top: -.72rem; padding: 0 .4rem; background: #142622; color: var(--color-primary); font-size: .95rem; }
+.training-pass-details { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(5rem, .8fr) minmax(5rem, .8fr); gap: .6rem; margin-top: 1.2rem; padding-top: .9rem; border-top: 1px solid rgb(243 255 249 / 12%); }
+.training-pass-details > div { min-width: 0; display: flex; flex-direction: column; gap: .3rem; }
+.training-pass-details strong { overflow: hidden; color: rgb(243 255 249 / 88%); font-size: .7rem; text-overflow: ellipsis; white-space: nowrap; }
+.training-pass-details .training-pass-code { color: #87efbf; font-size: .82rem; letter-spacing: .12em; }
+.training-pass .invite-accept-button { min-height: 2.8rem; margin-top: 1.05rem; border-radius: .7rem; }
+.training-pass-stub { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .55rem; padding: 1rem .7rem; border-left: 1px dashed rgb(243 255 249 / 30%); text-align: center; }
+.training-pass-stub::before, .training-pass-stub::after { position: absolute; left: -.48rem; width: .9rem; height: .9rem; border: 1px solid var(--color-background); border-radius: 50%; background: var(--color-background); content: ''; }
+.training-pass-stub::before { top: -.48rem; }
+.training-pass-stub::after { bottom: -.48rem; }
+.training-pass-stub-label { color: rgb(243 255 249 / 55%); font-size: .52rem; text-align: center; }
+.training-pass-barcode { width: 5.2rem; height: 2.7rem; background: repeating-linear-gradient(90deg, #f3fff9 0 2px, transparent 2px 4px, #f3fff9 4px 5px, transparent 5px 8px, #f3fff9 8px 11px, transparent 11px 13px); opacity: .86; }
+.training-pass-stub > strong { color: #fff; font-size: .76rem; letter-spacing: .14em; }
+.training-pass-stub > span:last-child { color: #87efbf; font-size: .5rem; font-weight: var(--font-weight-bold); letter-spacing: .1em; }
+.training-pass.is-active .training-pass-status { color: #9bf4bd; }
+
+@media (max-width: 560px) {
+  .training-pass { grid-template-columns: minmax(0, 1fr) 5.4rem; border-radius: .9rem; }
+  .training-pass-main { padding: 1.1rem .95rem 1rem; }
+  .training-pass-brand { font-size: .52rem; }
+  .training-pass-status { font-size: .5rem; letter-spacing: .08em; }
+  .training-pass-logo { width: 2rem; height: 1.3rem; }
+  .training-pass h2 { margin: .9rem 0 1rem; font-size: 1.55rem; }
+  .training-pass-route { grid-template-columns: minmax(0, 1fr) 1.5rem minmax(0, 1fr); gap: .4rem; }
+  .training-pass-person strong { font-size: .82rem; }
+  .training-pass-details { grid-template-columns: minmax(0, 1fr) minmax(4rem, .8fr); row-gap: .75rem; }
+  .training-pass-details > div:first-child { grid-column: 1 / -1; }
+  .training-pass-stub { padding: .75rem .3rem; }
+  .training-pass-barcode { width: 3.8rem; height: 2.3rem; }
+  .training-pass-stub-label { font-size: .43rem; }
+  .training-pass-stub > span:last-child { font-size: .43rem; }
+}
+
+@media (max-width: 480px) {
+  .invite-content { width: min(100% - 1.25rem, 38rem); padding-top: 1.5rem; }
+  .invite-card { padding: 1.35rem 1.1rem; border-radius: 1.2rem; }
+  .invite-form { --stub-width: 5rem; grid-template-columns: minmax(0, 1fr) var(--stub-width); }
+  .invite-form-body { padding: 1rem .75rem .9rem; }
+  .invite-input-row { flex-direction: column; }
+  .invite-input-row button { width: 100%; }
+  .invite-code-barcode { width: 3.4rem; height: 2.2rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .invite-card { animation: none; }
+  .invite-input-row button, .invite-accept-button { transition: none; }
+  .invite-scissors { animation-duration: .01ms; }
+}
