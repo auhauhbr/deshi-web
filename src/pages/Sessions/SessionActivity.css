@@ -108,6 +108,20 @@
 .activity-prescription > div { min-width: 6rem; border: 1px solid rgb(255 255 255 / 24%); border-radius: .85rem; padding: .65rem .8rem; background: rgb(0 0 0 / 28%); backdrop-filter: blur(12px); }
 .activity-prescription dt { color: rgb(255 255 255 / 72%); font-size: .72rem; }
 .activity-prescription dd { margin: .2rem 0 0; font-size: 1rem; font-weight: 750; }
+.activity-set-panel { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .75rem; max-width: 34rem; border: 1px solid rgb(255 255 255 / 25%); border-radius: 1rem; padding: 1rem; background: rgb(0 0 0 / 34%); backdrop-filter: blur(14px); }
+.activity-set-heading { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.activity-set-heading span { color: rgb(255 255 255 / 76%); font-size: .75rem; font-weight: 800; letter-spacing: .08em; }
+.activity-set-heading strong { font-size: 1.25rem; font-variant-numeric: tabular-nums; }
+.activity-set-panel label { display: grid; gap: .35rem; color: rgb(255 255 255 / 84%); font-size: .78rem; }
+.activity-set-panel input { width: 100%; min-height: 2.8rem; box-sizing: border-box; border: 1px solid rgb(255 255 255 / 30%); border-radius: .7rem; padding: 0 .7rem; background: rgb(255 255 255 / 95%); color: #17231e; font: inherit; }
+.activity-set-panel > p,.activity-set-panel > button { grid-column: 1 / -1; margin: 0; }
+.activity-execution-summary { grid-template-columns: 1fr; color: #fff; }
+.activity-execution-summary h2 { margin: 0; font-size: 1.2rem; }
+.execution-summary-list { display: grid; gap: .55rem; }
+.execution-summary-list article { display: grid; grid-template-columns: .7fr 1fr 1fr 1fr; gap: .45rem; border-top: 1px solid rgb(255 255 255 / 20%); padding-top: .6rem; font-size: .78rem; }
+.execution-comment { display: grid; gap: .45rem; font-size: .82rem; }
+.execution-comment textarea { width: 100%; box-sizing: border-box; border: 1px solid rgb(255 255 255 / 32%); border-radius: .7rem; padding: .7rem; font: inherit; color: #17231e; }
+@media (max-width: 620px) { .execution-summary-list article { grid-template-columns: 1fr 1fr; } }
 .activity-player-clock { display: grid; gap: .15rem; }
 .activity-player-clock strong { font-size: clamp(2.5rem, 11vw, 4.25rem); font-variant-numeric: tabular-nums; line-height: 1; letter-spacing: -.04em; }
 .activity-player-clock span { color: rgb(255 255 255 / 72%); font-size: .9rem; }

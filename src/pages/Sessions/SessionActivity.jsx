@@ -13,6 +13,7 @@ import {
   resumeActivity,
   startActivity,
   startActivityRest,
+  registerExecution,
 } from '../../services/sessionService.js'
 import './SessionActivity.css'
 
@@ -30,6 +31,23 @@ function elapsedSince(value, now) {
   if (!value) return 0
   const startedAt = new Date(value).getTime()
   return Number.isFinite(startedAt) ? Math.max(0, now - startedAt) : 0
+}
+
+function playCue(frequency = 740) {
+  try {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext
+    if (!AudioContextClass) return
+    const context = new AudioContextClass()
+    const oscillator = context.createOscillator()
+    const gain = context.createGain()
+    oscillator.frequency.value = frequency
+    gain.gain.setValueAtTime(0.12, context.currentTime)
+    gain.gain.exponentialRampToValueAtTime(0.001, context.currentTime + 0.22)
+    oscillator.connect(gain).connect(context.destination)
+    oscillator.start()
+    oscillator.stop(context.currentTime + 0.22)
+    oscillator.onended = () => context.close()
+  } catch { /* Audio is an optional cue; the visual state remains available. */ }
 }
 
 function ActionIcon({ kind }) {
@@ -60,6 +78,10 @@ function SessionActivity() {
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState('')
   const [now, setNow] = useState(Date.now())
+  const [reps, setReps] = useState('')
+  const [load, setLoad] = useState('')
+  const [lastSeries, setLastSeries] = useState(null)
+  const [seriesStartedAt, setSeriesStartedAt] = useState(Date.now())
 
   useEffect(() => {
     if (cachedSession && cachedActivity) return undefined
@@ -95,6 +117,18 @@ function SessionActivity() {
     return () => window.clearInterval(interval)
   }, [activity?.status, session?.status])
 
+  const prescribedSets = Math.max(1, Number(activity?.prescribed?.series) || 1)
+  const restSeconds = Math.max(0, Number(activity?.prescribed?.descansoSegundos) || 0)
+  const recordedSets = activity?.execution?.series?.length || 0
+  const activeSet = Math.min(recordedSets + 1, prescribedSets)
+  const restRemaining = Math.max(0, restSeconds - Math.floor(elapsedSince(activity?.timeTracking?.restStartedAt, now) / 1000))
+
+  useEffect(() => {
+    if (activity?.status !== 'RESTING' || !restSeconds || restRemaining > 0 || busy) return
+    runAction(endActivityRest)
+    playCue(880)
+  }, [activity?.status, restSeconds, restRemaining, busy])
+
   async function runAction(action) {
     if (!session || !activity || session.status !== 'IN_PROGRESS') return
     setBusy(true)
@@ -118,6 +152,7 @@ function SessionActivity() {
       }
       setSession(sessionWithMetadata)
       setActivity(activityWithMetadata)
+      if (activity.status === 'RESTING' && action === endActivityRest) playCue(880)
     } catch (error) {
       setMessage(getApiErrorMessage(error, 'Não foi possível atualizar a atividade. Tente novamente.'))
     } finally {
@@ -176,6 +211,44 @@ function SessionActivity() {
     })
   }
 
+  async function saveSet() {
+    const repetitionCount = Number(reps)
+    const weight = Number(load)
+    if (!Number.isInteger(repetitionCount) || repetitionCount < 1 || !Number.isFinite(weight) || weight < 0) {
+      setMessage('Informe as repetições e uma carga válida para esta série.')
+      return
+    }
+    setBusy(true)
+    setMessage('')
+    try {
+      const finalSet = activeSet >= prescribedSets
+    if (finalSet) {
+      setLastSeries({ number: activeSet, values: { repeticoes: repetitionCount, cargaKg: weight }, durationMs: Math.max(0, Date.now() - seriesStartedAt), restMs: 0 })
+      navigate(`/sessions/${session.id}/executions/${activity.activityId}`, { state: { session, activity, programName: state?.programName, finalSeries: { number: activeSet, values: { repeticoes: repetitionCount, cargaKg: weight }, durationMs: Math.max(0, Date.now() - seriesStartedAt), restMs: 0 } } })
+      return
+    }
+      const updatedSession = await registerExecution(session.id, {
+        activityId: activity.activityId,
+        seriesNumber: activeSet,
+        values: { repeticoes: repetitionCount, cargaKg: weight },
+      durationMs: Math.max(0, Date.now() - seriesStartedAt),
+      status: 'IN_PROGRESS',
+      })
+      const updatedActivity = updatedSession.activities.find((item) => item.activityId === activity.activityId)
+      setSession(updatedSession)
+      setActivity({ ...updatedActivity, nome: activity.nome, descricao: activity.descricao, midiaUrl: activity.midiaUrl, prescribed: activity.prescribed })
+      setReps('')
+      setLoad('')
+    setSeriesStartedAt(Date.now())
+      playCue(finalSet ? 990 : 620)
+      if (finalSet) setMessage('Todas as séries concluídas. Atividade finalizada!')
+      else if (restSeconds) await runAction(startActivityRest)
+    } catch (error) {
+      setMessage(getApiErrorMessage(error, 'Não foi possível registrar esta série.'))
+    } finally { setBusy(false) }
+  }
+
+
   return (
     <main className="activity-player-page">
       <div className="activity-player-backdrop" aria-hidden="true">
@@ -211,6 +284,17 @@ function SessionActivity() {
               <div key={key}><dt>{METRICAS_ATIVIDADE[key].label}</dt><dd>{value} {METRICAS_ATIVIDADE[key].unidade}</dd></div>
             ))}
           </dl>
+        )}
+
+        {['IN_PROGRESS', 'RESTING'].includes(activity.status) && (
+          <section className="activity-set-panel" aria-label="Registro das séries">
+            <div className="activity-set-heading"><span>SÉRIE {activeSet} DE {prescribedSets}</span><strong>{activity.status === 'RESTING' ? formatClock(restRemaining * 1000) : `${activity.prescribed?.repeticoes || '—'} repetições`}</strong></div>
+            {activity.status === 'RESTING' ? <p role="status">Descanse. A próxima série começa ao fim do cronômetro.</p> : <>
+              <label>Repetições realizadas<input type="number" min="1" step="1" value={reps} onChange={(event) => setReps(event.target.value)} placeholder={String(activity.prescribed?.repeticoes || '')} /></label>
+              <label>Carga utilizada (kg)<input type="number" min="0" step="0.5" value={load} onChange={(event) => setLoad(event.target.value)} placeholder={String(activity.prescribed?.cargaKg ?? 0)} /></label>
+              <StudentButton variant="primary" className="activity-main-action" onClick={saveSet} disabled={busy}>{activeSet < prescribedSets && restSeconds ? 'Registrar série e descansar' : activeSet < prescribedSets ? 'Registrar série' : 'Concluir atividade'}</StudentButton>
+            </>}
+          </section>
         )}
 
         <div className="activity-player-controls">
