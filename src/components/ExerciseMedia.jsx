@@ -14,6 +14,8 @@ export default function ExerciseMedia({
   className,
   fallback = null,
   preview = false,
+  autoPlay = false,
+  loop = preview,
 }) {
   const videoRef = useRef(null)
   const [failedSrc, setFailedSrc] = useState(null)
@@ -62,9 +64,9 @@ export default function ExerciseMedia({
       className={className}
       src={preview ? undefined : src}
       aria-label={alt || undefined}
-      autoPlay={false}
+      autoPlay={autoPlay}
       muted
-      loop={preview}
+      loop={loop}
       playsInline
       controls={!preview}
       preload={preview ? 'none' : 'metadata'}

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import { Navigate, useLocation, useNavigate, useParams } from 'react-router-dom'
 import ProfessionalNavigation from '../../components/ProfessionalNavigation.jsx'
 import PageAppBar from '../../components/PageAppBar.jsx'
 import { useModalidadesCatalogo } from '../../hooks/useModalidadesCatalogo.js'
@@ -258,6 +258,7 @@ export default function ConfigurarAtividadePage() {
   const programContext = programDraft && location.state?.returnTo
     ? { programDraft, returnTo: location.state.returnTo, selectionPath: location.state.selectionPath }
     : null
+  if (!programContext) return <Navigate to="/biblioteca" replace />
   const returnTo = location.state?.returnTo || '/atividades'
   return <ConfigurarAtividade key={id} atividadeId={id} programContext={programContext} returnTo={returnTo} />
 }

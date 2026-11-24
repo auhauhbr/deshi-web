@@ -132,7 +132,7 @@ export default function AtividadesPage() {
           ) : (
             <ul className="activity-list">
               {atividadesVisiveis.map((atividade) => (
-                <ActivityListItem key={atividade.id} atividade={atividade} modalidade={nomesModalidades.get(atividade.modalidadeId) ?? (catalogo.loading ? 'Carregando modalidade...' : 'Modalidade indisponível')} programContext={programContext} alreadyAdded={Boolean(programContext && programDraft.atividades.some((item) => item.atividadeId === atividade.id))} />
+                <ActivityListItem key={atividade.id} atividade={atividade} modalidade={nomesModalidades.get(atividade.modalidadeId) ?? (catalogo.loading ? 'Carregando modalidade...' : 'Modalidade indisponível')} programContext={programContext} alreadyAdded={Boolean(programContext && programDraft.atividades.some((item) => item.atividadeId === atividade.id))} returnTo={programContext ? returnTo : '/atividades'} />
               ))}
             </ul>
           )}

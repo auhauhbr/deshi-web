@@ -13,6 +13,7 @@ import NovaAtividadePage from './pages/NovaAtividade/NovaAtividade.jsx'
 import ConfigurarAtividadePage from './pages/ConfigurarAtividade/ConfigurarAtividade.jsx'
 import BibliotecaPage from './pages/Biblioteca/Biblioteca.jsx'
 import ProfessionalProfilePage from './pages/ProfessionalProfile/ProfessionalProfile.jsx'
+import ActivityDetailPage from './pages/Biblioteca/ActivityDetail.jsx'
 import StartSession from './pages/Sessions/StartSession.jsx'
 import SessionDetails from './pages/Sessions/SessionDetails.jsx'
 import SessionActivity from './pages/Sessions/SessionActivity.jsx'
@@ -31,6 +32,7 @@ function AppRoutes() {
       <Route path="/modalidades" element={<ProtectedRoute profile="PROFESSIONAL"><ModalidadesPage /></ProtectedRoute>} />
       <Route path="/atividades" element={<ProtectedRoute profile="PROFESSIONAL"><AtividadesPage /></ProtectedRoute>} />
       <Route path="/biblioteca" element={<ProtectedRoute profile="PROFESSIONAL"><BibliotecaPage /></ProtectedRoute>} />
+      <Route path="/biblioteca/atividades/:id" element={<ProtectedRoute profile="PROFESSIONAL"><ActivityDetailPage /></ProtectedRoute>} />
       <Route path="/perfil" element={<ProtectedRoute profile="PROFESSIONAL"><ProfessionalProfilePage /></ProtectedRoute>} />
       <Route path="/atividades/nova" element={<ProtectedRoute profile="PROFESSIONAL"><NovaAtividadePage /></ProtectedRoute>} />
       <Route path="/atividades/:id/configurar" element={<ProtectedRoute profile="PROFESSIONAL"><ConfigurarAtividadePage /></ProtectedRoute>} />

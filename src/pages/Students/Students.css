@@ -4,7 +4,6 @@
 .students-eyebrow{margin:0 0 .3rem;color:#14856c;font-size:.68rem;font-weight:700;letter-spacing:.12em}
 .students-header h1{margin:0;font-size:clamp(1.9rem,7vw,2.5rem);letter-spacing:-.045em;line-height:1.05}
 .students-header__actions{display:flex;align-items:center;gap:.75rem}
-.students-profile{width:2.75rem;height:2.75rem;border-radius:50%;display:grid;place-items:center;background:#cfe9df;color:#17644f;font-size:.82rem;font-weight:700}
 .students-add-button{min-height:3.2rem;padding:0 1.25rem;border:0;border-radius:.9rem;background:#103d32;color:#fff;font:inherit;font-weight:700;cursor:pointer;transition:background .16s ease,transform .16s ease}
 .students-add-button:hover{background:#17624e}.students-add-button:active{transform:scale(.98)}.students-add-button span{font-size:1.2rem;vertical-align:-.04em;margin-right:.25rem}
 .students-add-button--header{display:none}

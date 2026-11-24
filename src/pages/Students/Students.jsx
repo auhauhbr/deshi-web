@@ -5,7 +5,7 @@ import { api } from '../../services/api.js'
 import './Students.css'
 
 function initials(name = '') {
-  return name.trim().split(/\s+/).slice(0, 2).map((part) => part[0]).join('').toUpperCase()
+  return name.trim().split(/\s+/).slice(0, 2).map((part) => part[0]).join('').toLocaleUpperCase('pt-BR')
 }
 
 function getErrorMessage(error, fallback) {
@@ -25,10 +25,9 @@ async function copyText(value) {
 }
 
 function StudentPageHeader({ eyebrow, title, action }) {
-  const user = JSON.parse(localStorage.getItem('deshi.user') || '{}')
   return <header className="students-header">
     <div><p className="students-eyebrow">{eyebrow}</p><h1>{title}</h1></div>
-    <div className="students-header__actions">{action}<span className="students-profile" aria-label={user.name}>{initials(user.name)}</span></div>
+    <div className="students-header__actions">{action}</div>
   </header>
 }
 

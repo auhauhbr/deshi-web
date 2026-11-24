@@ -7,6 +7,8 @@
 .library-create-button:hover { transform: translateY(-2px); background: var(--color-professional-green-hover); box-shadow: var(--shadow-card); }
 .library-create-button:focus-visible, .library-mine-filter:focus-visible { outline: 3px solid color-mix(in srgb, var(--color-professional-green) 38%, transparent); outline-offset: 3px; }
 .library-search { margin-bottom: 17px; }
+.library-search input[type="search"] { box-sizing: border-box; padding: 0 46px 0 52px; }
+.library-search > svg { left: 16px; }
 .library-controls { display: flex; align-items: center; justify-content: space-between; gap: 15px; margin-bottom: 20px; }
 .library-group-filter { display: flex; align-items: center; gap: 12px; margin: -7px 0 18px; color: var(--color-professional-muted); font-size: .9rem; font-weight: 650; }
 .library-group-filter select { min-width: 210px; min-height: 40px; border: 1px solid var(--color-professional-border); border-radius: 999px; padding: 0 38px 0 14px; background: var(--color-surface); color: var(--color-professional-ink); font: inherit; font-weight: 550; }
