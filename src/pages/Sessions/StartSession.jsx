@@ -16,9 +16,11 @@ function StartSession() {
   const navigate = useNavigate()
 
   const [programs, setPrograms] = useState([])
-  const [completedProgramsCount, setCompletedProgramsCount] = useState(0)
+  const [completedTodayIds, setCompletedTodayIds] = useState([])
+  const [recommendedTodayIds, setRecommendedTodayIds] = useState([])
   const [hasActiveProfessional, setHasActiveProfessional] = useState(null)
   const [selectedProgram, setSelectedProgram] = useState('')
+  const [previewProgramId, setPreviewProgramId] = useState('')
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [message, setMessage] = useState('')
@@ -36,7 +38,6 @@ function StartSession() {
         setIsProgramLoadError(false)
         setHistoryWarning('')
         setPrograms([])
-        setCompletedProgramsCount(0)
         setHasActiveProfessional(null)
 
         const [data, history, professionals] = await Promise.all([
@@ -61,19 +62,25 @@ function StartSession() {
 
         if (!history) {
           setPrograms([])
-          setCompletedProgramsCount(0)
           return
         }
 
-        const completedProgramIds = new Set(
-          history
-            .filter((session) => session.status === 'COMPLETED' && session.programId != null)
-            .map((session) => String(session.programId)),
-        )
-        const availablePrograms = data.filter((program) => !completedProgramIds.has(String(program.id)))
-
-        setPrograms(availablePrograms)
-        setCompletedProgramsCount(data.length - availablePrograms.length)
+        setPrograms(data)
+        const now = new Date()
+        const todayKey = now.toLocaleDateString('sv-SE')
+        const monday = new Date(now)
+        monday.setDate(now.getDate() - ((now.getDay() + 6) % 7))
+        monday.setHours(0, 0, 0, 0)
+        const weekSessions = history.filter((session) => session.status === 'COMPLETED' && new Date(session.finishedAt || session.startedAt) >= monday)
+        const doneToday = [...new Set(weekSessions.filter((session) => new Date(session.finishedAt || session.startedAt).toLocaleDateString('sv-SE') === todayKey).map((session) => String(session.programId)))]
+        setCompletedTodayIds(doneToday)
+        const weekday = now.getDay()
+        const recommended = data.filter((program) => {
+          const configuredDays = program.recommendedDays || program.diasRecomendados || program.daysOfWeek || []
+          const includesToday = configuredDays.some((day) => Number(day) === weekday || String(day).toLowerCase() === ['domingo','segunda','terça','quarta','quinta','sexta','sábado'][weekday])
+          return includesToday || weekSessions.some((session) => String(session.programId) === String(program.id))
+        }).map((program) => String(program.id))
+        setRecommendedTodayIds(recommended)
       } catch (error) {
         if (isCurrent) {
           setIsProgramLoadError(true)
@@ -156,10 +163,15 @@ async function handleStartSession(event, programId = selectedProgram) {
           className="program-selection"
           onSubmit={handleStartSession}
         >
+          {!isLoading && !historyWarning && recommendedTodayIds.length > 0 && <section className="program-recommendations" aria-labelledby="recommended-programs-title">
+            <div className="program-section-heading"><div><h2 id="recommended-programs-title">Recomendados para hoje</h2><p>{recommendedTodayIds.every((id) => completedTodayIds.includes(id)) ? 'Você já concluiu os treinos recomendados de hoje. Muito bem!' : 'Treinos indicados para manter sua rotina nesta semana.'}</p></div></div>
+            <div className="program-grid">{programs.filter((program) => recommendedTodayIds.includes(String(program.id))).map((program) => <article key={`recommended-${program.id}`} className={`program-card${completedTodayIds.includes(String(program.id)) ? ' is-done' : ''}`} role="button" tabIndex={0} onClick={() => navigate(`/sessions/preview/${program.id}`, { state: { program, returnTo: '/sessions/start' } })} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') navigate(`/sessions/preview/${program.id}`, { state: { program, returnTo: '/sessions/start' } }) }}><div className="program-card-choice"><div className="program-card-icon" aria-hidden="true">{completedTodayIds.includes(String(program.id)) ? '✓' : '↗'}</div><div className="program-card-content"><h3>{program.name}</h3><p>{completedTodayIds.includes(String(program.id)) ? 'Concluído hoje · toque para repetir' : `${program.activities?.length ?? 0} atividades · toque para visualizar`}</p><p className="program-professional">{program.professionalName || 'Programa do seu profissional'}</p></div></div></article>)}</div>
+          </section>}
+          {previewProgramId && programs.some((program) => String(program.id) === previewProgramId) && <StudentButton variant="secondary" onClick={() => navigate(`/sessions/preview/${previewProgramId}`, { state: { program: programs.find((item) => String(item.id) === previewProgramId), returnTo: '/sessions/start' } })}>Visualizar programa</StudentButton>}
           <div className="program-section-heading">
             <div>
-              <h2>Programas disponíveis</h2>
-              <p>Toque no botão ao lado para iniciar.</p>
+                  <h2>Seus programas</h2>
+              <p>Todos os programas que seus profissionais passaram para você.</p>
             </div>
 
             {!isLoading && (
@@ -194,13 +206,6 @@ async function handleStartSession(event, programId = selectedProgram) {
                   <p>Seus programas aparecerão aqui quando você estiver vinculado a um profissional e receber um programa.</p>
                   <Link className="completed-program-link" to="/invites/accept">Vincular profissional <span aria-hidden="true">→</span></Link>
                 </>
-              ) : completedProgramsCount > 0 ? (
-                <>
-                  <span className="empty-icon">✓</span>
-                  <h3>Todos os programas foram concluídos</h3>
-                  <p>Os programas com sessões concluídas não aparecem mais nesta lista.</p>
-                  <Link className="completed-program-link" to="/sessions/completed">Ver histórico de treinos <span aria-hidden="true">→</span></Link>
-                </>
               ) : (
                 <>
                   <span className="empty-icon">◎</span>
@@ -225,10 +230,10 @@ async function handleStartSession(event, programId = selectedProgram) {
                   role="button"
                   tabIndex={isSubmitting ? -1 : 0}
                   aria-label={`Iniciar sessão de ${program.name}`}
-                  onClick={(event) => handleStartSession(event, program.id)}
+                  onClick={() => navigate(`/sessions/preview/${program.id}`, { state: { program, returnTo: '/sessions/start' } })}
                   onKeyDown={(event) => {
                     if (event.target !== event.currentTarget) return
-                    if (event.key === 'Enter' || event.key === ' ') handleStartSession(event, program.id)
+                    if (event.key === 'Enter' || event.key === ' ') navigate(`/sessions/preview/${program.id}`, { state: { program, returnTo: '/sessions/start' } })
                   }}
                 >
                   <label className="program-card-choice">

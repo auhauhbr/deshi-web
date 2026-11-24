@@ -15,6 +15,7 @@ import {
   interruptSession,
   pauseSession,
   resumeSession,
+  startSession,
 } from '../../services/sessionService.js'
 import './StartSession.css'
 import './SessionDetails.css'
@@ -55,14 +56,13 @@ function getActivityTimeSummary(activity, session, now) {
 }
 
 function SessionDetails() {
-  const { sessionId } = useParams()
+  const { sessionId, programId } = useParams()
+  const isProgramPreview = Boolean(programId)
   const { state } = useLocation()
   const navigate = useNavigate()
-  const [session, setSession] = useState(
-    state?.session?.id === sessionId ? state.session : null,
-  )
+  const [session, setSession] = useState(isProgramPreview ? null : (state?.session?.id === sessionId ? state.session : null))
   const [programName, setProgramName] = useState(state?.programName || '')
-  const [isLoading, setIsLoading] = useState(!session)
+  const [isLoading, setIsLoading] = useState(isProgramPreview ? !state?.program : !session)
   const [message, setMessage] = useState('')
   const [timeActionMessage, setTimeActionMessage] = useState('')
   const [isUpdatingSession, setIsUpdatingSession] = useState(false)
@@ -74,11 +74,19 @@ function SessionDetails() {
 
     async function loadSession() {
       try {
+        if (isProgramPreview) {
+          const programs = await getStudentPrograms()
+          const program = state?.program?.id === programId ? state.program : programs.find((item) => String(item.id) === String(programId))
+          if (!program) throw new Error('Programa não encontrado.')
+          setProgramName(program.name)
+          setSession({ id: `preview-${program.id}`, programId: program.id, professionalName: program.professionalName, status: 'PREVIEW', startedAt: null, activities: (program.activities || []).map((activity, index) => ({ ...activity, order: activity.order || index + 1, status: 'PENDING', prescribed: activity.prescribed })) })
+          return
+        }
         const [sessions, programs] = await Promise.all([
-          session ? Promise.resolve([]) : getStudentSessions(),
+          session?.id === sessionId ? Promise.resolve([]) : getStudentSessions(),
           getStudentPrograms(),
         ])
-        const foundSession = session || sessions.find((item) => item.id === sessionId)
+        const foundSession = session?.id === sessionId ? session : state?.session?.id === sessionId ? state.session : sessions.find((item) => item.id === sessionId)
         const matchingProgram = programs.find(
           (program) => program.id === foundSession?.programId,
         )
@@ -113,7 +121,7 @@ function SessionDetails() {
     return () => {
       isCurrent = false
     }
-  }, [sessionId])
+  }, [sessionId, programId, isProgramPreview])
 
   useEffect(() => {
     if (session?.status !== 'IN_PROGRESS') return undefined
@@ -234,31 +242,31 @@ function SessionDetails() {
         <section className="workout-session-summary" aria-label="Resumo do treino">
           <div className="workout-summary-heading">
             <div>
-              <p className="session-eyebrow">{session.status === 'IN_PROGRESS' ? 'TREINO EM ANDAMENTO' : session.status === 'PAUSED' ? 'TREINO PAUSADO' : session.status === 'COMPLETED' ? 'TREINO CONCLUÍDO' : 'TREINO INTERROMPIDO'}</p>
+              <p className="session-eyebrow">{isProgramPreview ? 'VISUALIZAÇÃO DO PROGRAMA' : session.status === 'IN_PROGRESS' ? 'TREINO EM ANDAMENTO' : session.status === 'PAUSED' ? 'TREINO PAUSADO' : session.status === 'COMPLETED' ? 'TREINO CONCLUÍDO' : 'TREINO INTERROMPIDO'}</p>
               <h1>{programName || 'Seu treino'}</h1>
             </div>
             {session.professionalName && <span className="workout-coach-name">com {session.professionalName}</span>}
           </div>
 
-          <p className="workout-session-times">
+          {!isProgramPreview && <p className="workout-session-times">
             Início: {formatSessionDateTime(session.startedAt) || 'não informado'}
             {session.finishedAt && <> · término: {formatSessionDateTime(session.finishedAt)}</>}
-          </p>
+          </p>}
 
-          <div className="workout-live-clock" aria-live="off">
+          {!isProgramPreview && <div className="workout-live-clock" aria-live="off">
             <strong>{formatSessionClock(elapsedSessionMs)}</strong>
             <span>Tempo decorrido</span>
-          </div>
+          </div>}
 
-          <div className="workout-progress-copy">
+          {!isProgramPreview && <div className="workout-progress-copy">
             <strong>{progressPercent}% concluído</strong>
             <span>{completedActivities} de {activityCount} {activityCount === 1 ? 'atividade' : 'atividades'}</span>
-          </div>
-          <div className="workout-progress-track" role="progressbar" aria-label="Progresso do treino" aria-valuemin="0" aria-valuemax="100" aria-valuenow={progressPercent}>
+          </div>}
+          {!isProgramPreview && <div className="workout-progress-track" role="progressbar" aria-label="Progresso do treino" aria-valuemin="0" aria-valuemax="100" aria-valuenow={progressPercent}>
             <span style={{ width: `${progressPercent}%` }} />
-          </div>
+          </div>}
 
-          {['IN_PROGRESS', 'PAUSED'].includes(session.status) && (
+          {isProgramPreview ? <div className="workout-preview-actions"><button className="workout-preview-back" type="button" onClick={() => navigate(state?.returnTo || '/sessions/start')}>← <span>Voltar</span></button><StudentButton variant="primary" className="session-start-button" onClick={async () => { const started = await startSession(programId); navigate(`/sessions/${started.id}`, { replace: true, state: { session: started, programName } }) }}>Iniciar sessão</StudentButton></div> : ['IN_PROGRESS', 'PAUSED'].includes(session.status) && (
             <SessionActionSlider
               status={session.status}
               busy={isUpdatingSession}
@@ -295,8 +303,8 @@ function SessionDetails() {
 
         <section className="session-details-card" aria-label="Dados da sessão">
           <div className="session-activity-heading">
-            <h2>Atividades</h2>
-            <span>{activities.length}</span>
+            <h2>{isProgramPreview ? 'Atividades do programa' : 'Atividades'}</h2>
+            {!isProgramPreview && <span>{activities.length}</span>}
           </div>
 
           {activities.length ? (
@@ -307,7 +315,7 @@ function SessionDetails() {
                     type="button"
                     className="session-activity-card"
                     onClick={() => navigate(`/sessions/${session.id}/activities/${activity.activityId}`, {
-                      state: { session, activity, programName },
+                      state: { session, activity, programName, previewMode: isProgramPreview, returnTo: isProgramPreview ? `/sessions/preview/${programId}` : undefined },
                     })}
                   >
                     <ExerciseMedia
@@ -321,9 +329,9 @@ function SessionDetails() {
                     />
                     <span className="session-activity-copy">
                       <span>{activity.nome || `Atividade ${index + 1}`}</span>
-                      <small className={`session-activity-status status-${String(activity.status || 'PENDING').toLowerCase()}`}>
+                      {!isProgramPreview && <small className={`session-activity-status status-${String(activity.status || 'PENDING').toLowerCase()}`}>
                         {activity.status === 'COMPLETED' ? 'Concluída' : activity.status === 'INCOMPLETE' ? 'Incompleta' : activity.status === 'IN_PROGRESS' ? 'Em execução' : activity.status === 'PAUSED' ? 'Pausada' : activity.status === 'RESTING' ? 'Em descanso' : 'Pendente'}
-                      </small>
+                      </small>}
                       {getActivityTimeSummary(activity, session, now) && (
                         <small className="session-activity-values">{getActivityTimeSummary(activity, session, now)}</small>
                       )}

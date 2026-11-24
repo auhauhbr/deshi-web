@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { getApiErrorMessage } from '../../services/authService.js'
 import StudentButton from '../../components/StudentButton.jsx'
@@ -70,6 +70,8 @@ function SessionActivity() {
   const { sessionId, activityId } = useParams()
   const { state } = useLocation()
   const navigate = useNavigate()
+  const isPreviewMode = Boolean(state?.previewMode)
+  const previewReturnTo = state?.returnTo || `/sessions/${sessionId}`
   const cachedSession = state?.session?.id === sessionId ? state.session : null
   const cachedActivity = state?.activity?.activityId === activityId ? state.activity : null
   const [session, setSession] = useState(cachedSession)
@@ -82,6 +84,9 @@ function SessionActivity() {
   const [load, setLoad] = useState('')
   const [lastSeries, setLastSeries] = useState(null)
   const [seriesStartedAt, setSeriesStartedAt] = useState(Date.now())
+  const roundAlarmed = useRef(false)
+  const [roundStartedAt, setRoundStartedAt] = useState(null)
+  const [roundReady, setRoundReady] = useState(false)
 
   useEffect(() => {
     if (cachedSession && cachedActivity) return undefined
@@ -117,11 +122,19 @@ function SessionActivity() {
     return () => window.clearInterval(interval)
   }, [activity?.status, session?.status])
 
-  const prescribedSets = Math.max(1, Number(activity?.prescribed?.series) || 1)
+  const isRoundBased = Number(activity?.prescribed?.rounds) > 0 || Number(activity?.prescribed?.duracaoRoundSegundos) > 0
+  const prescribedSets = Math.max(1, Number(isRoundBased ? activity?.prescribed?.rounds : activity?.prescribed?.series) || 1)
+  const roundDurationSeconds = Math.max(1, Number(activity?.prescribed?.duracaoRoundSegundos) || Number(activity?.prescribed?.duracaoSegundos) || 1)
   const restSeconds = Math.max(0, Number(activity?.prescribed?.descansoSegundos) || 0)
   const recordedSets = activity?.execution?.series?.length || 0
   const activeSet = Math.min(recordedSets + 1, prescribedSets)
   const restRemaining = Math.max(0, restSeconds - Math.floor(elapsedSince(activity?.timeTracking?.restStartedAt, now) / 1000))
+  const roundRemaining = Math.max(0, roundDurationSeconds - Math.floor(elapsedSince(roundStartedAt || activity?.timeTracking?.activeStartedAt, now) / 1000))
+
+  useEffect(() => {
+    if (!isRoundBased || activity?.status !== 'IN_PROGRESS' || roundReady) { roundAlarmed.current = false; return }
+    if (roundRemaining === 0 && !roundAlarmed.current) { roundAlarmed.current = true; playCue(990) }
+  }, [isRoundBased, activity?.status, roundRemaining, roundReady])
 
   useEffect(() => {
     if (activity?.status !== 'RESTING' || !restSeconds || restRemaining > 0 || busy) return
@@ -152,6 +165,10 @@ function SessionActivity() {
       }
       setSession(sessionWithMetadata)
       setActivity(activityWithMetadata)
+      if (isRoundBased && (action === startActivity || action === endActivityRest)) {
+        setRoundStartedAt(Date.now())
+        setRoundReady(false)
+      }
       if (activity.status === 'RESTING' && action === endActivityRest) playCue(880)
     } catch (error) {
       setMessage(getApiErrorMessage(error, 'Não foi possível atualizar a atividade. Tente novamente.'))
@@ -161,6 +178,10 @@ function SessionActivity() {
   }
 
   function returnToSession(nextSession = session, nextActivity = activity) {
+    if (isPreviewMode) {
+      navigate(previewReturnTo, { state: { program: state?.program || null, returnTo: '/sessions/start' } })
+      return
+    }
     navigate(`/sessions/${sessionId}`, {
       state: {
         session: nextSession,
@@ -248,6 +269,38 @@ function SessionActivity() {
     } finally { setBusy(false) }
   }
 
+  async function finishRound() {
+    if (roundRemaining > 0 || busy) return
+    setBusy(true)
+    setMessage('')
+    try {
+      const finalRound = activeSet >= prescribedSets
+      const values = { duracaoRoundSegundos: roundDurationSeconds }
+      const finalSeries = { number: activeSet, values, durationMs: roundDurationSeconds * 1000, restMs: 0 }
+      if (finalRound) {
+        navigate(`/sessions/${session.id}/executions/${activity.activityId}`, { state: { session, activity, programName: state?.programName, finalSeries } })
+        return
+      }
+      const updated = await registerExecution(session.id, { activityId: activity.activityId, seriesNumber: activeSet, values, durationMs: roundDurationSeconds * 1000, status: 'IN_PROGRESS' })
+      const nextActivity = updated.activities.find((item) => item.activityId === activity.activityId)
+      const merged = { ...nextActivity, nome: activity.nome, descricao: activity.descricao, midiaUrl: activity.midiaUrl, prescribed: activity.prescribed }
+      setSession({ ...updated, activities: updated.activities.map((item) => item.activityId === activity.activityId ? merged : item) })
+      setActivity(merged)
+      setSeriesStartedAt(Date.now())
+      roundAlarmed.current = false
+      if (restSeconds) await runAction(startActivityRest)
+      else setRoundReady(true)
+    } catch (error) { setMessage(getApiErrorMessage(error, 'Não foi possível registrar o round.')) }
+    finally { setBusy(false) }
+  }
+
+  function startNextRound() {
+    setRoundStartedAt(Date.now())
+    setRoundReady(false)
+    roundAlarmed.current = false
+    setNow(Date.now())
+  }
+
 
   return (
     <main className="activity-player-page">
@@ -262,7 +315,7 @@ function SessionActivity() {
       <div className="activity-player-scrim" aria-hidden="true" />
 
       <header className="activity-player-header">
-        <button type="button" className="activity-player-back" onClick={() => returnToSession()} aria-label="Voltar ao treino">
+        <button type="button" className={`activity-player-back${isPreviewMode ? ' activity-player-back--preview' : ''}`} onClick={() => returnToSession()} aria-label="Voltar ao programa">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6" /></svg>
         </button>
         <span>ATIVIDADE {activity.order}</span>
@@ -288,8 +341,11 @@ function SessionActivity() {
 
         {['IN_PROGRESS', 'RESTING'].includes(activity.status) && (
           <section className="activity-set-panel" aria-label="Registro das séries">
-            <div className="activity-set-heading"><span>SÉRIE {activeSet} DE {prescribedSets}</span><strong>{activity.status === 'RESTING' ? formatClock(restRemaining * 1000) : `${activity.prescribed?.repeticoes || '—'} repetições`}</strong></div>
-            {activity.status === 'RESTING' ? <p role="status">Descanse. A próxima série começa ao fim do cronômetro.</p> : <>
+            <div className="activity-set-heading"><span>{isRoundBased ? 'ROUND' : 'SÉRIE'} {activeSet} DE {prescribedSets}</span><strong>{activity.status === 'RESTING' ? formatClock(restRemaining * 1000) : isRoundBased ? formatClock(roundRemaining * 1000) : `${activity.prescribed?.repeticoes || '—'} repetições`}</strong></div>
+            {activity.status === 'RESTING' ? <p role="status">Descanso. O próximo round começa automaticamente ao fim do cronômetro.</p> : isRoundBased ? <>
+              <p role="status">{roundReady ? 'Pronto para começar o próximo round.' : roundRemaining ? 'Execute o round no seu ritmo.' : 'Round concluído. Toque para registrar e continuar.'}</p>
+              {roundReady ? <StudentButton variant="primary" className="activity-main-action" onClick={startNextRound} disabled={busy}>Iniciar round {activeSet}</StudentButton> : <StudentButton variant="primary" className="activity-main-action" onClick={finishRound} disabled={busy || roundRemaining > 0}>{activeSet >= prescribedSets ? 'Terminar último round' : restSeconds ? 'Terminar round e descansar' : 'Terminar round'}</StudentButton>}
+            </> : <>
               <label>Repetições realizadas<input type="number" min="1" step="1" value={reps} onChange={(event) => setReps(event.target.value)} placeholder={String(activity.prescribed?.repeticoes || '')} /></label>
               <label>Carga utilizada (kg)<input type="number" min="0" step="0.5" value={load} onChange={(event) => setLoad(event.target.value)} placeholder={String(activity.prescribed?.cargaKg ?? 0)} /></label>
               <StudentButton variant="primary" className="activity-main-action" onClick={saveSet} disabled={busy}>{activeSet < prescribedSets && restSeconds ? 'Registrar série e descansar' : activeSet < prescribedSets ? 'Registrar série' : 'Concluir atividade'}</StudentButton>
@@ -297,7 +353,7 @@ function SessionActivity() {
           </section>
         )}
 
-        <div className="activity-player-controls">
+        {!isPreviewMode && <div className="activity-player-controls">
           <div className="activity-player-clock" aria-live="off">
             <strong>{formatClock(activityTime)}</strong>
             <span>{activity.status === 'RESTING' ? 'Descanso' : activity.status === 'PAUSED' ? 'Pausa' : 'Tempo de execução'}</span>
@@ -335,7 +391,7 @@ function SessionActivity() {
           )}
 
           {message && <p className="activity-player-message" role="alert">{message}</p>}
-        </div>
+        </div>}
       </section>
     </main>
   )

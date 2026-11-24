@@ -47,6 +47,7 @@ function AppRoutes() {
       <Route path="/sessions/completed" element={<ProtectedRoute><CompletedSessions /></ProtectedRoute>} />
       <Route path="/sessions/:sessionId/activities/:activityId" element={<ProtectedRoute><SessionActivity /></ProtectedRoute>} />
       <Route path="/sessions/:sessionId" element={<ProtectedRoute><SessionDetails /></ProtectedRoute>} />
+      <Route path="/sessions/preview/:programId" element={<ProtectedRoute><SessionDetails /></ProtectedRoute>} />
       <Route path="/sessions/:sessionId/executions/:activityId" element={<ProtectedRoute><RegisterExecution /></ProtectedRoute>} />
       <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
