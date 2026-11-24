@@ -4,8 +4,42 @@ import ProfessionalNavigation from '../../components/ProfessionalNavigation.jsx'
 import { getProfessionalStudentDashboard } from '../../services/studentDashboardService.js'
 import './StudentProfile.css'
 
+const WEEKDAY_FORMATTER = new Intl.DateTimeFormat('pt-BR', { weekday: 'short' })
+const WEEK_RANGE_FORMATTER = new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 'short' })
+
 function initials(name = '') {
   return name.trim().split(/\s+/).slice(0, 2).map((part) => part[0]).join('').toUpperCase()
+}
+
+function getDateKey(value) {
+  if (!value) return ''
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return ''
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+}
+
+function getWeekDays(today, weekOffset = 0) {
+  const monday = new Date(today.getFullYear(), today.getMonth(), today.getDate())
+  monday.setDate(monday.getDate() - ((monday.getDay() + 6) % 7) + weekOffset * 7)
+  return Array.from({ length: 7 }, (_, index) => {
+    const date = new Date(monday)
+    date.setDate(monday.getDate() + index)
+    return date
+  })
+}
+
+function formatWeekRange(weekDays) {
+  const firstDay = weekDays[0]
+  const lastDay = weekDays[6]
+  const sameMonth = firstDay.getMonth() === lastDay.getMonth() && firstDay.getFullYear() === lastDay.getFullYear()
+  const first = WEEK_RANGE_FORMATTER.format(firstDay).replace(' de ', ' ')
+  const last = sameMonth ? String(lastDay.getDate()) : WEEK_RANGE_FORMATTER.format(lastDay).replace(' de ', ' ')
+  const year = firstDay.getFullYear() === lastDay.getFullYear() ? lastDay.getFullYear() : `${firstDay.getFullYear()}–${lastDay.getFullYear()}`
+  return `${first} – ${last} · ${year}`
+}
+
+function WeekChevron({ direction }) {
+  return <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d={direction === 'previous' ? 'm14.5 5-7 7 7 7' : 'm9.5 5 7 7-7 7'} /></svg>
 }
 
 function getErrorMessage(error, fallback) {
@@ -21,6 +55,7 @@ function StudentProfilePage() {
   const [loadedStudentId, setLoadedStudentId] = useState('')
   const [activeTab, setActiveTab] = useState('overview')
   const [showAllSessions, setShowAllSessions] = useState(false)
+  const [weekOffset, setWeekOffset] = useState(0)
 
   useEffect(() => {
     getProfessionalStudentDashboard(studentId).then((data) => {
@@ -37,6 +72,13 @@ function StudentProfilePage() {
   const programs = dashboard?.programs || []
   const completedSessions = sessions.filter((session) => session.status === 'COMPLETED')
   const [now] = useState(() => new Date())
+  const todayKey = getDateKey(now)
+  const weekDays = getWeekDays(now, weekOffset)
+  const completedByDay = new Map()
+  completedSessions.forEach((session) => {
+    const key = getDateKey(session.finishedAt || session.startedAt)
+    if (key) completedByDay.set(key, (completedByDay.get(key) || 0) + 1)
+  })
   const profileLoading = loading || loadedStudentId !== studentId
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1)
   const weekStart = new Date(now)
@@ -96,6 +138,31 @@ function StudentProfilePage() {
           <section className="student-period-stats" aria-label="Frequência de treinos">
             <article><strong>{completedThisMonth}</strong><span>treinos em {monthName}</span><small>{completedSessions.length} no histórico total</small></article>
             <article><strong>{completedThisWeek}</strong><span>nesta semana</span><small>Semana iniciada na segunda</small></article>
+          </section>
+
+          <section className="student-week-calendar-card" aria-labelledby="student-week-calendar-title">
+            <div className="student-week-calendar-card__heading">
+              <div><p className="students-eyebrow">CONSTÂNCIA</p><h2 id="student-week-calendar-title">Treinos nesta semana</h2></div>
+              <div className="student-week-calendar-navigation" aria-label="Navegar entre semanas">
+                <button type="button" onClick={() => setWeekOffset((offset) => offset - 1)} aria-label="Ver semana anterior"><WeekChevron direction="previous" /></button>
+                <span aria-live="polite">{formatWeekRange(weekDays)}</span>
+                <button type="button" onClick={() => setWeekOffset((offset) => offset + 1)} aria-label="Ver próxima semana"><WeekChevron direction="next" /></button>
+              </div>
+            </div>
+            <div className="student-week-calendar" role="list" aria-label={`Sessões concluídas na semana ${formatWeekRange(weekDays)}`}>
+              {weekDays.map((date) => {
+                const key = getDateKey(date)
+                const completedCount = completedByDay.get(key) || 0
+                const isToday = key === todayKey
+                const weekday = WEEKDAY_FORMATTER.format(date).replace('.', '')
+                return <div className={`student-week-calendar__day${isToday ? ' is-today' : ''}${completedCount ? ' has-session' : ''}`} key={key} role="listitem" aria-label={`${weekday}, ${date.getDate()}${completedCount ? `: ${completedCount} ${completedCount === 1 ? 'sessão concluída' : 'sessões concluídas'}` : ''}${isToday ? ', hoje' : ''}`}>
+                  <span className="student-week-calendar__weekday" aria-hidden="true">{weekday}</span>
+                  <span className="student-week-calendar__number" aria-hidden="true">{date.getDate()}</span>
+                  <span className="student-week-calendar__marker" aria-hidden="true">{completedCount > 1 ? completedCount : completedCount === 1 ? '✓' : ''}</span>
+                </div>
+              })}
+            </div>
+            <p className="student-week-calendar-card__note">Os dias marcados indicam sessões concluídas pelo aluno.</p>
           </section>
 
           <section className="student-detail-section">
