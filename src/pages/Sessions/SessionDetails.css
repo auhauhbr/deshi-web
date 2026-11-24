@@ -409,6 +409,11 @@
 .workout-interrupt-button { grid-column: 1 / -1; min-height: 2.55rem !important; border: 1px solid rgb(217 54 54 / 22%); background: transparent; color: var(--color-error); font-size: var(--font-size-xs) !important; }
 .workout-control-note, .workout-terminal-note { grid-column: 1 / -1; margin: 0; color: var(--color-text-secondary); font-size: var(--font-size-xs); text-align: center; }
 .workout-terminal-note { padding: .8rem 0 0; }
+.workout-terminal-note.is-celebrating { position: relative; animation: workout-finish-pop .55s cubic-bezier(.2,.8,.2,1) both; color: var(--color-primary-active); font-weight: var(--font-weight-bold); }
+.workout-celebration-sparkles { display: block; margin-top: .45rem; color: var(--color-primary); font-size: 1.2rem; letter-spacing: .12em; animation: workout-sparkle 1.2s ease-in-out both; }
+@keyframes workout-finish-pop { 0% { opacity: 0; transform: translateY(8px) scale(.96); } 65% { opacity: 1; transform: translateY(-2px) scale(1.025); } 100% { transform: translateY(0) scale(1); } }
+@keyframes workout-sparkle { 0% { opacity: 0; transform: scale(.6); } 45% { opacity: 1; transform: scale(1.15); } 100% { opacity: .9; transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) { .workout-terminal-note.is-celebrating,.workout-celebration-sparkles { animation: none; } }
 
 .session-details-card[aria-label="Dados da sessão"] { margin-top: 0; }
 

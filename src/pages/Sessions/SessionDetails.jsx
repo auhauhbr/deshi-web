@@ -42,6 +42,28 @@ function getDurationFromStart(value, now) {
   return Number.isNaN(startedAt) ? 0 : Math.max(0, now - startedAt)
 }
 
+function playSessionCelebration() {
+  try {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext
+    if (!AudioContextClass) return
+    const context = new AudioContextClass()
+    ;[523.25, 659.25, 783.99].forEach((frequency, index) => {
+      const oscillator = context.createOscillator()
+      const gain = context.createGain()
+      const start = context.currentTime + index * .11
+      oscillator.type = 'sine'
+      oscillator.frequency.value = frequency
+      gain.gain.setValueAtTime(.0001, start)
+      gain.gain.exponentialRampToValueAtTime(.13, start + .025)
+      gain.gain.exponentialRampToValueAtTime(.0001, start + .36)
+      oscillator.connect(gain).connect(context.destination)
+      oscillator.start(start)
+      oscillator.stop(start + .38)
+      oscillator.onended = () => { if (index === 2) context.close() }
+    })
+  } catch { /* The visual confirmation remains if audio is unavailable. */ }
+}
+
 function getActivityTimeSummary(activity, session, now) {
   const tracking = activity.timeTracking || {}
   const active = (tracking.activeTimeMs || 0)
@@ -67,6 +89,7 @@ function SessionDetails() {
   const [timeActionMessage, setTimeActionMessage] = useState('')
   const [isUpdatingSession, setIsUpdatingSession] = useState(false)
   const [showFinishConfirm, setShowFinishConfirm] = useState(false)
+  const [justFinished, setJustFinished] = useState(false)
   const [now, setNow] = useState(Date.now())
 
   useEffect(() => {
@@ -205,6 +228,10 @@ function SessionDetails() {
         }),
       }))
       setShowFinishConfirm(false)
+      if (resolvedAction === 'finish') {
+        setJustFinished(true)
+        playSessionCelebration()
+      }
       return true
     } catch (error) {
       setTimeActionMessage(getApiErrorMessage(error, 'Não foi possível atualizar o estado da sessão.'))
@@ -297,7 +324,7 @@ function SessionDetails() {
           )}
 
           {['COMPLETED', 'INTERRUPTED'].includes(session.status) && (
-            <p className="workout-terminal-note">{session.status === 'COMPLETED' ? 'Os registros deste treino foram salvos.' : 'Os registros feitos até a interrupção foram salvos.'}</p>
+            <p className={`workout-terminal-note${session.status === 'COMPLETED' && justFinished ? ' is-celebrating' : ''}`} role={justFinished ? 'status' : undefined}>{session.status === 'COMPLETED' ? 'Os registros deste treino foram salvos.' : 'Os registros feitos até a interrupção foram salvos.'}{session.status === 'COMPLETED' && justFinished && <span className="workout-celebration-sparkles" aria-hidden="true">✦　✧　✦</span>}</p>
           )}
         </section>
 

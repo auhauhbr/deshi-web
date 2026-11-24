@@ -4,7 +4,7 @@ import StudentBottomNav from '../../components/StudentBottomNav.jsx'
 import StudentButton from '../../components/StudentButton.jsx'
 import BrandLogo from '../../components/BrandLogo.jsx'
 import { getApiErrorMessage } from '../../services/authService.js'
-import { getStudentSessions } from '../../services/sessionService.js'
+import { getStudentPrograms, getStudentSessions } from '../../services/sessionService.js'
 import { useStudentEntrance } from '../../hooks/useStudentEntrance.js'
 import './StartSession.css'
 import './SessionDetails.css'
@@ -34,10 +34,12 @@ function CompletedSessions() {
 
     async function loadSessions() {
       try {
-        const history = await getStudentSessions()
+        const [history, programs] = await Promise.all([getStudentSessions(), getStudentPrograms()])
+        const programNames = new Map(programs.map((program) => [String(program.id), program.name]))
         const visibleSessions = history
           .filter((session) => ['COMPLETED', 'INTERRUPTED'].includes(session.status))
           .sort((first, second) => new Date(second.finishedAt || second.startedAt) - new Date(first.finishedAt || first.startedAt))
+          .map((session) => ({ ...session, programName: programNames.get(String(session.programId)) || 'Programa de treino' }))
 
         if (isCurrent) setSessions(visibleSessions)
       } catch (error) {
@@ -92,6 +94,7 @@ function CompletedSessions() {
                   <span className={`completed-session-icon${session.status === 'INTERRUPTED' ? ' is-interrupted' : ''}`} aria-hidden="true">{session.status === 'INTERRUPTED' ? '!' : '✓'}</span>
                   <span className="completed-session-info">
                     <strong>{session.status === 'INTERRUPTED' ? 'Treino interrompido' : 'Treino concluído'}</strong>
+                    <small className="completed-session-program">{session.programName}</small>
                     <small>Início: {formatSessionDate(session.startedAt)}</small>
                     {session.finishedAt && <small>Término: {formatSessionDate(session.finishedAt)}</small>}
                     <small>{session.activities?.length || 0} {session.activities?.length === 1 ? 'atividade' : 'atividades'}</small>
