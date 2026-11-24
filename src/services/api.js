@@ -16,6 +16,26 @@ api.interceptors.request.use((config) => {
   return config
 })
 
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    const requestUrl = error.config?.url || ''
+    const isPublicAuthRequest = requestUrl.includes('/login') || requestUrl.includes('/users')
+    const authorization = error.config?.headers?.get?.('Authorization')
+      || error.config?.headers?.Authorization
+      || error.config?.headers?.authorization
+    const hasAuthorization = Boolean(authorization)
+
+    if (error.response?.status === 401 && hasAuthorization && !isPublicAuthRequest) {
+      localStorage.removeItem(TOKEN_STORAGE_KEY)
+      localStorage.removeItem('deshi.user')
+      window.dispatchEvent(new Event('deshi:session-expired'))
+    }
+
+    return Promise.reject(error)
+  },
+)
+
 export { TOKEN_STORAGE_KEY }
 
 export function hasSession() {

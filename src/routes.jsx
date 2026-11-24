@@ -21,12 +21,14 @@ import RegisterExecution from './pages/Sessions/RegisterExecution.jsx'
 import CompletedSessions from './pages/Sessions/CompletedSessions.jsx'
 import ProfilePage from './pages/Profile/Profile.jsx'
 import AcceptInvitePage from './pages/Invites/AcceptInvite.jsx'
+import SessionExpiredPage from './pages/SessionExpired/SessionExpired.jsx'
 
 function AppRoutes() {
   return (
     <Routes>
       <Route path="/cadastro" element={<RegisterPage />} />
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/sessao-expirada" element={<SessionExpiredPage />} />
       <Route path="/" element={<LandingPage />} />
       <Route path="/home" element={<ProtectedRoute><HomeEntry /></ProtectedRoute>} />
       <Route path="/modalidades" element={<ProtectedRoute profile="PROFESSIONAL"><ModalidadesPage /></ProtectedRoute>} />
