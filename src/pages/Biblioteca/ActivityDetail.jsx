@@ -52,7 +52,7 @@ export default function ActivityDetailPage() {
 
           <div className="activity-detail-media" aria-label={`Demonstração em vídeo de ${activity.nome}`}>
             {activity.midiaUrl
-              ? <ExerciseMedia src={activity.midiaUrl} alt={`Demonstração de ${activity.nome}`} className="activity-detail-video" autoPlay loop />
+              ? <ExerciseMedia src={activity.midiaUrl} alt={`Demonstração de ${activity.nome}`} className="activity-detail-video" autoPlay loop controls={false} interactive={false} />
               : <div className="activity-detail-no-media"><span aria-hidden="true">▶</span><p>Vídeo não disponível para esta atividade.</p></div>}
           </div>
 

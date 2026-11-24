@@ -16,6 +16,8 @@ export default function ExerciseMedia({
   preview = false,
   autoPlay = false,
   loop = preview,
+  controls = !preview,
+  interactive = true,
 }) {
   const videoRef = useRef(null)
   const [failedSrc, setFailedSrc] = useState(null)
@@ -68,9 +70,13 @@ export default function ExerciseMedia({
       muted
       loop={loop}
       playsInline
-      controls={!preview}
+      controls={interactive && controls}
+      disablePictureInPicture={!interactive}
+      disableRemotePlayback={!interactive}
+      tabIndex={interactive ? undefined : -1}
       preload={preview ? 'none' : 'metadata'}
       onError={handleError}
+      onContextMenu={interactive ? undefined : (event) => event.preventDefault()}
     />
   ) : (
     <img
