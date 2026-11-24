@@ -83,7 +83,8 @@ export default function ExerciseMedia({
       className={className}
       src={src}
       alt={alt}
-      loading="lazy"
+      loading={preview ? 'lazy' : 'eager'}
+      decoding="async"
       onError={handleError}
     />
   )

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { useLocation, useParams } from 'react-router-dom'
+import { Link, useLocation, useParams } from 'react-router-dom'
 import ProfessionalNavigation from '../../components/ProfessionalNavigation.jsx'
 import PageAppBar from '../../components/PageAppBar.jsx'
 import ExerciseMedia from '../../components/ExerciseMedia.jsx'
@@ -48,11 +48,12 @@ export default function ActivityDetailPage() {
         {phase === 'ready' && activity && <article className="activity-detail-card">
           <header className="activity-detail-heading">
             <div><span className="activity-detail-eyebrow">{activity.origem === 'PERSONALIZADA' ? 'ATIVIDADE PERSONALIZADA' : 'BIBLIOTECA DE ATIVIDADES'}</span><h1>{activity.nome}</h1>{activity.descricao && <p>{activity.descricao}</p>}</div>
+            {activity.origem === 'PERSONALIZADA' && <Link className="activity-detail-edit" to={`/atividades/${encodeURIComponent(activity.id)}/editar`} state={{ returnTo: `/biblioteca/atividades/${encodeURIComponent(activity.id)}` }}>Editar atividade</Link>}
           </header>
 
           <div className="activity-detail-media" aria-label={`Demonstração em vídeo de ${activity.nome}`}>
             {activity.midiaUrl
-              ? <ExerciseMedia src={activity.midiaUrl} alt={`Demonstração de ${activity.nome}`} className="activity-detail-video" autoPlay loop controls={false} interactive={false} />
+              ? <ExerciseMedia src={activity.midiaUrl} alt={`Demonstração de ${activity.nome}`} className="activity-detail-video" autoPlay loop controls={false} interactive={false} fallback={<div className="activity-detail-no-media"><span aria-hidden="true">!</span><p>Não foi possível carregar esta mídia. Confira se o link é direto para o arquivo.</p></div>} />
               : <div className="activity-detail-no-media"><span aria-hidden="true">▶</span><p>Vídeo não disponível para esta atividade.</p></div>}
           </div>
 

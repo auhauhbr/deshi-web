@@ -1,7 +1,11 @@
 .activity-detail-page { min-height: 100vh; background: var(--color-professional-background); color: var(--color-professional-ink); }
 .activity-detail-content { width: min(100% - 40px, 920px); margin: 0 auto; padding: 28px 0 100px; animation: activities-enter .3s ease both; }
 .activity-detail-card { overflow: hidden; margin-top: 12px; border: 1px solid var(--color-professional-border); border-radius: 20px; background: var(--color-surface); box-shadow: var(--shadow-card); }
-.activity-detail-heading { padding: clamp(20px, 4vw, 32px) clamp(20px, 4vw, 36px) 20px; }
+.activity-detail-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; padding: clamp(20px, 4vw, 32px) clamp(20px, 4vw, 36px) 20px; }
+.activity-detail-heading > div { min-width: 0; }
+.activity-detail-edit { flex: none; display: inline-flex; min-height: 42px; align-items: center; justify-content: center; border: 1px solid var(--color-professional-border); border-radius: 11px; padding: 0 14px; background: var(--color-surface); color: var(--color-professional-forest); font-size: .86rem; font-weight: 700; text-decoration: none; transition: border-color .18s ease, background .18s ease, transform .18s ease; }
+.activity-detail-edit:hover { transform: translateY(-1px); border-color: var(--color-professional-green); background: var(--color-professional-green-light); }
+.activity-detail-edit:focus-visible { outline: 3px solid color-mix(in srgb, var(--color-professional-green) 30%, transparent); outline-offset: 2px; }
 .activity-detail-eyebrow { color: var(--color-professional-green); font-size: .7rem; font-weight: 750; letter-spacing: .12em; }
 .activity-detail-heading h1 { margin: 7px 0 0; font-size: clamp(1.7rem, 5vw, 2.55rem); letter-spacing: -.045em; line-height: 1.12; }
 .activity-detail-heading p { max-width: 660px; margin: 10px 0 0; color: var(--color-professional-muted); line-height: 1.6; }
@@ -20,5 +24,5 @@
 .activity-detail-state p { margin: 0; }
 .activity-detail-state .loading-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--color-professional-green); box-shadow: 0 0 0 5px var(--color-professional-green-light); animation: activity-detail-pulse 1.1s ease-in-out infinite; }
 @keyframes activity-detail-pulse { 50% { box-shadow: 0 0 0 9px color-mix(in srgb, var(--color-professional-green-light) 35%, transparent); } }
-@media (max-width: 640px) { .activity-detail-content { width: min(100% - 28px, 920px); padding-top: 18px; } .activity-detail-card { border-radius: 16px; } .activity-detail-media { min-height: 0; max-height: 75svh; aspect-ratio: auto; } .activity-detail-video { width: 100%; height: auto; max-height: 75svh; object-fit: contain; } .activity-detail-information { grid-template-columns: 1fr; gap: 8px; } .activity-detail-information > div { min-height: auto; } }
+@media (max-width: 640px) { .activity-detail-content { width: min(100% - 28px, 920px); padding-top: 18px; } .activity-detail-card { border-radius: 16px; } .activity-detail-heading { flex-direction: column; align-items: stretch; } .activity-detail-edit { align-self: flex-start; } .activity-detail-media { min-height: 0; max-height: 75svh; aspect-ratio: auto; } .activity-detail-video { width: 100%; height: auto; max-height: 75svh; object-fit: contain; } .activity-detail-information { grid-template-columns: 1fr; gap: 8px; } .activity-detail-information > div { min-height: auto; } }
 @media (prefers-reduced-motion: reduce) { .activity-detail-content, .activity-detail-state .loading-dot { animation-duration: .01ms !important; } }

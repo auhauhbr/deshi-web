@@ -80,15 +80,6 @@ function ProfessionalHomePage() {
       </section>
 
       <div className="professional-home__activity-grid">
-        <section className="dashboard-section dashboard-section--training">
-          <div className="dashboard-section__heading"><div><p className="section-kicker">ACOMPANHAMENTO AO VIVO</p><h2>Em treino agora</h2></div><span className="section-count">{loading ? '—' : `${dashboard?.training?.length ?? 0} ativos`}</span></div>
-          <div className="student-list">
-            {loading ? <p className="empty-state">Carregando sessões…</p> : dashboard?.training?.length ? dashboard.training.map((student) => <article className="student-row" key={student.sessionId}>
-              <span className="student-avatar">{initials(student.name)}</span><div className="student-row__main"><strong>{student.name}</strong><span>{student.programName} · {student.activityName || `${student.completedActivities} de ${student.totalActivities} atividades`}</span></div><div className="student-row__status"><strong>{formatDuration(student.startedAt)}</strong><span><i />Ao vivo</span></div>
-            </article>) : <div className="empty-state"><span className="empty-state__mark" aria-hidden="true">↗</span><strong>Sem sessões ativas</strong><span>Quando um aluno começar a treinar, o acompanhamento aparece aqui.</span></div>}
-          </div>
-        </section>
-
         <section className="dashboard-section dashboard-section--recent">
           <div className="dashboard-section__heading"><div><p className="section-kicker">ACONTECEU POR AQUI</p><h2>Atividade recente</h2></div></div>
           <div className="activity-list">
@@ -103,6 +94,15 @@ function ProfessionalHomePage() {
                 <span>{new Intl.DateTimeFormat('pt-BR', { hour: '2-digit', minute: '2-digit' }).format(new Date(activity.at))}</span>
               </time>
             </article>) : <div className="empty-state"><span className="empty-state__mark" aria-hidden="true">◷</span><strong>Nenhuma movimentação ainda</strong><span>As atividades dos seus alunos aparecerão aqui.</span></div>}
+          </div>
+        </section>
+
+        <section className="dashboard-section dashboard-section--training">
+          <div className="dashboard-section__heading"><div><p className="section-kicker">ACOMPANHAMENTO AO VIVO</p><h2>Em treino agora</h2></div><span className="section-count">{loading ? '—' : `${dashboard?.training?.length ?? 0} ativos`}</span></div>
+          <div className="student-list">
+            {loading ? <p className="empty-state">Carregando sessões…</p> : dashboard?.training?.length ? dashboard.training.map((student) => <article className="student-row" key={student.sessionId}>
+              <span className="student-avatar">{initials(student.name)}</span><div className="student-row__main"><strong>{student.name}</strong><span>{student.programName} · {student.activityName || `${student.completedActivities} de ${student.totalActivities} atividades`}</span></div><div className="student-row__status"><strong>{formatDuration(student.startedAt)}</strong><span><i />Ao vivo</span></div>
+            </article>) : <div className="empty-state"><span className="empty-state__mark" aria-hidden="true">↗</span><strong>Sem sessões ativas</strong><span>Quando um aluno começar a treinar, o acompanhamento aparece aqui.</span></div>}
           </div>
         </section>
       </div>

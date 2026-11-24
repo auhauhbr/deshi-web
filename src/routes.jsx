@@ -35,6 +35,7 @@ function AppRoutes() {
       <Route path="/biblioteca/atividades/:id" element={<ProtectedRoute profile="PROFESSIONAL"><ActivityDetailPage /></ProtectedRoute>} />
       <Route path="/perfil" element={<ProtectedRoute profile="PROFESSIONAL"><ProfessionalProfilePage /></ProtectedRoute>} />
       <Route path="/atividades/nova" element={<ProtectedRoute profile="PROFESSIONAL"><NovaAtividadePage /></ProtectedRoute>} />
+      <Route path="/atividades/:id/editar" element={<ProtectedRoute profile="PROFESSIONAL"><NovaAtividadePage /></ProtectedRoute>} />
       <Route path="/atividades/:id/configurar" element={<ProtectedRoute profile="PROFESSIONAL"><ConfigurarAtividadePage /></ProtectedRoute>} />
       <Route path="/alunos" element={<ProtectedRoute profile="PROFESSIONAL"><StudentsPage /></ProtectedRoute>} />
       <Route path="/alunos/:studentId" element={<ProtectedRoute profile="PROFESSIONAL"><StudentProfilePage /></ProtectedRoute>} />

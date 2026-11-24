@@ -33,14 +33,31 @@ export async function listarAtividades({ busca, modalidadeId } = {}, signal) {
   return data
 }
 
-export async function criarAtividade({ nome, modalidadeId, descricao, midiaUrl }, signal) {
-  const body = { nome: nome.trim(), modalidadeId }
-  if (descricao?.trim()) body.descricao = descricao.trim()
-  if (midiaUrl?.trim()) body.midiaUrl = midiaUrl.trim()
+export async function criarAtividade({ nome, modalidadeId, descricao, midiaUrl, grupoMuscular }, signal) {
+  const body = buildActivityBody({ nome, modalidadeId, descricao, midiaUrl, grupoMuscular })
   try {
     const { data } = await api.post('/atividades', body, { signal })
     return data
   } catch (error) {
     requestError(error, 'Não foi possível criar a atividade.')
+  }
+}
+
+function buildActivityBody({ nome, modalidadeId, descricao, midiaUrl, grupoMuscular }) {
+  return {
+    nome: nome.trim(),
+    modalidadeId,
+    ...(descricao?.trim() ? { descricao: descricao.trim() } : {}),
+    ...(midiaUrl?.trim() ? { midiaUrl: midiaUrl.trim() } : {}),
+    ...(grupoMuscular?.trim() ? { grupoMuscular: grupoMuscular.trim() } : {})
+  }
+}
+
+export async function atualizarAtividade(id, dados, signal) {
+  try {
+    const { data } = await api.put(`/atividades/${encodeURIComponent(id)}`, buildActivityBody(dados), { signal })
+    return data
+  } catch (error) {
+    requestError(error, 'Não foi possível atualizar a atividade.')
   }
 }
