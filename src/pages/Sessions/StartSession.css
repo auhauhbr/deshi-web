@@ -194,6 +194,8 @@
   font-size: 1.5rem;
   font-weight: var(--font-weight-bold);
 }
+.program-card-icon--image { object-fit: cover; }
+.program-card-icon svg { width: 1.6rem; height: 1.6rem; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
 
 .program-card.selected .program-card-icon {
   background: var(--color-primary);

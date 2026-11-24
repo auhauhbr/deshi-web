@@ -12,6 +12,12 @@ import StudentButton from '../../components/StudentButton.jsx'
 import BrandLogo from '../../components/BrandLogo.jsx'
 import './StartSession.css'
 
+function ProgramIcon({ url, completed = false }) {
+  const [failed, setFailed] = useState(false)
+  if (url && !failed) return <img className="program-card-icon program-card-icon--image" src={url} alt="" onError={() => setFailed(true)} />
+  return <div className="program-card-icon" aria-hidden="true">{completed ? '✓' : <svg viewBox="0 0 24 24" fill="none"><path d="M4 9v6m4-9v12m8-12v12m4-9v6M8 12h8" /></svg>}</div>
+}
+
 function StartSession() {
   const navigate = useNavigate()
 
@@ -165,7 +171,7 @@ async function handleStartSession(event, programId = selectedProgram) {
         >
           {!isLoading && !historyWarning && recommendedTodayIds.length > 0 && <section className="program-recommendations" aria-labelledby="recommended-programs-title">
             <div className="program-section-heading"><div><h2 id="recommended-programs-title">Recomendados para hoje</h2><p>{recommendedTodayIds.every((id) => completedTodayIds.includes(id)) ? 'Você já concluiu os treinos recomendados de hoje. Muito bem!' : 'Treinos indicados para manter sua rotina nesta semana.'}</p></div></div>
-            <div className="program-grid">{programs.filter((program) => recommendedTodayIds.includes(String(program.id))).map((program) => <article key={`recommended-${program.id}`} className={`program-card${completedTodayIds.includes(String(program.id)) ? ' is-done' : ''}`} role="button" tabIndex={0} onClick={() => navigate(`/sessions/preview/${program.id}`, { state: { program, returnTo: '/sessions/start' } })} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') navigate(`/sessions/preview/${program.id}`, { state: { program, returnTo: '/sessions/start' } }) }}><div className="program-card-choice"><div className="program-card-icon" aria-hidden="true">{completedTodayIds.includes(String(program.id)) ? '✓' : '↗'}</div><div className="program-card-content"><h3>{program.name}</h3><p>{completedTodayIds.includes(String(program.id)) ? 'Concluído hoje · toque para repetir' : `${program.activities?.length ?? 0} atividades · toque para visualizar`}</p><p className="program-professional">{program.professionalName || 'Programa do seu profissional'}</p></div></div></article>)}</div>
+            <div className="program-grid">{programs.filter((program) => recommendedTodayIds.includes(String(program.id))).map((program) => <article key={`recommended-${program.id}`} className={`program-card${completedTodayIds.includes(String(program.id)) ? ' is-done' : ''}`} role="button" tabIndex={0} onClick={() => navigate(`/sessions/preview/${program.id}`, { state: { program, returnTo: '/sessions/start' } })} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') navigate(`/sessions/preview/${program.id}`, { state: { program, returnTo: '/sessions/start' } }) }}><div className="program-card-choice"><ProgramIcon url={program.iconeUrl} completed={completedTodayIds.includes(String(program.id))} /><div className="program-card-content"><h3>{program.name}</h3><p>{completedTodayIds.includes(String(program.id)) ? 'Concluído hoje · toque para repetir' : `${program.activities?.length ?? 0} atividades · toque para visualizar`}</p><p className="program-professional">{program.professionalName || 'Programa do seu profissional'}</p></div></div></article>)}</div>
           </section>}
           {previewProgramId && programs.some((program) => String(program.id) === previewProgramId) && <StudentButton variant="secondary" onClick={() => navigate(`/sessions/preview/${previewProgramId}`, { state: { program: programs.find((item) => String(item.id) === previewProgramId), returnTo: '/sessions/start' } })}>Visualizar programa</StudentButton>}
           <div className="program-section-heading">
@@ -247,7 +253,7 @@ async function handleStartSession(event, programId = selectedProgram) {
                         setMessage('')
                       }}
                     />
-                    <div className="program-card-icon" aria-hidden="true"><span>↗</span></div>
+                    <ProgramIcon url={program.iconeUrl} />
                     <div className="program-card-content">
                       <h3>{program.name}</h3>
                       <p>{program.description || `${program.activities?.length ?? 0} ${program.activities?.length === 1 ? 'atividade' : 'atividades'} neste programa.`}</p>

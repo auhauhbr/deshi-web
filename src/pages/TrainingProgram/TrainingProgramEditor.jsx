@@ -8,7 +8,7 @@ import { getMinhasModalidades } from '../../services/modalidades.service.js'
 import { atualizarPrograma, buscarPrograma, criarPrograma } from '../../services/programas.service.js'
 import './TrainingProgramEditor.css'
 
-const EMPTY_DRAFT = (studentId) => ({ nome: '', alunoId: studentId, modalidadeId: '', atividades: [] })
+const EMPTY_DRAFT = (studentId) => ({ nome: '', iconeUrl: '', alunoId: studentId, modalidadeId: '', atividades: [] })
 
 function TrainingProgramEditorPage() {
   const { studentId, programId } = useParams()
@@ -42,6 +42,7 @@ function TrainingProgramEditorPage() {
       const catalogById = new Map(catalog.map((activity) => [activity.id, activity]))
       const storedDraft = persistedProgram ? {
         nome: persistedProgram.nome,
+        iconeUrl: persistedProgram.iconeUrl || '',
         alunoId: persistedProgram.alunoId,
         modalidadeId: persistedProgram.modalidadeId,
         atividades: persistedProgram.atividades.map((item) => ({
@@ -115,6 +116,7 @@ function TrainingProgramEditorPage() {
     const body = {
       alunoId: studentId,
       nome: draft.nome.trim(),
+      ...(draft.iconeUrl?.trim() ? { iconeUrl: draft.iconeUrl.trim() } : {}),
       modalidadeId: draft.modalidadeId,
       atividades: [...draft.atividades].map((activity, index) => activity.valores
         ? { atividadeId: activity.atividadeId, ordem: index + 1, valores: activity.valores }
@@ -149,6 +151,7 @@ function TrainingProgramEditorPage() {
           <div className="training-program-section__heading"><span className="training-program-section__step">01</span><div><p>IDENTIFICAÇÃO</p><h2 id="program-details-title">Dados do programa</h2></div></div>
           <div className="training-program-fields">
             <div className="training-program-field"><label htmlFor="program-name">Nome do programa</label><input id="program-name" name="program-name" autoComplete="off" maxLength="100" value={draft.nome} onChange={(event) => { updateDraft({ nome: event.target.value }); setNameError('') }} placeholder="Ex.: Condicionamento — fase 1" disabled={saving} aria-invalid={Boolean(nameError)} aria-describedby={nameError ? 'program-name-error' : undefined} />{nameError && <span id="program-name-error" className="training-program-field__error">{nameError}</span>}</div>
+            <div className="training-program-field training-program-icon-field"><label htmlFor="program-icon-url">Ícone do programa (URL)</label><input id="program-icon-url" name="iconeUrl" type="url" inputMode="url" autoCapitalize="none" spellCheck={false} placeholder="https://..." value={draft.iconeUrl || ''} onChange={(event) => updateDraft({ iconeUrl: event.target.value })} disabled={saving} /><span className="training-program-field__hint">Opcional. Informe um link direto para uma imagem.</span>{draft.iconeUrl && <img className="training-program-icon-preview" src={draft.iconeUrl} alt="Prévia do ícone do programa" onError={(event) => { event.currentTarget.hidden = true }} onLoad={(event) => { event.currentTarget.hidden = false }} />}</div>
             <div className="training-program-field"><label htmlFor="program-modality">Modalidade</label><select id="program-modality" value={draft.modalidadeId} onChange={(event) => { updateDraft({ modalidadeId: event.target.value, atividades: [] }); setError('') }} disabled={saving || draft.atividades.length > 0}><option value="">Selecione uma modalidade</option>{screen.modalidades.map((modality) => <option key={modality.id} value={modality.id}>{modality.nome}</option>)}</select>{draft.atividades.length > 0 && <span className="training-program-field__hint">Remova as atividades antes de trocar a modalidade.</span>}</div>
           </div>
         </section>
