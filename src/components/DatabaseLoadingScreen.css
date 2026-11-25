@@ -7,8 +7,10 @@
   justify-content: center;
   flex-direction: column;
   gap: 27px;
-  background: linear-gradient(145deg, var(--color-primary, #00d9a0), #00a879);
-  color: var(--color-text-inverse, #fff);
+  background: rgb(243 245 244 / 52%);
+  -webkit-backdrop-filter: blur(10px) saturate(1.08);
+  backdrop-filter: blur(10px) saturate(1.08);
+  color: var(--color-text, #1a1d23);
   animation: database-loading-screen-enter 180ms ease-out both;
 }
 
@@ -17,6 +19,8 @@
   width: clamp(150px, 24vw, 210px);
   height: auto;
   object-fit: contain;
+  animation: database-loading-logo-pulse 1.35s ease-in-out infinite;
+  transform-origin: center;
 }
 
 .database-loading-screen__loader {
@@ -64,8 +68,17 @@
   to { opacity: 1; }
 }
 
+@keyframes database-loading-logo-pulse {
+  0%, 100% { transform: scale(.96); opacity: .88; }
+  50% { transform: scale(1.04); opacity: 1; }
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .database-loading-screen { background: rgb(243 245 244 / 92%); }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .database-loading-screen, .database-loading-screen__loader span {
+  .database-loading-screen, .database-loading-screen__logo, .database-loading-screen__loader span {
     animation-duration: .01ms;
     animation-iteration-count: 1;
   }
