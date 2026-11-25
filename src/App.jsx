@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import AppRoutes from './routes.jsx'
+import DatabaseLoadingScreen from './components/DatabaseLoadingScreen.jsx'
 
 function App() {
   const navigate = useNavigate()
@@ -12,7 +13,10 @@ function App() {
   }, [navigate])
 
   return (
-    <AppRoutes />
+    <>
+      <AppRoutes />
+      <DatabaseLoadingScreen />
+    </>
   )
 }
 

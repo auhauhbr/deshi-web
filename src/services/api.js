@@ -1,4 +1,5 @@
 import axios from 'axios'
+import { beginApiRequest, endApiRequest } from './apiLoadingState.js'
 
 const TOKEN_STORAGE_KEY = 'deshi.token'
 
@@ -12,13 +13,25 @@ api.interceptors.request.use((config) => {
   const token = localStorage.getItem(TOKEN_STORAGE_KEY)
 
   if (token) config.headers.Authorization = `Bearer ${token}`
+  config.__deshiLoadingTracked = true
+  beginApiRequest()
 
   return config
 })
 
+function finishTrackedRequest(config) {
+  if (!config?.__deshiLoadingTracked) return
+  config.__deshiLoadingTracked = false
+  endApiRequest()
+}
+
 api.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    finishTrackedRequest(response.config)
+    return response
+  },
   (error) => {
+    finishTrackedRequest(error.config)
     const requestUrl = error.config?.url || ''
     const isPublicAuthRequest = requestUrl.includes('/login') || requestUrl.includes('/users')
     const authorization = error.config?.headers?.get?.('Authorization')
