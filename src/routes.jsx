@@ -13,6 +13,7 @@ import NovaAtividadePage from './pages/NovaAtividade/NovaAtividade.jsx'
 import ConfigurarAtividadePage from './pages/ConfigurarAtividade/ConfigurarAtividade.jsx'
 import BibliotecaPage from './pages/Biblioteca/Biblioteca.jsx'
 import ProfessionalProfilePage from './pages/ProfessionalProfile/ProfessionalProfile.jsx'
+import ProfessionalSessionDetails from './pages/ProfessionalSessionDetails/ProfessionalSessionDetails.jsx'
 import ActivityDetailPage from './pages/Biblioteca/ActivityDetail.jsx'
 import StartSession from './pages/Sessions/StartSession.jsx'
 import SessionDetails from './pages/Sessions/SessionDetails.jsx'
@@ -43,6 +44,7 @@ function AppRoutes() {
       <Route path="/alunos/:studentId" element={<ProtectedRoute profile="PROFESSIONAL"><StudentProfilePage /></ProtectedRoute>} />
       <Route path="/alunos/:studentId/programas/novo" element={<ProtectedRoute profile="PROFESSIONAL"><TrainingProgramEditorPage /></ProtectedRoute>} />
       <Route path="/alunos/:studentId/programas/:programId/editar" element={<ProtectedRoute profile="PROFESSIONAL"><TrainingProgramEditorPage /></ProtectedRoute>} />
+      <Route path="/professional/sessions/:sessionId" element={<ProtectedRoute profile="PROFESSIONAL"><ProfessionalSessionDetails /></ProtectedRoute>} />
       <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
       <Route path="/invites/accept" element={<ProtectedRoute><AcceptInvitePage /></ProtectedRoute>} />
       <Route path="/sessions/start" element={<ProtectedRoute><StartSession /></ProtectedRoute>} />

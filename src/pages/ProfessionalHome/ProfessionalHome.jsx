@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Check, CirclePause, Clock3, Radio } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { ArrowRight, Check, CirclePause, Clock3, Radio } from 'lucide-react'
 import { api } from '../../services/api.js'
 import ProfessionalNavigation from '../../components/ProfessionalNavigation.jsx'
 import AccountMenu from '../../components/AccountMenu.jsx'
@@ -89,7 +90,7 @@ function ProfessionalHomePage() {
               {loading ? <p className="empty-state">Carregando atividades…</p> : dashboard?.recentActivities?.length ? dashboard.recentActivities.map((activity) => {
                 const interrupted = activity.type === 'interrupted'
                 const Icon = interrupted ? CirclePause : Check
-                return <article className="activity-row" key={activity.id}>
+                return <Link className="activity-row" key={activity.id} to={`/professional/sessions/${encodeURIComponent(activity.id)}`} aria-label={`Ver sessão de ${activity.studentName || 'aluno'}: ${activity.programName || activity.title}`}>
                   <span className={`activity-icon activity-icon--${activity.type}`} aria-hidden="true"><Icon size={17} strokeWidth={2} /></span>
                   <div className="activity-row__main">
                     <strong>{activity.studentName ? <>{activity.studentName}<span className="activity-row__separator"> · </span>{activity.programName}</> : activity.title}</strong>
@@ -99,7 +100,8 @@ function ProfessionalHomePage() {
                     <span>{new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'short' }).format(new Date(activity.at))}</span>
                     <span>{new Intl.DateTimeFormat('pt-BR', { hour: '2-digit', minute: '2-digit' }).format(new Date(activity.at))}</span>
                   </time>
-                </article>
+                  <span className="activity-row__open"><span>Ver sessão</span><ArrowRight size={16} aria-hidden="true" /></span>
+                </Link>
               }) : <div className="empty-state"><Clock3 className="empty-state__icon" aria-hidden="true" size={22} /><strong>Nenhuma movimentação ainda</strong><span>Os treinos dos seus alunos aparecerão aqui.</span></div>}
             </div>
           </section>

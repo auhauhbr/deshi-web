@@ -298,6 +298,15 @@
 
 .activity-row {
   min-height: 72px;
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.activity-row:focus-visible {
+  outline: 2px solid var(--color-border-focus);
+  outline-offset: -2px;
+  border-radius: var(--radius-sm);
 }
 
 .activity-icon {
@@ -336,6 +345,10 @@
   color: var(--color-professional-ink);
   font-weight: var(--font-weight-semibold);
 }
+
+.activity-row__open { display: inline-flex; flex: none; align-items: center; gap: .3rem; color: var(--color-professional-green); font-size: .72rem; font-weight: var(--font-weight-semibold); }
+.activity-row__open svg { transition: transform var(--transition-fast); }
+.activity-row:hover .activity-row__open svg { transform: translateX(3px); }
 
 .empty-state {
   min-height: 160px;
@@ -510,6 +523,9 @@
   .activity-row time {
     font-size: .68rem;
   }
+
+  .activity-row__open { gap: 0; }
+  .activity-row__open > span { display: none; }
 
   .professional-home__footer {
     align-items: flex-start;

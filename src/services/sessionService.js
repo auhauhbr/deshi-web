@@ -44,6 +44,11 @@ export async function getStudentSessions() {
   return data
 }
 
+export async function getProfessionalSession(sessionId) {
+  const { data } = await api.get(`/sessions/${encodeURIComponent(sessionId)}`)
+  return data
+}
+
 export async function registerExecution(sessionId, execution) {
   const { data } = await api.post(`/sessions/${sessionId}/executions`, execution)
 
