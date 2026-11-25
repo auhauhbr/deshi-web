@@ -42,6 +42,15 @@
 .student-week-calendar-card__note { margin: .65rem 0 0; color: var(--color-text-secondary); font-size: .72rem; }
 @keyframes student-calendar-arrive { from { opacity: .45; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 .student-detail-section { margin: 0 0 1.7rem; }
+.student-body-metrics { padding: 1rem; border: 1px solid var(--color-border); border-radius: var(--radius-lg); background: var(--color-surface); box-shadow: var(--shadow-card); }
+.student-body-metrics-table { width: 100%; border-collapse: collapse; text-align: left; }
+.student-body-metrics-table caption { margin-bottom: .35rem; color: var(--color-text-secondary); font-size: var(--font-size-xs); text-align: left; }
+.student-body-metrics-table th,
+.student-body-metrics-table td { padding: .7rem .3rem; border-bottom: 1px solid var(--color-border); }
+.student-body-metrics-table th { color: var(--color-text-secondary); font-size: var(--font-size-sm); font-weight: var(--font-weight-medium); }
+.student-body-metrics-table td { color: var(--color-text); font-weight: var(--font-weight-semibold); text-align: right; }
+.student-body-metrics-updated { margin: .65rem 0 0; color: var(--color-text-secondary); font-size: var(--font-size-xs); }
+.student-body-metrics-empty { margin: 0; color: var(--color-text-secondary); font-size: var(--font-size-sm); line-height: 1.5; }
 .student-detail-section__heading { display: flex; align-items: end; justify-content: space-between; gap: 1rem; margin: 0 0 .7rem; }
 .student-detail-section__heading .students-eyebrow { margin: 0 0 .2rem; color: var(--color-primary-active); font-size: var(--font-size-xs); font-weight: var(--font-weight-bold); letter-spacing: .06em; }
 .student-detail-section__heading h2 { margin: 0; font-size: 1.28rem; letter-spacing: -.035em; }
