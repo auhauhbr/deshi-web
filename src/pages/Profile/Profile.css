@@ -47,6 +47,114 @@
   padding: clamp(1.5rem, 4vw, 3rem) 0 calc(6.25rem + env(safe-area-inset-bottom));
 }
 
+.profile-body-metrics-help { margin: .75rem 0 0; color: var(--color-text-secondary); font-size: var(--font-size-sm); line-height: 1.5; }
+.profile-body-metrics-summary { margin-top: .8rem; }
+.profile-body-metrics-table-heading { display: flex; align-items: center; justify-content: space-between; gap: .75rem; margin-bottom: .25rem; color: var(--color-text-secondary); font-size: .78rem; }
+.profile-body-metrics-edit,
+.profile-body-metrics-modal-close {
+  width: 2.4rem;
+  height: 2.4rem;
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid var(--color-border);
+  border-radius: .7rem;
+  background: var(--color-surface);
+  color: var(--color-primary-active);
+  cursor: pointer;
+}
+.profile-body-metrics-edit:hover:not(:disabled),
+.profile-body-metrics-modal-close:hover:not(:disabled) { background: var(--color-primary-light); }
+.profile-body-metrics-edit:focus-visible,
+.profile-body-metrics-modal-close:focus-visible { outline: 3px solid rgb(0 159 117 / 24%); outline-offset: 2px; }
+.profile-body-metrics-empty { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-top: 1rem; padding: .8rem 1rem; border: 1px solid var(--color-border); border-radius: .9rem; color: var(--color-text-secondary); font-size: .85rem; }
+.profile-body-metrics-empty p { margin: 0; }
+.profile-body-metrics-modal-backdrop { position: fixed; z-index: 50; inset: 0; display: grid; place-items: center; padding: 1rem; background: rgb(13 30 24 / 46%); }
+.profile-body-metrics-modal { width: min(100%, 38rem); box-sizing: border-box; padding: 1.25rem; border: 1px solid var(--color-border); border-radius: 1.1rem; background: var(--color-surface); box-shadow: 0 1.5rem 4rem rgb(10 35 25 / 24%); animation: profile-metrics-modal-in 160ms ease-out both; }
+.profile-body-metrics-modal-heading { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.profile-body-metrics-modal-heading .profile-eyebrow { margin: 0 0 .25rem; }
+.profile-body-metrics-modal-heading h3 { margin: 0; color: var(--color-text); font-size: 1.25rem; }
+.profile-body-metrics-modal-close:disabled { cursor: wait; opacity: .5; }
+@keyframes profile-metrics-modal-in { from { opacity: 0; transform: translateY(6px) scale(.99); } to { opacity: 1; transform: translateY(0) scale(1); } }
+.profile-body-metrics-tabs { margin: 1rem 0 1.25rem; }
+.profile-body-metrics-tabs [role="tablist"] { width: 100%; max-width: 100%; box-sizing: border-box; }
+.profile-body-metrics-tabs [role="tablist"] > button,
+.profile-body-metrics-tabs [role="tablist"] > div[aria-hidden="true"] > span {
+  min-width: 0;
+  flex: 1 1 0%;
+  justify-content: center;
+  gap: .3rem;
+  padding-right: clamp(.25rem, 1.8vw, .85rem);
+  padding-left: clamp(.25rem, 1.8vw, .85rem);
+  font-size: clamp(.66rem, 2.7vw, .875rem);
+}
+.profile-body-metrics-tabs .profile-body-metrics-active { background: linear-gradient(145deg, #00d9a0, #00a879); }
+.profile-weight-chart {
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: .2rem;
+  padding: .35rem 0 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--color-text);
+}
+.profile-weight-chart-heading { display: flex; align-items: center; justify-content: space-between; gap: .75rem; }
+.profile-weight-chart-heading h3 { margin: 0; font-size: .9rem; font-weight: var(--font-weight-semibold); }
+.profile-weight-chart-heading span { color: var(--color-text-secondary); font-size: .75rem; font-weight: var(--font-weight-semibold); }
+.profile-weight-periods { display: grid; grid-template-columns: repeat(3, 1fr); margin: .35rem -0.2rem .1rem; }
+.profile-weight-periods button {
+  min-height: 2.25rem;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: #88948e;
+  font: inherit;
+  font-size: .72rem;
+  cursor: pointer;
+}
+.profile-weight-periods button.is-active { border-bottom-color: #27bea2; color: #168e78; font-weight: var(--font-weight-semibold); }
+.profile-weight-periods button:focus-visible { outline: 2px solid #27bea2; outline-offset: -2px; }
+.profile-weight-chart-svg { display: block; width: 100%; height: auto; overflow: visible; }
+.profile-weight-chart-svg line { stroke: #e3eae7; stroke-width: 1; }
+.profile-weight-chart-svg line.is-reference { stroke: #e7c5b6; stroke-dasharray: 4 5; }
+.profile-weight-chart-svg line.profile-weight-chart-guide { stroke: #edf1ef; }
+.profile-weight-chart-svg text { fill: #82908a; font-family: inherit; font-size: 9px; }
+.profile-weight-chart-line { fill: none; stroke: #28bea2; stroke-width: 2.3; stroke-linecap: round; stroke-linejoin: round; }
+.profile-weight-chart-point { fill: #f8fbfa; stroke: #28bea2; stroke-width: 2; }
+.profile-weight-chart-empty { display: grid; min-height: 11rem; place-items: center; margin: 0; color: var(--color-text-secondary); font-size: .85rem; text-align: center; }
+.profile-body-metrics-tabs [role="tabpanel"] { padding-top: .75rem; }
+.profile-body-metrics-table { width: 100%; border-collapse: collapse; text-align: left; }
+.profile-body-metrics-table caption { margin-bottom: .35rem; color: var(--color-text-secondary); font-size: .75rem; text-align: left; }
+.profile-body-metrics-table th, .profile-body-metrics-table td { border-bottom: 1px solid var(--color-border); padding: .65rem .35rem; }
+.profile-body-metrics-table th { color: var(--color-text-secondary); font-size: .88rem; font-weight: var(--font-weight-medium); }
+.profile-body-metrics-table td { color: var(--color-text); font-weight: var(--font-weight-semibold); text-align: right; }
+.profile-body-metrics-summary > small { display: block; margin-top: .55rem; color: var(--color-text-secondary); font-size: .72rem; }
+.profile-body-metrics-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)) auto; align-items: end; gap: .8rem; margin-top: 1rem; }
+.profile-body-metrics-form label { display: grid; gap: .35rem; color: var(--color-text-secondary); font-size: .82rem; font-weight: var(--font-weight-semibold); }
+.profile-body-metrics-form input { width: 100%; min-height: 2.8rem; box-sizing: border-box; border: 1px solid var(--color-border); border-radius: .75rem; padding: 0 .8rem; background: var(--color-surface); color: var(--color-text); font: inherit; }
+.profile-body-metrics-form input:focus { outline: 3px solid rgb(0 159 117 / 16%); border-color: var(--color-primary-active); }
+.profile-body-metrics-save {
+  width: 3rem;
+  height: 2.8rem;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: .75rem;
+  background: var(--color-primary);
+  color: var(--color-text-on-primary);
+  cursor: pointer;
+  transition: background 150ms ease, transform 150ms ease, opacity 150ms ease;
+}
+.profile-body-metrics-save:hover:not(:disabled) { background: var(--color-primary-hover); transform: translateY(-1px); }
+.profile-body-metrics-save:focus-visible { outline: 3px solid rgb(0 159 117 / 24%); outline-offset: 2px; }
+.profile-body-metrics-save:disabled { cursor: not-allowed; opacity: .48; }
+.profile-body-metrics-message { margin: .75rem 0 0; font-size: .85rem; }
+.profile-body-metrics-message.is-error { color: var(--color-error); }
+.profile-body-metrics-message.is-success { color: var(--color-success); }
+.profile-body-metrics-note { margin: .75rem 0 0; color: var(--color-text-secondary); font-size: .72rem; line-height: 1.45; }
+
 .profile-identity {
   display: flex;
   align-items: center;
@@ -410,6 +518,10 @@
   .profile-weekday { font-size: .62rem; }
   .profile-day-number { width: 1.8rem; height: 1.8rem; font-size: .82rem; }
   .profile-stats-grid { grid-template-columns: 1fr; gap: .8rem; }
+  .profile-body-metrics-form { grid-template-columns: minmax(0, 1fr) auto; }
+  .profile-body-metrics-form label:first-child { grid-column: 1 / -1; }
+  .profile-body-metrics-save { width: 2.8rem; }
+  .profile-body-metrics-modal { padding: 1rem; border-radius: 1rem; }
   .profile-count-content { min-height: 6.5rem; margin-top: .45rem; }
   .profile-ring { width: 5.4rem; height: 5.4rem; }
   .profile-ring-center { font-size: 1.15rem; }

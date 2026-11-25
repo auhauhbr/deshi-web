@@ -1,10 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { Pencil, Save, X } from 'lucide-react'
 import StudentBottomNav from '../../components/StudentBottomNav.jsx'
 import StudentButton from '../../components/StudentButton.jsx'
 import BrandLogo from '../../components/BrandLogo.jsx'
+import SmoothTab from '../../components/kokonutui/smooth-tab.jsx'
 import { getApiErrorMessage, getStoredUser, logoutUser } from '../../services/authService.js'
 import { getStudentSessions } from '../../services/sessionService.js'
+import { getStudentBodyMetrics, saveStudentBodyMetrics } from '../../services/studentBodyMetricsService.js'
 import '../Sessions/StartSession.css'
 import '../Home/Home.css'
 import './Profile.css'
@@ -94,6 +97,102 @@ function CircularMetric({ value, label, progress = 1, showProgress = true, varia
   )
 }
 
+const WEIGHT_CHART_PERIODS = [
+  { id: 'week', label: 'Semana', days: 7 },
+  { id: 'month', label: 'Mês', days: 30 },
+  { id: 'year', label: 'Ano', days: 365 },
+]
+
+function WeightTrendChart({ records }) {
+  const [periodId, setPeriodId] = useState('month')
+  const period = WEIGHT_CHART_PERIODS.find((item) => item.id === periodId) ?? WEIGHT_CHART_PERIODS[1]
+  const end = new Date()
+  const start = new Date(end)
+  start.setDate(start.getDate() - period.days)
+  const points = records
+    .map((record) => ({ ...record, date: new Date(record.recordedAt) }))
+    .filter((record) => !Number.isNaN(record.date.getTime()) && record.date >= start && record.date <= end)
+  const chart = { width: 360, height: 210, left: 22, right: 326, top: 19, bottom: 150 }
+  const weights = points.map((point) => point.weightKg)
+  const minimum = weights.length ? Math.min(...weights) : 0
+  const maximum = weights.length ? Math.max(...weights) : 1
+  const padding = Math.max((maximum - minimum) * 0.2, maximum * 0.025, 0.5)
+  const minScale = Math.max(0, minimum - padding)
+  const maxScale = maximum + padding
+  const x = (index) => points.length < 2
+    ? chart.left + (chart.right - chart.left) / 2
+    : chart.left + (index / (points.length - 1)) * (chart.right - chart.left)
+  const y = (weight) => chart.bottom - ((weight - minScale) / (maxScale - minScale || 1)) * (chart.bottom - chart.top)
+  const line = points.map((point, index) => (index ? 'L ' : 'M ') + x(index) + ' ' + y(point.weightKg)).join(' ')
+  const ticks = Array.from({ length: 4 }, (_, index) => maxScale - ((maxScale - minScale) / 3) * index)
+  const dateLabelIndices = points.length <= 5
+    ? points.map((_, index) => index)
+    : [...new Set([0, Math.round((points.length - 1) / 3), Math.round((points.length - 1) * 2 / 3), points.length - 1])]
+  const dateFormatter = new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: '2-digit' })
+  const weightFormatter = new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1 })
+
+  return (
+    <div className="profile-weight-chart">
+      <div className="profile-weight-chart-heading">
+        <h3>Peso</h3>
+        <span>{points.length ? weightFormatter.format(points.at(-1).weightKg) + ' kg' : 'Histórico'}</span>
+      </div>
+      <div className="profile-weight-periods" role="tablist" aria-label="Período do gráfico de peso">
+        {WEIGHT_CHART_PERIODS.map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            role="tab"
+            aria-selected={periodId === item.id}
+            className={periodId === item.id ? 'is-active' : ''}
+            onClick={() => setPeriodId(item.id)}
+          >
+            {item.label}
+          </button>
+        ))}
+      </div>
+      {points.length ? (
+        <svg
+          className="profile-weight-chart-svg"
+          viewBox={'0 0 ' + chart.width + ' ' + chart.height}
+          role="img"
+          aria-label={'Histórico de peso nas últimas ' + period.days + ' dias'}
+        >
+          {ticks.map((tick, index) => {
+            const tickY = chart.top + ((chart.bottom - chart.top) / 3) * index
+            return (
+              <g key={index}>
+                <line x1={chart.left} x2={chart.right} y1={tickY} y2={tickY} className={index === 1 ? 'is-reference' : ''} />
+                <text x="354" y={tickY + 3} textAnchor="end">{weightFormatter.format(tick)}</text>
+              </g>
+            )
+          })}
+          {dateLabelIndices.map((index) => (
+            <g key={(points[index].id ?? points[index].date.toISOString()) + '-' + index}>
+              <line x1={x(index)} x2={x(index)} y1={chart.top} y2={chart.bottom} className="profile-weight-chart-guide" />
+              <text x={x(index)} y="174" textAnchor="middle">{dateFormatter.format(points[index].date)}</text>
+            </g>
+          ))}
+          <path d={line} className="profile-weight-chart-line" />
+          {points.map((point, index) => (
+            <circle
+              key={(point.id ?? point.date.toISOString()) + '-' + index}
+              cx={x(index)}
+              cy={y(point.weightKg)}
+              r="3.4"
+              className="profile-weight-chart-point"
+            >
+              <title>{dateFormatter.format(point.date) + ': ' + weightFormatter.format(point.weightKg) + ' kg'}</title>
+            </circle>
+          ))}
+        </svg>
+      ) : (
+        <p className="profile-weight-chart-empty">Não há pesagens neste período.</p>
+      )}
+    </div>
+  )
+}
+
 function ProfilePage() {
   const navigate = useNavigate()
   const user = getStoredUser()
@@ -102,8 +201,26 @@ function ProfilePage() {
   const [isLoadingSessions, setIsLoadingSessions] = useState(true)
   const [sessionsMessage, setSessionsMessage] = useState('')
   const [loadAttempt, setLoadAttempt] = useState(0)
+  const [bodyMetrics, setBodyMetrics] = useState(null)
+  const [bodyMetricsLoading, setBodyMetricsLoading] = useState(true)
+  const [bodyMetricsSaving, setBodyMetricsSaving] = useState(false)
+  const [bodyMetricsError, setBodyMetricsError] = useState('')
+  const [bodyMetricsFeedback, setBodyMetricsFeedback] = useState('')
+  const [isBodyMetricsEditorOpen, setIsBodyMetricsEditorOpen] = useState(false)
+  const [bodyMetricsTab, setBodyMetricsTab] = useState('evolucao')
+  const [weightInput, setWeightInput] = useState('')
+  const [heightInput, setHeightInput] = useState('')
   const [weekOffset, setWeekOffset] = useState(0)
   const swipeStartX = useRef(null)
+
+  useEffect(() => {
+    if (!isBodyMetricsEditorOpen) return undefined
+    const closeOnEscape = (event) => {
+      if (event.key === 'Escape' && !bodyMetricsSaving) setIsBodyMetricsEditorOpen(false)
+    }
+    window.addEventListener('keydown', closeOnEscape)
+    return () => window.removeEventListener('keydown', closeOnEscape)
+  }, [isBodyMetricsEditorOpen, bodyMetricsSaving])
 
   useEffect(() => {
     let isCurrent = true
@@ -128,6 +245,52 @@ function ProfilePage() {
     loadSessions()
     return () => { isCurrent = false }
   }, [loadAttempt])
+
+  useEffect(() => {
+    if (user?.profile !== 'STUDENT') {
+      return undefined
+    }
+    const controller = new AbortController()
+    getStudentBodyMetrics(controller.signal)
+      .then((data) => {
+        if (controller.signal.aborted) return
+        setBodyMetrics(data)
+        setWeightInput(data?.weightKg == null ? '' : String(data.weightKg))
+        setHeightInput(data?.heightCm == null ? '' : String(data.heightCm))
+        setBodyMetricsError('')
+      })
+      .catch((error) => {
+        if (!controller.signal.aborted) setBodyMetricsError(error.message)
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setBodyMetricsLoading(false)
+      })
+    return () => controller.abort()
+  }, [user?.profile])
+
+  async function handleBodyMetricsSubmit(event) {
+    event.preventDefault()
+    setBodyMetricsSaving(true)
+    setBodyMetricsError('')
+    setBodyMetricsFeedback('')
+    try {
+      const saved = await saveStudentBodyMetrics({ weightKg: Number(weightInput), heightCm: Number(heightInput) })
+      setBodyMetrics(saved)
+      setBodyMetricsFeedback('Medidas salvas com sucesso.')
+      setIsBodyMetricsEditorOpen(false)
+    } catch (error) {
+      setBodyMetricsError(error.message)
+    } finally {
+      setBodyMetricsSaving(false)
+    }
+  }
+
+  function openBodyMetricsEditor() {
+    setWeightInput(bodyMetrics?.weightKg == null ? '' : String(bodyMetrics.weightKg))
+    setHeightInput(bodyMetrics?.heightCm == null ? '' : String(bodyMetrics.heightCm))
+    setBodyMetricsError('')
+    setIsBodyMetricsEditorOpen(true)
+  }
 
   async function handleLogout() {
     setIsLoggingOut(true)
@@ -198,6 +361,7 @@ function ProfilePage() {
       </header>
 
       <section className="profile-dashboard-content">
+
         <section className="profile-identity" aria-label="Perfil do aluno">
           <div className="profile-avatar" aria-hidden="true">
             <span>{initials}</span>
@@ -257,14 +421,109 @@ function ProfilePage() {
               )
             })}
           </div>
-          {isLoadingSessions ? (
-            <p className="profile-calendar-note" role="status">Carregando sessões...</p>
-          ) : sessionsMessage ? (
-            <p className="profile-calendar-note">O calendário será atualizado quando o histórico estiver disponível.</p>
-          ) : (
-            <p className="profile-calendar-note">Os dias marcados indicam sessões concluídas.</p>
-          )}
         </section>
+
+
+        {user?.profile === 'STUDENT' && <section className="profile-body-metrics profile-week-section" aria-labelledby="profile-body-metrics-title">
+          <div className="profile-section-heading">
+            <div>
+              <p className="profile-eyebrow">ACOMPANHAMENTO</p>
+              <h2 id="profile-body-metrics-title">Peso, altura e IMC</h2>
+            </div>
+          </div>
+          {bodyMetricsLoading ? <p className="profile-stat-loading" role="status">Carregando suas medidas...</p> : bodyMetricsError && !bodyMetrics ? <p className="profile-body-metrics-message is-error" role="alert">{bodyMetricsError}</p> : bodyMetrics && (
+            <SmoothTab
+              value={bodyMetricsTab}
+              onChange={setBodyMetricsTab}
+              activeColor="profile-body-metrics-active"
+              activeTextColor="text-white"
+              label="Acompanhamento de medidas"
+              className="profile-body-metrics-tabs w-full max-w-none"
+              items={[
+                {
+                  id: 'evolucao',
+                  title: 'Evolução do peso',
+                  content: <WeightTrendChart records={bodyMetrics.history ?? []} />,
+                },
+                {
+                  id: 'medidas',
+                  title: 'Medidas e IMC',
+                  content: (
+                    <div className="profile-body-metrics-summary">
+                      <div className="profile-body-metrics-table-heading">
+                        <span>Medidas registradas</span>
+                        <button
+                          className="profile-body-metrics-edit"
+                          type="button"
+                          onClick={openBodyMetricsEditor}
+                          aria-label="Editar peso e altura"
+                          title="Editar peso e altura"
+                        >
+                          <Pencil size={17} strokeWidth={2} aria-hidden="true" />
+                        </button>
+                      </div>
+                      <table className="profile-body-metrics-table">
+                        <tbody>
+                          <tr><th scope="row">Peso atual</th><td>{bodyMetrics.weightKg.toLocaleString('pt-BR', { maximumFractionDigits: 2 })} kg</td></tr>
+                          <tr><th scope="row">Altura</th><td>{bodyMetrics.heightCm.toLocaleString('pt-BR', { maximumFractionDigits: 1 })} cm</td></tr>
+                          <tr><th scope="row">IMC</th><td><strong>{bodyMetrics.bmi.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong> kg/m²</td></tr>
+                        </tbody>
+                      </table>
+                      <small>Atualizado em {new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(bodyMetrics.updatedAt))}</small>
+                    </div>
+                  ),
+                },
+              ]}
+            />
+          )}
+          {!bodyMetricsLoading && !bodyMetricsError && !bodyMetrics && (
+            <div className="profile-body-metrics-empty">
+              <p>Registre seu peso e sua altura para acompanhar o IMC.</p>
+              <button className="profile-body-metrics-edit" type="button" onClick={openBodyMetricsEditor} aria-label="Adicionar peso e altura" title="Adicionar peso e altura">
+                <Pencil size={17} strokeWidth={2} aria-hidden="true" />
+              </button>
+            </div>
+          )}
+          {bodyMetricsFeedback && <p className="profile-body-metrics-message is-success" role="status">{bodyMetricsFeedback}</p>}
+          {isBodyMetricsEditorOpen && (
+            <div
+              className="profile-body-metrics-modal-backdrop"
+              onMouseDown={(event) => {
+                if (event.target === event.currentTarget && !bodyMetricsSaving) setIsBodyMetricsEditorOpen(false)
+              }}
+            >
+              <section className="profile-body-metrics-modal" role="dialog" aria-modal="true" aria-labelledby="profile-body-metrics-modal-title">
+                <header className="profile-body-metrics-modal-heading">
+                  <div>
+                    <p className="profile-eyebrow">ACOMPANHAMENTO</p>
+                    <h3 id="profile-body-metrics-modal-title">{bodyMetrics ? 'Editar medidas' : 'Registrar medidas'}</h3>
+                  </div>
+                  <button className="profile-body-metrics-modal-close" type="button" onClick={() => setIsBodyMetricsEditorOpen(false)} disabled={bodyMetricsSaving} aria-label="Fechar edição">
+                    <X size={19} aria-hidden="true" />
+                  </button>
+                </header>
+                <form className="profile-body-metrics-form" onSubmit={handleBodyMetricsSubmit} aria-busy={bodyMetricsSaving}>
+                  <label htmlFor="profile-weight">Peso (kg)
+                    <input id="profile-weight" name="weightKg" type="number" min="1" max="500" step="0.1" required value={weightInput} onChange={(event) => setWeightInput(event.target.value)} disabled={bodyMetricsSaving} autoFocus />
+                  </label>
+                  <label htmlFor="profile-height">Altura (cm)
+                    <input id="profile-height" name="heightCm" type="number" min="30" max="260" step="0.1" required value={heightInput} onChange={(event) => setHeightInput(event.target.value)} disabled={bodyMetricsSaving} />
+                  </label>
+                  <button
+                    className="profile-body-metrics-save"
+                    type="submit"
+                    disabled={bodyMetricsSaving || !weightInput || !heightInput}
+                    aria-label={bodyMetricsSaving ? 'Salvando medidas' : 'Salvar medidas'}
+                    title={bodyMetricsSaving ? 'Salvando medidas' : 'Salvar medidas'}
+                  >
+                    <Save size={19} strokeWidth={2} aria-hidden="true" />
+                  </button>
+                </form>
+                {bodyMetricsError && <p className="profile-body-metrics-message is-error" role="alert">{bodyMetricsError}</p>}
+              </section>
+            </div>
+          )}
+        </section>}
 
         {sessionsMessage ? (
           <div className="profile-history-message" role="alert">
