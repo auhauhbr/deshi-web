@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from 'react'
 import { useLocation, useParams } from 'react-router-dom'
 import { Activity, Clock3, MessageSquareText, UserRound } from 'lucide-react'
 import ProfessionalNavigation from '../../components/ProfessionalNavigation.jsx'
-import AccountMenu from '../../components/AccountMenu.jsx'
 import FadeContent from '../../components/FadeContent.jsx'
 import SlideTextButton from '../../components/kokonutui/slide-text-button.jsx'
 import { getProfessionalSession } from '../../services/sessionService.js'
@@ -137,7 +136,6 @@ export default function ProfessionalSessionDetails() {
     <div className="professional-session-page__container">
       <header className="professional-session-page__topbar">
         <SlideTextButton className="professional-session-page__back" variant="ghost" text="Voltar" hoverText={returnLabel} to={returnTo} animateIn={false} />
-        <AccountMenu fallbackLabel="Profissional" />
       </header>
 
       {loading ? <div className="professional-session-page__state" role="status" aria-live="polite">

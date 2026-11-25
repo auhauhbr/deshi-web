@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom'
 import { ArrowRight, Check, CirclePause, Clock3, Radio } from 'lucide-react'
 import { api } from '../../services/api.js'
 import ProfessionalNavigation from '../../components/ProfessionalNavigation.jsx'
-import AccountMenu from '../../components/AccountMenu.jsx'
 import FadeContent from '../../components/FadeContent.jsx'
 import SlideTextButton from '../../components/kokonutui/slide-text-button.jsx'
 import './ProfessionalHome.css'
@@ -53,7 +52,6 @@ function ProfessionalHomePage() {
           <h1>{getGreeting()}, {user.name?.trim().split(/\s+/)[0] || 'profissional'}.</h1>
           <p className="professional-home__description">A rotina dos seus alunos, em um só lugar.</p>
         </div>
-        <AccountMenu fallbackLabel="Profissional" />
       </header>
 
       <FadeContent className="professional-home__content" trigger="mount" duration={0.48} delay={0.04} ease="power2.out">

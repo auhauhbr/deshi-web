@@ -1,0 +1,12 @@
+.theme-switch-anchor {
+  position: fixed;
+  z-index: 140;
+  top: max(.85rem, env(safe-area-inset-top));
+  right: max(1rem, env(safe-area-inset-right), calc((100vw - var(--container-max-width)) / 2));
+  display: flex;
+  align-items: center;
+}
+
+@media (max-width: 700px) {
+  .theme-switch-anchor { top: max(.75rem, env(safe-area-inset-top)); right: max(.85rem, env(safe-area-inset-right)); }
+}

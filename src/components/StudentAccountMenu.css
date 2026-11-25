@@ -1,6 +1,0 @@
-.student-account-menu {
-  position: fixed;
-  z-index: 80;
-  top: max(.65rem, env(safe-area-inset-top));
-  right: max(1rem, env(safe-area-inset-right), calc((100vw - var(--container-max-width)) / 2));
-}
