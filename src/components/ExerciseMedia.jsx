@@ -8,6 +8,35 @@ function isVideoUrl(src) {
   }
 }
 
+const previewTargets = new Map()
+let previewObserver
+
+function observePreview(media, onVisible) {
+  if (!('IntersectionObserver' in window)) {
+    onVisible()
+    return () => {}
+  }
+
+  if (!previewObserver) {
+    previewObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return
+        const showPreview = previewTargets.get(entry.target)
+        previewTargets.delete(entry.target)
+        previewObserver.unobserve(entry.target)
+        showPreview?.()
+      })
+    }, { rootMargin: '80px 0px', threshold: 0.01 })
+  }
+
+  previewTargets.set(media, onVisible)
+  previewObserver.observe(media)
+  return () => {
+    previewTargets.delete(media)
+    previewObserver?.unobserve(media)
+  }
+}
+
 export default function ExerciseMedia({
   src,
   alt = '',
@@ -32,21 +61,13 @@ export default function ExerciseMedia({
 
     setPreviewReady(false)
     const media = mediaRef.current
-    if (!media || !('IntersectionObserver' in window)) {
+    if (!media) {
       setPreviewReady(true)
       return undefined
     }
-
-    const observer = new IntersectionObserver(([entry]) => {
-      if (!entry.isIntersecting) return
-      // Load each preview once when it is close to the viewport. Keep it cached
-      // after leaving view so scrolling back does not restart the network request.
-      setPreviewReady(true)
-      observer.disconnect()
-    }, { rootMargin: '80px 0px', threshold: 0.01 })
-
-    observer.observe(media)
-    return () => observer.disconnect()
+    // All cards share one observer. Load each preview once near the viewport,
+    // then keep it cached so scrolling back does not restart the request.
+    return observePreview(media, () => setPreviewReady(true))
   }, [preview, src])
 
   if (!src || failedSrc === src) return fallback

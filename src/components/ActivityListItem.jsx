@@ -2,7 +2,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { ArrowRight, Check, Plus } from 'lucide-react'
 import ExerciseMedia from './ExerciseMedia.jsx'
 
-export default function ActivityListItem({ atividade, modalidade, programContext, alreadyAdded = false, returnTo = '/atividades', detailPath, style }) {
+export default function ActivityListItem({ atividade, modalidade, programContext, alreadyAdded = false, returnTo = '/atividades', detailPath, showDetailsLabel = false, style }) {
   const navigate = useNavigate()
   const { nome, descricao, midiaUrl, grupoMuscular, origem } = atividade
   const emptyThumbnail = <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.25" aria-hidden="true">
@@ -30,7 +30,7 @@ export default function ActivityListItem({ atividade, modalidade, programContext
           </span>
           {programContext
             ? <span className="activity-add-label">{alreadyAdded ? <><Check size={17} aria-hidden="true" />Adicionada</> : <><Plus size={17} aria-hidden="true" />Adicionar</>}</span>
-            : <ArrowRight className="navigation-chevron" size={19} aria-hidden="true" />}
+            : <>{showDetailsLabel && <span className="activity-details-label">Detalhes</span>}<ArrowRight className="navigation-chevron" size={19} aria-hidden="true" /></>}
         </div>
   </>
 
