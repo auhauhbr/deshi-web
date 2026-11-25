@@ -160,7 +160,7 @@ function SessionDetails() {
       <main className="start-session-page">
         <header className="session-header">
           <div className="session-brand">
-            <BrandLogo className="session-brand-logo" to="/home" />
+            <BrandLogo className="session-brand-logo" variant="adaptive" to="/home" />
           </div>
         </header>
         <section className="session-details-content">
@@ -261,7 +261,7 @@ function SessionDetails() {
     <main className="start-session-page">
       <header className="session-header">
         <div className="session-brand">
-          <BrandLogo className="session-brand-logo" to="/home" />
+          <BrandLogo className="session-brand-logo" variant="adaptive" to="/home" />
         </div>
       </header>
 

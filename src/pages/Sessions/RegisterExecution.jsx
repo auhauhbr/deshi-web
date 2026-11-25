@@ -38,7 +38,7 @@ export default function RegisterExecution() {
   }
 
   return <main className="start-session-page">
-    <header className="session-header"><div className="session-brand"><BrandLogo className="session-brand-logo" to="/home" /></div><span className="session-header-label">Resumo da execução</span></header>
+    <header className="session-header"><div className="session-brand"><BrandLogo className="session-brand-logo" variant="adaptive" to="/home" /></div><span className="session-header-label">Resumo da execução</span></header>
     <section className="session-details-content">
       <div className="session-heading"><p className="session-eyebrow">ATIVIDADE {activity?.order || ''}</p><h1>Como foi sua execução?</h1><p>Confira suas séries antes de confirmar para seu profissional.</p></div>
       {!session || !activity || !finalSet ? <article className="session-details-card">Resumo indisponível. Volte à sessão e conclua as séries para continuar.</article> : <article className="session-details-card execution-summary-card">

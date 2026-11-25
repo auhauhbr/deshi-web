@@ -252,7 +252,7 @@ function ProfilePage() {
   return (
     <main className="start-session-page profile-page">
       <header className="session-header profile-header">
-        <div className="session-brand"><BrandLogo className="session-brand-logo" to="/home" /></div>
+        <div className="session-brand"><BrandLogo className="session-brand-logo" variant="adaptive" to="/home" /></div>
         <StudentButton
           variant="icon"
           type="button"

@@ -1,8 +1,9 @@
-import { useEffect } from 'react'
+import { useEffect, useLayoutEffect } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import AppRoutes from './routes.jsx'
 import DatabaseLoadingScreen from './components/DatabaseLoadingScreen.jsx'
 import { resumeApiLoadingScreen } from './services/apiLoadingState.js'
+import { applyRouteTheme } from './services/themeService.js'
 
 function App() {
   const navigate = useNavigate()
@@ -16,6 +17,10 @@ function App() {
 
   useEffect(() => {
     if (location.pathname !== '/home') resumeApiLoadingScreen()
+  }, [location.pathname])
+
+  useLayoutEffect(() => {
+    applyRouteTheme(location.pathname)
   }, [location.pathname])
 
   return (

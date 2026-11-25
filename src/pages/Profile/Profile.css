@@ -16,7 +16,7 @@
   place-items: center;
   border: 0px;
   background: transparent;
-  color: #c83232;
+  color: var(--color-error);
   cursor: pointer;
   transition: transform 160ms ease, background 160ms ease, border-color 160ms ease;
 }
@@ -89,7 +89,7 @@
   padding-left: clamp(.25rem, 1.8vw, .85rem);
   font-size: clamp(.66rem, 2.7vw, .875rem);
 }
-.profile-body-metrics-tabs .profile-body-metrics-active { background: linear-gradient(145deg, #00d9a0, #00a879); }
+.profile-body-metrics-tabs .profile-body-metrics-active { background: var(--color-primary); color: var(--color-text-on-primary); }
 .profile-body-metrics-tabs [role="tabpanel"] { padding-top: .75rem; }
 .profile-body-metrics-table { width: 100%; border-collapse: collapse; text-align: left; }
 .profile-body-metrics-table caption { margin-bottom: .35rem; color: var(--color-text-secondary); font-size: .75rem; text-align: left; }
@@ -137,9 +137,9 @@
   display: grid;
   place-items: center;
   overflow: hidden;
-  border: 3px solid #fff;
+  border: 3px solid var(--color-surface);
   border-radius: 50%;
-  background: linear-gradient(145deg, #d8fff1, #9be9c9);
+  background: var(--color-primary-light);
   box-shadow: 0 0 0 1px rgb(0 159 117 / 16%), 0 10px 24px rgb(24 29 27 / 8%);
   color: var(--color-primary-active);
   font-size: 2rem;
@@ -309,13 +309,13 @@
 
 .profile-week-day.is-today {
   border-color: rgb(0 159 117 / 14%);
-  background: #f1fbf6;
+  background: var(--color-primary-light);
   color: var(--color-primary-active);
 }
 
 .profile-week-day.is-today .profile-day-number {
   background: var(--color-surface-dark);
-  color: #fff;
+  color: var(--color-text-inverse);
 }
 
 .profile-day-marker {
@@ -348,9 +348,9 @@
   justify-items: start;
   gap: .65rem;
   padding: .8rem 1rem;
-  border: 1px solid #f0cccc;
+  border: 1px solid color-mix(in srgb, var(--color-error) 35%, var(--color-border));
   border-radius: .8rem;
-  background: #fff7f7;
+  background: var(--color-error-surface);
   color: var(--color-error);
   font-size: var(--font-size-sm);
 }
@@ -405,7 +405,7 @@
   stroke-width: 7;
 }
 
-.profile-ring-track { stroke: #e9efec; }
+.profile-ring-track { stroke: var(--color-chart-grid); }
 
 .profile-ring-value {
   stroke: var(--color-primary-active);
@@ -426,9 +426,9 @@
   white-space: nowrap;
 }
 
-.profile-ring-count .profile-ring-value { stroke: #00b985; }
-.profile-ring-longest .profile-ring-value { stroke: #00b985; }
-.profile-ring-shortest .profile-ring-value { stroke: #81c84c; }
+.profile-ring-count .profile-ring-value { stroke: var(--color-chart-line); }
+.profile-ring-longest .profile-ring-value { stroke: var(--color-chart-line); }
+.profile-ring-shortest .profile-ring-value { stroke: var(--color-success); }
 .profile-ring-longest .profile-ring-center,
 .profile-ring-shortest .profile-ring-center { font-size: .73rem; }
 
@@ -446,7 +446,7 @@
   gap: .3rem;
   padding: .65rem .35rem;
   border-radius: .95rem;
-  background: #f7f9f8;
+  background: var(--color-surface-secondary);
 }
 
 .profile-duration-metric h3 {
@@ -469,6 +469,14 @@
   font-size: var(--font-size-sm);
   line-height: 1.45;
 }
+
+:root[data-theme="dark"] .profile-page .profile-week-section,
+:root[data-theme="dark"] .profile-page .profile-stat-card { border-color: var(--color-border); background: var(--color-surface); box-shadow: var(--shadow-card); }
+:root[data-theme="dark"] .profile-page .profile-avatar { border-color: var(--color-surface); background: var(--color-professional-green-light); box-shadow: 0 0 0 1px var(--color-border); color: var(--color-professional-green); }
+:root[data-theme="dark"] .profile-page .profile-week-day.is-today { border-color: var(--color-professional-green); background: var(--color-professional-green-light); color: var(--color-professional-green); }
+:root[data-theme="dark"] .profile-page .profile-week-day.is-today .profile-day-number { background: var(--color-primary); color: var(--color-text-on-primary); }
+:root[data-theme="dark"] .profile-page .profile-history-message { border-color: var(--color-border); background: var(--color-surface-secondary); }
+:root[data-theme="dark"] .profile-page .profile-body-metrics-empty { border-color: var(--color-border); background: var(--color-surface-secondary); }
 
 @media (max-width: 650px) {
   .profile-dashboard-content { width: min(100% - 1.25rem, 32rem); gap: .8rem; }

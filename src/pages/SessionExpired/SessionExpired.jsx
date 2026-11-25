@@ -15,7 +15,7 @@ function SessionExpiredPage() {
   return (
     <main className="session-expired-page">
       <section className="session-expired-card" aria-labelledby="session-expired-title">
-        <BrandLogo className="session-expired-logo" />
+        <BrandLogo className="session-expired-logo" variant="adaptive" />
         <div className="session-expired-icon" aria-hidden="true">
           <svg viewBox="0 0 48 48" fill="none">
             <circle cx="24" cy="24" r="19" />

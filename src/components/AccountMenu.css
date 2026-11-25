@@ -121,7 +121,7 @@
 .account-menu__item:disabled { color: var(--color-text-secondary, #70747d); cursor: not-allowed; opacity: .72; }
 .account-menu__soon { margin-left: auto; padding: .2rem .45rem; border-radius: var(--radius-full, 9999px); background: var(--color-surface-secondary, #eef2f0); color: var(--color-text-secondary, #70747d); font-size: .67rem; font-weight: 650; }
 .account-menu__item--logout { color: var(--color-error, #d93636); }
-.account-menu__item--logout:hover:not(:disabled) { background: color-mix(in srgb, var(--color-error, #d93636) 8%, white); color: var(--color-error, #d93636); }
+.account-menu__item--logout:hover:not(:disabled) { background: color-mix(in srgb, var(--color-error) 12%, var(--color-surface)); color: var(--color-error); }
 .account-menu__item--logout:disabled { cursor: wait; opacity: .6; }
 
 @keyframes account-menu-in {

@@ -21,9 +21,9 @@
 
 .invite-card {
   padding: clamp(1.5rem, 5vw, 3rem);
-  border: 1px solid rgb(225 229 227 / 90%);
+  border: 1px solid var(--color-border);
   border-radius: 1.6rem;
-  background: rgb(255 255 255 / 94%);
+  background: var(--color-surface);
   box-shadow: 0 18px 48px rgb(24 29 27 / 8%);
   animation: deshi-rise-in 420ms cubic-bezier(.2, 0, 0, 1) both;
 }
@@ -64,9 +64,9 @@
   gap: .75rem;
   margin: -1rem 0 1.5rem;
   padding: .85rem;
-  border: 1px solid rgb(217 54 54 / 18%);
+  border: 1px solid color-mix(in srgb, var(--color-error) 28%, var(--color-border));
   border-radius: .8rem;
-  background: rgb(217 54 54 / 5%);
+  background: var(--color-error-surface);
 }
 .invite-links-error p { margin: 0; color: var(--color-error); font-size: var(--font-size-sm); line-height: 1.4; }
 .invite-links-error .student-button { min-width: auto; min-height: 2.4rem; flex: 0 0 auto; font-size: var(--font-size-xs); }
@@ -79,7 +79,7 @@
   overflow: hidden;
   border: 1px solid var(--color-border);
   border-radius: 1rem;
-  background: #fff;
+  background: var(--color-surface);
   box-shadow: 0 14px 30px rgb(8 25 20 / 9%);
   color: var(--color-text);
 }
@@ -101,10 +101,10 @@
   min-width: 0;
   min-height: 3.25rem;
   padding: 0 1rem;
-  border: 1px solid rgb(243 255 249 / 25%);
+  border: 1px solid var(--color-border);
   border-radius: .85rem;
-  background: rgb(255 255 255 / 96%);
-  color: #172a26;
+  background: var(--color-surface-secondary);
+  color: var(--color-text);
   font: inherit;
   font-size: 1.05rem;
   font-weight: var(--font-weight-bold);
@@ -113,7 +113,7 @@
 
 .invite-input-row input:focus-visible {
   border-color: var(--color-primary-active);
-  outline: 3px solid rgb(0 159 117 / 16%);
+  outline: 3px solid color-mix(in srgb, var(--color-border-focus) 22%, transparent);
 }
 
 .invite-input-row button, .invite-accept-button {
@@ -142,7 +142,7 @@
   justify-content: center;
   gap: .6rem;
   padding: .8rem .45rem;
-  border-left: 1px dashed #cbd4d0;
+  border-left: 1px dashed var(--color-border);
   color: var(--color-text-secondary);
   text-align: center;
 }
@@ -152,7 +152,7 @@
   width: .9rem;
   height: .9rem;
   border-radius: 50%;
-  background: #fff;
+  background: var(--color-surface);
   content: '';
 }
 .invite-code-stub::before { top: -.48rem; }
@@ -207,9 +207,9 @@
 .invite-message {
   margin: 1rem 0 0;
   padding: .8rem 1rem;
-  border: 1px solid rgb(217 54 54 / 18%);
+  border: 1px solid color-mix(in srgb, var(--color-error) 28%, var(--color-border));
   border-radius: .75rem;
-  background: rgb(217 54 54 / 5%);
+  background: var(--color-error-surface);
   color: var(--color-error);
   font-size: var(--font-size-sm);
 }

@@ -52,7 +52,7 @@ function HomePage() {
     <main className="home-page">
       <header className="home-header">
         <div className="session-brand">
-          <BrandLogo className="session-brand-logo" to="/home" />
+          <BrandLogo className="session-brand-logo" variant="adaptive" to="/home" />
         </div>
       </header>
       <section className="home-content">

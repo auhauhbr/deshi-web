@@ -194,7 +194,7 @@ function AcceptInvitePage() {
   return (
     <main className="start-session-page invite-page">
       <header className="session-header invite-header">
-        <div className="session-brand"><BrandLogo className="session-brand-logo" to="/home" /></div>
+        <div className="session-brand"><BrandLogo className="session-brand-logo" variant="adaptive" to="/home" /></div>
       </header>
 
       <section className="invite-content" aria-labelledby="invite-title">

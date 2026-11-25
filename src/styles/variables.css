@@ -1,4 +1,5 @@
 :root {
+  color-scheme: light;
   /* Identidade visual */
   --color-primary: #00d9a0;
   --color-primary-hover: #00bd8b;
@@ -37,6 +38,20 @@
   --color-professional-surface-secondary: #ebf0ed;
   --color-professional-border: #dce6e1;
 
+  /* Camadas e estados de tema */
+  --color-surface-raised: #ffffff;
+  --color-overlay: rgb(13 30 24 / 46%);
+  --color-overlay-strong: rgb(13 30 24 / 72%);
+  --color-chart-grid: #e3eae7;
+  --color-chart-guide: #edf1ef;
+  --color-chart-line: #28bea2;
+  --color-chart-reference: #e48070;
+  --color-chart-label: #82908a;
+  --color-success-surface: #eaf6ef;
+  --color-error-surface: #fff0ef;
+  --color-warning-surface: #fff5df;
+  --color-info-surface: #eee9ff;
+
   /* Tipografia */
   --font-family-base: "Exo 2", system-ui, sans-serif;
   --font-family-secondary: "Rajdhani", system-ui, sans-serif;
@@ -70,4 +85,130 @@
   --sidebar-width: 16rem;
   --transition-fast: 150ms ease;
   --transition-normal: 250ms ease;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* Acento DESHI preservado sobre fundos de alto contraste */
+  --color-primary: #00d9a0;
+  --color-primary-hover: #24e3b0;
+  --color-primary-active: #57edc4;
+  --color-primary-light: #173d32;
+  --color-gradient-start: #00d9a0;
+  --color-gradient-end: #42e88b;
+
+  /* Fundos e superfícies */
+  --color-background: #111714;
+  --color-surface: #181f1b;
+  --color-surface-secondary: #222b26;
+  --color-surface-dark: #0b100e;
+  --color-surface-raised: #1d2621;
+  --color-overlay: rgb(0 0 0 / 68%);
+  --color-overlay-strong: rgb(0 0 0 / 82%);
+  --color-chart-grid: #35433b;
+  --color-chart-guide: #26322c;
+  --color-chart-line: #55d1aa;
+  --color-chart-reference: #ff9380;
+  --color-chart-label: #a6b3ac;
+  --color-success-surface: #18382b;
+  --color-error-surface: #3b2020;
+  --color-warning-surface: #392e1b;
+  --color-info-surface: #2d2747;
+
+  /* Texto, bordas e estados */
+  --color-text: #e8f0eb;
+  --color-text-secondary: #a6b3ac;
+  --color-text-inverse: #101713;
+  --color-text-on-primary: #06291f;
+  --color-border: #35433b;
+  --color-border-focus: #00d9a0;
+  --color-success: #65d69b;
+  --color-error: #ff7777;
+  --color-warning: #efbd66;
+  --color-info: #78b7ff;
+
+  /* Área profissional no mesmo tom verde-musgo da marca */
+  --color-professional-background: #111714;
+  --color-professional-ink: #e8f0eb;
+  --color-professional-muted: #a6b3ac;
+  --color-professional-forest: #b5ebd7;
+  --color-professional-green: #55d1aa;
+  --color-professional-green-hover: #77dfba;
+  --color-professional-green-active: #9ce9cb;
+  --color-professional-green-light: #183b30;
+  --color-professional-surface-secondary: #222b26;
+  --color-professional-border: #35433b;
+
+  --shadow-card: 0 12px 32px rgb(0 0 0 / 24%);
+  --shadow-dropdown: 0 12px 36px rgb(0 0 0 / 42%);
+
+  /* Tokens consumidos por shadcn e Tailwind */
+  --background: var(--color-background);
+  --foreground: var(--color-text);
+  --card: var(--color-surface);
+  --card-foreground: var(--color-text);
+  --popover: var(--color-surface-raised);
+  --popover-foreground: var(--color-text);
+  --primary: var(--color-primary);
+  --primary-foreground: var(--color-text-on-primary);
+  --secondary: var(--color-surface-secondary);
+  --secondary-foreground: var(--color-text);
+  --muted: var(--color-surface-secondary);
+  --muted-foreground: var(--color-text-secondary);
+  --accent: var(--color-primary-light);
+  --accent-foreground: var(--color-professional-forest);
+  --destructive: var(--color-error);
+  --border: var(--color-border);
+  --input: var(--color-border);
+  --ring: var(--color-border-focus);
+  --chart-1: #00d9a0;
+  --chart-2: #55d1aa;
+  --chart-3: #b5ebd7;
+  --chart-4: #42e88b;
+  --chart-5: #8bb9a4;
+  --sidebar: var(--color-surface);
+  --sidebar-foreground: var(--color-text);
+  --sidebar-primary: var(--color-primary);
+  --sidebar-primary-foreground: var(--color-text-on-primary);
+  --sidebar-accent: var(--color-primary-light);
+  --sidebar-accent-foreground: var(--color-professional-forest);
+  --sidebar-border: var(--color-border);
+  --sidebar-ring: var(--color-border-focus);
+}
+
+/* shadcn/Tailwind semantic tokens stay centralized with the DESHI palette. */
+:root {
+  --background: var(--color-background);
+  --foreground: var(--color-text);
+  --card: var(--color-surface);
+  --card-foreground: var(--color-text);
+  --popover: var(--color-surface);
+  --popover-foreground: var(--color-text);
+  --primary: var(--color-primary);
+  --primary-foreground: var(--color-text-on-primary);
+  --secondary: var(--color-surface-secondary);
+  --secondary-foreground: var(--color-professional-ink);
+  --muted: var(--color-surface-secondary);
+  --muted-foreground: var(--color-text-secondary);
+  --accent: var(--color-primary-light);
+  --accent-foreground: var(--color-professional-forest);
+  --destructive: var(--color-error);
+  --border: var(--color-border);
+  --input: var(--color-border);
+  --ring: var(--color-border-focus);
+  --chart-1: #00d9a0;
+  --chart-2: #14856c;
+  --chart-3: #103d32;
+  --chart-4: #42b883;
+  --chart-5: #8bb9a4;
+  --radius: var(--radius-md);
+  --sidebar: var(--color-surface);
+  --sidebar-foreground: var(--color-text);
+  --sidebar-primary: var(--color-primary);
+  --sidebar-primary-foreground: var(--color-text-on-primary);
+  --sidebar-accent: var(--color-primary-light);
+  --sidebar-accent-foreground: var(--color-professional-forest);
+  --sidebar-border: var(--color-border);
+  --sidebar-ring: var(--color-border-focus);
 }

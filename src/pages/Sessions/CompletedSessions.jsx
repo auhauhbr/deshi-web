@@ -60,7 +60,7 @@ function CompletedSessions() {
     <main ref={pageRef} className="start-session-page completed-sessions-page">
       <header className="session-header">
         <div className="session-brand">
-          <BrandLogo className="session-brand-logo" to="/home" />
+          <BrandLogo className="session-brand-logo" variant="adaptive" to="/home" />
         </div>
       </header>
 

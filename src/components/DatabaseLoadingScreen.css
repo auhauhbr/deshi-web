@@ -7,7 +7,7 @@
   justify-content: center;
   flex-direction: column;
   gap: 27px;
-  background: rgb(243 245 244 / 52%);
+  background: color-mix(in srgb, var(--color-background) 82%, transparent);
   -webkit-backdrop-filter: blur(10px) saturate(1.08);
   backdrop-filter: blur(10px) saturate(1.08);
   color: var(--color-text, #1a1d23);
@@ -54,7 +54,7 @@
 .database-loading-screen__loader span:nth-child(3) {
   top: 20px;
   left: 31px;
-  background: var(--color-primary-light, #d9fff3);
+  background: var(--color-primary-active, #009f75);
   animation-delay: 360ms;
 }
 
@@ -74,7 +74,7 @@
 }
 
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .database-loading-screen { background: rgb(243 245 244 / 92%); }
+  .database-loading-screen { background: color-mix(in srgb, var(--color-background) 94%, transparent); }
 }
 
 @media (prefers-reduced-motion: reduce) {

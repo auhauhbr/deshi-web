@@ -19,21 +19,21 @@
   border: 0;
   border-bottom: 2px solid transparent;
   background: transparent;
-  color: #88948e;
+  color: var(--color-text-secondary);
   font: inherit;
   font-size: .72rem;
   cursor: pointer;
 }
-.profile-weight-periods button.is-active { border-bottom-color: #27bea2; color: #168e78; font-weight: var(--font-weight-semibold); }
-.profile-weight-periods button:focus-visible { outline: 2px solid #27bea2; outline-offset: -2px; }
+.profile-weight-periods button.is-active { border-bottom-color: var(--color-chart-line); color: var(--color-professional-green); font-weight: var(--font-weight-semibold); }
+.profile-weight-periods button:focus-visible { outline: 2px solid var(--color-border-focus); outline-offset: -2px; }
 .profile-weight-chart-svg { display: block; width: 100%; height: auto; overflow: visible; }
-.profile-weight-chart-svg line { stroke: #e3eae7; stroke-width: 1; }
-.profile-weight-chart-svg line.profile-weight-chart-reference { stroke: #e48070; stroke-dasharray: 4 5; stroke-width: 1.6; }
-.profile-weight-chart-svg line.profile-weight-chart-guide { stroke: #edf1ef; }
-.profile-weight-chart-svg text { fill: #82908a; font-family: inherit; font-size: 9px; }
-.profile-weight-chart-line { fill: none; stroke: #28bea2; stroke-width: 2.3; stroke-linecap: round; stroke-linejoin: round; }
-.profile-weight-chart-point { fill: var(--color-surface, #fff); stroke: #28bea2; stroke-width: 2; }
+.profile-weight-chart-svg line { stroke: var(--color-chart-grid); stroke-width: 1; }
+.profile-weight-chart-svg line.profile-weight-chart-reference { stroke: var(--color-chart-reference); stroke-dasharray: 4 5; stroke-width: 1.6; }
+.profile-weight-chart-svg line.profile-weight-chart-guide { stroke: var(--color-chart-guide); }
+.profile-weight-chart-svg text { fill: var(--color-chart-label); font-family: inherit; font-size: 9px; }
+.profile-weight-chart-line { fill: none; stroke: var(--color-chart-line); stroke-width: 2.3; stroke-linecap: round; stroke-linejoin: round; }
+.profile-weight-chart-point { fill: var(--color-surface); stroke: var(--color-chart-line); stroke-width: 2; }
 .profile-weight-chart-empty { display: grid; min-height: 11rem; place-items: center; margin: 0; color: var(--color-text-secondary); font-size: .85rem; text-align: center; }
 .profile-weight-chart-legend { display: flex; align-items: center; gap: .4rem; margin-top: -.05rem; color: var(--color-text-secondary); font-size: .7rem; }
-.profile-weight-chart-legend > span:first-child { width: 1.2rem; border-top: 2px dashed #e48070; }
+.profile-weight-chart-legend > span:first-child { width: 1.2rem; border-top: 2px dashed var(--color-chart-reference); }
 .profile-weight-chart-note { margin: .35rem 0 0; color: var(--color-text-secondary); font-size: .65rem; line-height: 1.4; }

@@ -10,7 +10,7 @@ export default function DatabaseLoadingScreen() {
 
   return (
     <div className="database-loading-screen" role="status" aria-live="polite" aria-label="Carregando dados">
-      <BrandLogo className="database-loading-screen__logo" variant="light" />
+      <BrandLogo className="database-loading-screen__logo" variant="adaptive" />
       <div className="database-loading-screen__loader" aria-hidden="true">
         <span />
         <span />

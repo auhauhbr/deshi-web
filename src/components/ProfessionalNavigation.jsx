@@ -11,7 +11,7 @@ const items = [
 
 function ProfessionalNavigation() {
   return <nav className="professional-nav" aria-label="Navegação principal">
-    <div className="professional-nav__brand"><BrandLogo className="professional-nav__brand-logo" to="/home" /></div>
+    <div className="professional-nav__brand"><BrandLogo className="professional-nav__brand-logo" variant="adaptive" to="/home" /></div>
     <div className="professional-nav__items">
       {items.map((item) => item.path ? <NavLink key={item.label} to={item.path} end={item.path === '/home'} className={({ isActive }) => `professional-nav__item${isActive ? ' is-active' : ''}`}>
         <svg viewBox="0 0 24 24" aria-hidden="true">{item.icon}</svg><span>{item.label}</span>

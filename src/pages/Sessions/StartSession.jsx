@@ -158,7 +158,7 @@ async function handleStartSession(event, programId = selectedProgram) {
     <main className="start-session-page programs-page">
       <header className="session-header programs-header">
         <div className="session-brand">
-          <BrandLogo className="session-brand-logo" to="/home" />
+          <BrandLogo className="session-brand-logo" variant="adaptive" to="/home" />
         </div>
       </header>
 
