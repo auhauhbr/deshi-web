@@ -1,7 +1,8 @@
 .profile-weight-chart {
   width: 100%;
+  max-width: 40rem;
   box-sizing: border-box;
-  margin-top: .2rem;
+  margin: .2rem auto 0;
   padding: .35rem 0 0;
   overflow: hidden;
   border: 0;

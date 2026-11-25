@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { createPortal } from 'react-dom'
 import { Pencil, Save, X } from 'lucide-react'
 import StudentBottomNav from '../../components/StudentBottomNav.jsx'
 import StudentButton from '../../components/StudentButton.jsx'
@@ -336,7 +337,14 @@ function ProfilePage() {
               <h2 id="profile-body-metrics-title">Peso, altura e IMC</h2>
             </div>
           </div>
-          {bodyMetricsLoading ? <p className="profile-stat-loading" role="status">Carregando suas medidas...</p> : bodyMetricsError && !bodyMetrics ? <p className="profile-body-metrics-message is-error" role="alert">{bodyMetricsError}</p> : (
+          {bodyMetricsLoading ? <p className="profile-stat-loading" role="status">Carregando suas medidas...</p> : bodyMetricsError && !bodyMetrics ? <p className="profile-body-metrics-message is-error" role="alert">{bodyMetricsError}</p> : !bodyMetrics ? (
+            <div className="profile-body-metrics-empty">
+              <p>Você ainda não registrou peso e altura.</p>
+              <button className="profile-body-metrics-edit" type="button" onClick={openBodyMetricsEditor}>
+                <Pencil size={16} aria-hidden="true" /> Registrar medidas
+              </button>
+            </div>
+          ) : (
             <SmoothTab
               value={bodyMetricsTab}
               onChange={setBodyMetricsTab}
@@ -384,7 +392,7 @@ function ProfilePage() {
             />
           )}
           {bodyMetricsFeedback && <p className="profile-body-metrics-message is-success" role="status">{bodyMetricsFeedback}</p>}
-          {isBodyMetricsEditorOpen && (
+          {isBodyMetricsEditorOpen && createPortal((
             <div
               className="profile-body-metrics-modal-backdrop"
               onMouseDown={(event) => {
@@ -421,7 +429,7 @@ function ProfilePage() {
                 {bodyMetricsError && <p className="profile-body-metrics-message is-error" role="alert">{bodyMetricsError}</p>}
               </section>
             </div>
-          )}
+          ), document.body)}
         </section>}
 
         {sessionsMessage ? (

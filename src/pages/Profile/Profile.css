@@ -69,8 +69,9 @@
 .profile-body-metrics-modal-close:focus-visible { outline: 3px solid rgb(0 159 117 / 24%); outline-offset: 2px; }
 .profile-body-metrics-empty { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-top: 1rem; padding: .8rem 1rem; border: 1px solid var(--color-border); border-radius: .9rem; color: var(--color-text-secondary); font-size: .85rem; }
 .profile-body-metrics-empty p { margin: 0; }
-.profile-body-metrics-modal-backdrop { position: fixed; z-index: 50; inset: 0; display: grid; place-items: center; padding: 1rem; background: rgb(13 30 24 / 46%); }
-.profile-body-metrics-modal { width: min(100%, 38rem); box-sizing: border-box; padding: 1.25rem; border: 1px solid var(--color-border); border-radius: 1.1rem; background: var(--color-surface); box-shadow: 0 1.5rem 4rem rgb(10 35 25 / 24%); animation: profile-metrics-modal-in 160ms ease-out both; }
+.profile-body-metrics-empty .profile-body-metrics-edit { width: auto; height: auto; min-height: 2.6rem; display: inline-flex; align-items: center; justify-content: center; gap: .45rem; padding: .45rem .75rem; font: inherit; font-weight: var(--font-weight-semibold); white-space: nowrap; }
+.profile-body-metrics-modal-backdrop { position: fixed; z-index: 1000; inset: 0; display: grid; place-items: center; overflow-y: auto; padding: max(1rem, env(safe-area-inset-top)) 1rem max(1rem, env(safe-area-inset-bottom)); background: rgb(13 30 24 / 46%); overscroll-behavior: contain; }
+.profile-body-metrics-modal { width: min(100%, 38rem); max-height: 100%; overflow-y: auto; box-sizing: border-box; margin: auto; padding: 1.25rem; border: 1px solid var(--color-border); border-radius: 1.1rem; background: var(--color-surface); box-shadow: 0 1.5rem 4rem rgb(10 35 25 / 24%); animation: profile-metrics-modal-in 160ms ease-out both; }
 .profile-body-metrics-modal-heading { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
 .profile-body-metrics-modal-heading .profile-eyebrow { margin: 0 0 .25rem; }
 .profile-body-metrics-modal-heading h3 { margin: 0; color: var(--color-text); font-size: 1.25rem; }
