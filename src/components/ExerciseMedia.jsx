@@ -19,42 +19,35 @@ export default function ExerciseMedia({
   controls = !preview,
   interactive = true,
 }) {
-  const videoRef = useRef(null)
+  const mediaRef = useRef(null)
+  const [previewReady, setPreviewReady] = useState(!preview)
   const [failedSrc, setFailedSrc] = useState(null)
   const isVideo = Boolean(src) && isVideoUrl(src)
 
   useEffect(() => {
-    const video = videoRef.current
-    if (!preview || !isVideo || !video) return undefined
-
-    const loadPreviewFrame = () => {
-      video.preload = 'metadata'
-      video.src = src
-      video.load()
-      video.pause()
-    }
-    const unloadPreview = () => {
-      video.pause()
-      video.removeAttribute('src')
-      video.load()
+    if (!preview || !src) {
+      setPreviewReady(true)
+      return undefined
     }
 
-    if (!('IntersectionObserver' in window)) {
-      loadPreviewFrame()
-      return unloadPreview
+    setPreviewReady(false)
+    const media = mediaRef.current
+    if (!media || !('IntersectionObserver' in window)) {
+      setPreviewReady(true)
+      return undefined
     }
 
     const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) loadPreviewFrame()
-      else unloadPreview()
-    }, { rootMargin: '100px', threshold: 0.01 })
-
-    observer.observe(video)
-    return () => {
+      if (!entry.isIntersecting) return
+      // Load each preview once when it is close to the viewport. Keep it cached
+      // after leaving view so scrolling back does not restart the network request.
+      setPreviewReady(true)
       observer.disconnect()
-      unloadPreview()
-    }
-  }, [isVideo, preview, src])
+    }, { rootMargin: '80px 0px', threshold: 0.01 })
+
+    observer.observe(media)
+    return () => observer.disconnect()
+  }, [preview, src])
 
   if (!src || failedSrc === src) return fallback
 
@@ -62,9 +55,9 @@ export default function ExerciseMedia({
 
   return isVideo ? (
     <video
-      ref={videoRef}
+      ref={mediaRef}
       className={className}
-      src={preview ? undefined : src}
+      src={preview && !previewReady ? undefined : src}
       aria-label={alt || undefined}
       autoPlay={autoPlay}
       muted
@@ -74,14 +67,15 @@ export default function ExerciseMedia({
       disablePictureInPicture={!interactive}
       disableRemotePlayback={!interactive}
       tabIndex={interactive ? undefined : -1}
-      preload={preview ? 'none' : 'metadata'}
+      preload={preview && !previewReady ? 'none' : 'metadata'}
       onError={handleError}
       onContextMenu={interactive ? undefined : (event) => event.preventDefault()}
     />
   ) : (
     <img
+      ref={mediaRef}
       className={className}
-      src={src}
+      src={preview && !previewReady ? undefined : src}
       alt={alt}
       loading={preview ? 'lazy' : 'eager'}
       decoding="async"
