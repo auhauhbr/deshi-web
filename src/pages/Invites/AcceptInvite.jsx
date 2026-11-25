@@ -11,20 +11,70 @@ import './AcceptInvite.css'
 const CODE_CHARACTERS = /^[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]*$/
 const ACCEPTED_TICKET_STORAGE_PREFIX = 'deshi.accepted-ticket.'
 
-function getAcceptedTicket(studentId) {
-  if (!studentId) return null
+function getAcceptedTickets(studentId) {
+  if (!studentId) return []
   try {
-    return JSON.parse(localStorage.getItem(`${ACCEPTED_TICKET_STORAGE_PREFIX}${studentId}`) || 'null')
+    const saved = JSON.parse(localStorage.getItem(`${ACCEPTED_TICKET_STORAGE_PREFIX}${studentId}`) || 'null')
+    if (Array.isArray(saved)) return saved
+    return saved && typeof saved === 'object' ? [saved] : []
   } catch {
-    return null
+    return []
   }
+}
+
+function matchesProfessional(ticket, professional) {
+  return (ticket?.professionalId && professional?.id === ticket.professionalId)
+    || (ticket?.professionalEmail && professional?.email === ticket.professionalEmail)
+}
+
+function TrainingPass({ student, professional, code, accepted, onAccept, isAccepting }) {
+  if (!professional) return null
+
+  return (
+    <section className={`training-pass${accepted ? ' is-active' : ''}`} aria-labelledby={`training-pass-title-${professional.id}`}>
+      <div className="training-pass-main">
+        <div className="training-pass-topline">
+          <span className="training-pass-brand"><BrandLogo className="training-pass-logo" variant="dark" /><span>TRAINING</span></span>
+          <span className="training-pass-status"><i />{accepted ? 'VÍNCULO ATIVO' : 'CONVITE PENDENTE'}</span>
+        </div>
+        <h2 id={`training-pass-title-${professional.id}`}>Passe de treino</h2>
+        <div className="training-pass-route">
+          <div className="training-pass-person">
+            <span>ALUNO</span>
+            <strong>{student?.name || 'Você'}</strong>
+          </div>
+          <div className="training-pass-connector" aria-hidden="true"><span>✦</span></div>
+          <div className="training-pass-person training-pass-destination">
+            <span>PROFISSIONAL</span>
+            <strong>{professional.name || 'Seu profissional'}</strong>
+          </div>
+        </div>
+        <div className="training-pass-details">
+          <div><span>PROFISSIONAL</span><strong>{professional.email || 'Convite Deshi'}</strong></div>
+          <div><span>CÓDIGO</span><strong className="training-pass-code" title={code ? undefined : 'O código histórico deste vínculo não está disponível.'}>{code || 'ATIVO'}</strong></div>
+          <div><span>MODALIDADE</span><strong>Treinamento</strong></div>
+        </div>
+        {!accepted && (
+          <StudentButton variant="primary" type="button" particles className="invite-accept-button" onClick={onAccept} busy={isAccepting}>
+            {isAccepting ? 'Confirmando vínculo...' : 'Aceitar convite'}
+          </StudentButton>
+        )}
+      </div>
+      <div className="training-pass-stub" aria-label={code ? `Código do convite ${code}` : 'Passe de vínculo ativo'}>
+        <span className="training-pass-stub-label">PASSE DE ACESSO</span>
+        <div className="training-pass-barcode" aria-hidden="true" />
+        <strong>{code || 'ATIVO'}</strong>
+        <span>{accepted ? 'TREINO LIBERADO' : 'AGUARDANDO ACEITE'}</span>
+      </div>
+    </section>
+  )
 }
 
 function AcceptInvitePage() {
   const student = getStoredUser()
   const [code, setCode] = useState('')
   const [invite, setInvite] = useState(null)
-  const [acceptedInvite, setAcceptedInvite] = useState(null)
+  const [activeProfessionals, setActiveProfessionals] = useState([])
   const [isLoadingLinks, setIsLoadingLinks] = useState(true)
   const [linksError, setLinksError] = useState('')
   const [linksAttempt, setLinksAttempt] = useState(0)
@@ -49,22 +99,9 @@ function AcceptInvitePage() {
       .then(({ data }) => {
         if (!isCurrent) return
         const activeProfessionals = Array.isArray(data) ? data : []
-        const savedTicket = getAcceptedTicket(student.id)
-        const savedProfessional = activeProfessionals.find((professional) => (
-          (savedTicket?.professionalId && professional.id === savedTicket.professionalId)
-          || (savedTicket?.professionalEmail && professional.email === savedTicket.professionalEmail)
-        ))
-        const linkedProfessional = savedProfessional || activeProfessionals[0]
-
-        if (linkedProfessional) {
-          setAcceptedInvite({ profissional: linkedProfessional })
-          setCode(savedProfessional ? savedTicket?.code || '' : '')
-          setAccepted(true)
-        } else {
-          setAcceptedInvite(null)
-          setAccepted(false)
-          setCode('')
-        }
+        setActiveProfessionals(activeProfessionals)
+        setAccepted(false)
+        setCode('')
       })
       .catch((error) => {
         if (isCurrent) setLinksError(getApiErrorMessage(error, 'Não foi possível carregar seus profissionais vinculados.'))
@@ -97,6 +134,11 @@ function AcceptInvitePage() {
     try {
       const { data } = await api.get(`/vinculos/convites/${encodeURIComponent(code)}`)
       setInvite(data)
+      const linkedProfessional = activeProfessionals.find((item) => matchesProfessional({
+        professionalId: data?.profissional?.id,
+        professionalEmail: data?.profissional?.email,
+      }, item))
+      setAccepted(Boolean(linkedProfessional))
       setIsCuttingTicket(true)
       window.setTimeout(() => setIsCuttingTicket(false), 1350)
     } catch (error) {
@@ -111,27 +153,30 @@ function AcceptInvitePage() {
     setMessage('')
     try {
       await api.post(`/vinculos/convites/${encodeURIComponent(code)}/aceitar`)
-      setAcceptedInvite(invite)
+      if (invite?.profissional) {
+        setActiveProfessionals((current) => [
+          ...current.filter((item) => item.id !== invite.profissional.id),
+          invite.profissional,
+        ])
+      }
       setAccepted(true)
       setIsAddingProfessional(false)
       setInvite(null)
       try {
-        localStorage.setItem(`${ACCEPTED_TICKET_STORAGE_PREFIX}${student.id}`, JSON.stringify({
+        const savedTickets = getAcceptedTickets(student.id).filter((ticket) => !matchesProfessional(ticket, invite?.profissional))
+        savedTickets.push({
           code,
           professionalId: invite?.profissional?.id,
           professionalEmail: invite?.profissional?.email,
-        }))
+        })
+        localStorage.setItem(`${ACCEPTED_TICKET_STORAGE_PREFIX}${student.id}`, JSON.stringify(savedTickets))
       } catch {
         // Mantém a confirmação nesta visita; a consulta à API ainda recupera o vínculo ativo.
       }
       try {
         const { data } = await api.get('/vinculos/profissionais')
         const activeProfessionals = Array.isArray(data) ? data : []
-        const linkedProfessional = activeProfessionals.find((professional) => (
-          (invite?.profissional?.id && professional.id === invite.profissional.id)
-          || (invite?.profissional?.email && professional.email === invite.profissional.email)
-        ))
-        if (linkedProfessional) setAcceptedInvite({ profissional: linkedProfessional })
+        setActiveProfessionals(activeProfessionals)
         setLinksError('')
       } catch (error) {
         setLinksError(getApiErrorMessage(error, 'Vínculo aceito. Não foi possível atualizar a lista de profissionais.'))
@@ -143,8 +188,8 @@ function AcceptInvitePage() {
     }
   }
 
-  const passInvite = isAddingProfessional && invite ? invite : accepted ? acceptedInvite : invite
-  const professional = passInvite?.profissional
+  const savedTickets = getAcceptedTickets(student?.id)
+  const pendingProfessional = isAddingProfessional && !accepted ? invite?.profissional : null
 
   return (
     <main className="start-session-page invite-page">
@@ -166,9 +211,9 @@ function AcceptInvitePage() {
             </div>
           )}
 
-          {accepted && !isAddingProfessional ? (
+          {activeProfessionals.length > 0 && !isAddingProfessional ? (
             <div className="invite-active-actions">
-              <p className="invite-confirmation" role="status">Vínculo ativo! Seu profissional já pode acompanhar seus treinos.</p>
+              <p className="invite-confirmation" role="status">{activeProfessionals.length === 1 ? 'Vínculo ativo! Seu profissional já pode acompanhar seus treinos.' : `${activeProfessionals.length} vínculos ativos. Seus profissionais já podem acompanhar seus treinos.`}</p>
               <StudentButton variant="secondary" onClick={() => { setCode(''); setInvite(null); setMessage(''); setIsAddingProfessional(true) }}>
                 Vincular outro profissional
               </StudentButton>
@@ -205,8 +250,8 @@ function AcceptInvitePage() {
               </form>
 
               {message && <p className="invite-message" role="alert">{message}</p>}
-              {accepted && isAddingProfessional && (
-                <StudentButton variant="secondary" className="invite-cancel-add" onClick={() => { setIsAddingProfessional(false); setCode(''); setInvite(null); setMessage('') }}>
+              {isAddingProfessional && activeProfessionals.length > 0 && (
+                <StudentButton variant="secondary" className="invite-cancel-add" onClick={() => { setIsAddingProfessional(false); setAccepted(false); setCode(''); setInvite(null); setMessage('') }}>
                   Voltar ao passe ativo
                 </StudentButton>
               )}
@@ -214,43 +259,28 @@ function AcceptInvitePage() {
             </>
           )}
 
-          {passInvite && (
-            <section className={`training-pass${accepted ? ' is-active' : ''}`} aria-labelledby="training-pass-title">
-              <div className="training-pass-main">
-                <div className="training-pass-topline">
-                  <span className="training-pass-brand"><BrandLogo className="training-pass-logo" variant="dark" /><span>TRAINING</span></span>
-                  <span className="training-pass-status"><i />{accepted ? 'VÍNCULO ATIVO' : 'CONVITE PENDENTE'}</span>
-                </div>
-                <h2 id="training-pass-title">Passe de treino</h2>
-                <div className="training-pass-route">
-                  <div className="training-pass-person">
-                  <span>ALUNO</span>
-                    <strong>{student?.name || 'Você'}</strong>
-                  </div>
-                  <div className="training-pass-connector" aria-hidden="true"><span>✦</span></div>
-                  <div className="training-pass-person training-pass-destination">
-                    <span>PROFISSIONAL</span>
-                    <strong>{professional?.name || 'Seu profissional'}</strong>
-                  </div>
-                </div>
-                <div className="training-pass-details">
-                  <div><span>PROFISSIONAL</span><strong>{professional?.email || 'Convite Deshi'}</strong></div>
-                  <div><span>CÓDIGO</span><strong className="training-pass-code" title={code ? undefined : 'A API não fornece o código histórico deste convite.'}>{code || '—'}</strong></div>
-                  <div><span>MODALIDADE</span><strong>Treinamento</strong></div>
-                </div>
-                {!accepted && (
-                  <StudentButton variant="primary" type="button" particles className="invite-accept-button" onClick={handleAccept} busy={isAccepting}>
-                    {isAccepting ? 'Confirmando vínculo...' : 'Aceitar convite'}
-                  </StudentButton>
-                )}
-              </div>
-              <div className="training-pass-stub" aria-label={`Código do convite ${code}`}>
-                <span className="training-pass-stub-label">PASSE DE ACESSO</span>
-                <div className="training-pass-barcode" aria-hidden="true" />
-                <strong>{code || 'ATIVO'}</strong>
-                <span>{accepted ? 'TREINO LIBERADO' : 'AGUARDANDO ACEITE'}</span>
-              </div>
-            </section>
+          {(activeProfessionals.length > 0 || pendingProfessional) && (
+            <div className="training-pass-list" aria-label="Passes de profissionais">
+              {activeProfessionals.map((professional) => {
+                const savedTicket = savedTickets.find((ticket) => matchesProfessional(ticket, professional))
+                return <TrainingPass
+                  key={professional.id}
+                  student={student}
+                  professional={professional}
+                  code={professional.codigoConvite || savedTicket?.code || ''}
+                  accepted
+                />
+              })}
+              {pendingProfessional && <TrainingPass
+                key={`pending-${pendingProfessional.id}`}
+                student={student}
+                professional={pendingProfessional}
+                code={code}
+                accepted={accepted}
+                onAccept={handleAccept}
+                isAccepting={isAccepting}
+              />}
+            </div>
           )}
         </div>
       </section>

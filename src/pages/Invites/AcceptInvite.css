@@ -256,6 +256,14 @@
   box-shadow: 0 18px 40px rgb(8 25 20 / 19%);
 }
 
+.training-pass-list {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.training-pass-list .training-pass { margin-top: 0; }
+
 .training-pass-main { min-width: 0; padding: 1.4rem 1.45rem 1.25rem; }
 .training-pass-topline { display: flex; align-items: center; justify-content: space-between; gap: .8rem; }
 .training-pass-brand, .training-pass-status, .training-pass-stub-label {
