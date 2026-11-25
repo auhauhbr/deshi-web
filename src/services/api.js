@@ -14,7 +14,7 @@ api.interceptors.request.use((config) => {
 
   if (token) config.headers.Authorization = `Bearer ${token}`
   const requestPath = (config.url || '').split('?')[0].replace(/\/+$/, '')
-  config.__deshiLoadingTracked = requestPath !== '/login'
+  config.__deshiLoadingTracked = requestPath !== '/login' && config.skipGlobalLoading !== true
   if (config.__deshiLoadingTracked) beginApiRequest()
 
   return config

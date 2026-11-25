@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { Navigate, useLocation, useNavigate, useParams } from 'react-router-dom'
+import { ArrowRight, Check, Dumbbell, Target } from 'lucide-react'
 import ProfessionalNavigation from '../../components/ProfessionalNavigation.jsx'
 import PageAppBar from '../../components/PageAppBar.jsx'
+import ExerciseMedia from '../../components/ExerciseMedia.jsx'
 import { useModalidadesCatalogo } from '../../hooks/useModalidadesCatalogo.js'
 import { listarAtividades } from '../../services/atividades.service.js'
 import { buscarCamposAtividade, definirCamposAtividade, criarConfiguracaoAtividade } from '../../services/configuracoes-atividades.service.js'
@@ -49,6 +51,7 @@ function DefinirInformacoes({ atividadeId, onDefined }) {
       <fieldset className="metric-options" disabled={saving} aria-describedby="definition-help">
         <legend>Definir informações da atividade</legend>
         <p id="definition-help" className="activity-form-help">Escolha o que deseja informar e o que será obrigatório. Depois de salvar, essa escolha não poderá ser editada.</p>
+        <div className="metric-selection-summary"><strong>{Object.keys(selected).length}</strong><span>{Object.keys(selected).length === 1 ? 'campo selecionado' : 'campos selecionados'}</span></div>
         {Object.entries(METRICAS_ATIVIDADE).map(([chave, metrica]) => (
           <div className="metric-option" key={chave}>
             <label htmlFor={`choose-${chave}`}>
@@ -120,27 +123,32 @@ function ValoresAtividade({ atividade, campos, programContext, onProgramConfigur
 
   return (
     <form className="activity-form configuration-form" onSubmit={handleSubmit} noValidate aria-busy={saving}>
-      <p className="activity-form-help">{programContext ? 'Defina as metas desta atividade neste programa. * Informações obrigatórias.' : 'Defina os valores padrão que poderão ser usados nos próximos programas. * Informações obrigatórias.'}</p>
-      {campos.map(({ chave, tipo, obrigatorio, unidade, min, max }) => (
-        <div className="field" key={chave}>
-          <div className="metric-label">
-            <label htmlFor={`value-${chave}`}>{METRICAS_ATIVIDADE[chave].label}{obrigatorio ? ' *' : ''}</label>
-            {!obrigatorio && <span id={`optional-${chave}`}>Opcional</span>}
+      <div className="configuration-form__heading">
+        <div><span className="configuration-form__eyebrow">{programContext ? 'Metas deste programa' : 'Configuração padrão'}</span><h3>Prescrição</h3><p>{programContext ? 'Defina os alvos que o aluno deverá seguir neste exercício.' : 'Informe os valores padrão para esta atividade.'}</p></div>
+        <span className="configuration-form__count"><Target size={16} aria-hidden="true" />{campos.length} {campos.length === 1 ? 'campo' : 'campos'}</span>
+      </div>
+      <div className="configuration-form__fields">
+        {campos.map(({ chave, tipo, obrigatorio, unidade, min, max }, index) => (
+          <div className="field metric-value-field" key={chave} style={{ '--metric-index': index }}>
+            <div className="metric-label">
+              <label htmlFor={`value-${chave}`}>{METRICAS_ATIVIDADE[chave].label}</label>
+              {obrigatorio ? <span className="metric-required-badge">Obrigatório</span> : <span id={`optional-${chave}`}>Opcional</span>}
+            </div>
+            <div className="metric-input">
+              <input id={`value-${chave}`} name={chave} type="number" inputMode={tipo === 'decimal' ? 'decimal' : 'numeric'} step={tipo === 'decimal' ? 'any' : '1'} min={min} max={max} required={obrigatorio} value={entradas[chave] ?? ''} disabled={saving} aria-invalid={Boolean(errors[chave])} aria-describedby={[`unit-${chave}`, !obrigatorio && `optional-${chave}`, errors[chave] && `error-${chave}`].filter(Boolean).join(' ')} onChange={(event) => {
+                setEntradas((current) => ({ ...current, [chave]: event.target.value }))
+                setErrors((current) => ({ ...current, [chave]: '' }))
+                setFeedback(null)
+              }} />
+              <span id={`unit-${chave}`}>{UNIDADES_ATIVIDADE[unidade]}</span>
+            </div>
+            {errors[chave] && <p id={`error-${chave}`} className="field-error" role="alert">{errors[chave]}</p>}
           </div>
-          <div className="metric-input">
-            <input id={`value-${chave}`} name={chave} type="number" inputMode={tipo === 'decimal' ? 'decimal' : 'numeric'} step={tipo === 'decimal' ? 'any' : '1'} min={min} max={max} required={obrigatorio} value={entradas[chave] ?? ''} disabled={saving} aria-invalid={Boolean(errors[chave])} aria-describedby={[`unit-${chave}`, !obrigatorio && `optional-${chave}`, errors[chave] && `error-${chave}`].filter(Boolean).join(' ')} onChange={(event) => {
-              setEntradas((current) => ({ ...current, [chave]: event.target.value }))
-              setErrors((current) => ({ ...current, [chave]: '' }))
-              setFeedback(null)
-            }} />
-            <span id={`unit-${chave}`}>{UNIDADES_ATIVIDADE[unidade]}</span>
-          </div>
-          {errors[chave] && <p id={`error-${chave}`} className="field-error" role="alert">{errors[chave]}</p>}
-        </div>
-      ))}
+        ))}
+      </div>
       {feedback && <p className={`feedback ${feedback.type}`} role={feedback.type === 'error' ? 'alert' : 'status'}>{feedback.message}</p>}
       {saving && <p className="catalog-status" role="status">Salvando configuração...</p>}
-      <button className="primary-button" type="submit" disabled={saving || feedback?.type === 'success'}>{saving ? 'Salvando...' : 'Salvar configuração'}</button>
+      <button className="primary-button configuration-submit" type="submit" disabled={saving || feedback?.type === 'success'}><span>{saving ? 'Salvando...' : programContext ? 'Adicionar metas ao programa' : 'Salvar configuração padrão'}</span>{saving ? null : feedback?.type === 'success' ? <Check size={18} aria-hidden="true" /> : <ArrowRight size={18} aria-hidden="true" />}</button>
     </form>
   )
 }
@@ -232,16 +240,17 @@ function ConfigurarAtividade({ atividadeId, programContext, returnTo }) {
       <ProfessionalNavigation />
       <div className="configure-activity-page__container">
         <PageAppBar title={programContext ? 'Metas da atividade' : 'Configurar atividade'} backTo={programContext ? '/atividades' : returnTo} backLabel={programContext ? 'Voltar à seleção' : 'Voltar para a biblioteca'} onBack={handleBack} />
-        {programContext && <p className="configure-activity-context">Defina os valores prescritos para <strong>{programContext.programDraft.nome || 'este programa'}</strong>. O programa continua como rascunho até você salvá-lo.</p>}
+        {programContext && <section className="configure-activity-context" aria-label="Programa em edição"><span className="configure-activity-context__icon"><Dumbbell size={19} aria-hidden="true" /></span><span className="configure-activity-context__copy"><span>Programa em edição</span><strong>{programContext.programDraft.nome || 'Novo programa'}</strong></span><span className="configure-activity-context__status">Rascunho</span></section>}
         {state.phase === 'loading' && <div className="empty-state" role="status"><span className="loading-dot" aria-hidden="true" />Carregando atividade...</div>}
         {state.phase === 'not-found' && <p className="feedback error" role="alert">Atividade não encontrada.</p>}
         {state.phase === 'error' && <div className="empty-state"><p className="feedback error" role="alert">{state.error}</p><button className="secondary-button compact-button" type="button" onClick={() => { setState({ phase: 'loading' }); setAttempt((value) => value + 1) }}>Tentar novamente</button></div>}
         {state.phase === 'ready' && (
           <>
-            <div className="configuration-heading">
-              <h2>{state.atividade.nome}</h2>
-              <p>{catalogo.modalidades.find((item) => item.id === state.atividade.modalidadeId)?.nome ?? (catalogo.loading ? 'Carregando modalidade...' : 'Modalidade indisponível')}</p>
-            </div>
+            <section className="configuration-heading" aria-label="Atividade selecionada">
+              <span className="configuration-heading__media">{state.atividade.midiaUrl ? <ExerciseMedia src={state.atividade.midiaUrl} alt={`Demonstração de ${state.atividade.nome}`} preview className="configuration-heading__media-content" fallback={<Dumbbell size={23} aria-hidden="true" />} /> : <Dumbbell size={23} aria-hidden="true" />}</span>
+              <div className="configuration-heading__copy"><h2>{state.atividade.nome}</h2><p>{[catalogo.modalidades.find((item) => item.id === state.atividade.modalidadeId)?.nome ?? (catalogo.loading ? 'Carregando modalidade...' : 'Modalidade indisponível'), state.atividade.grupoMuscular].filter(Boolean).join(' · ')}</p></div>
+              {programContext && <span className="configuration-heading__position">Atividade {programContext.programDraft.atividades.length + 1}</span>}
+            </section>
             {catalogo.error && <div className="catalog-error"><p className="feedback error" role="alert">{catalogo.error}</p><button className="secondary-button compact-button" type="button" onClick={catalogo.retry}>Recarregar modalidades</button></div>}
             <CamposAtividade atividade={state.atividade} programContext={programContext} onProgramConfigured={finishProgramConfiguration} />
           </>

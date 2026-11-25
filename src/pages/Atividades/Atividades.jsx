@@ -5,6 +5,7 @@ import ProfessionalNavigation from '../../components/ProfessionalNavigation.jsx'
 import ActivityListItem from '../../components/ActivityListItem.jsx'
 import PageAppBar from '../../components/PageAppBar.jsx'
 import FadeContent from '../../components/FadeContent.jsx'
+import Loader from '../../components/kokonutui/loader.jsx'
 import { useModalidadesCatalogo } from '../../hooks/useModalidadesCatalogo.js'
 import { listarAtividades } from '../../services/atividades.service.js'
 import './Atividades.css'
@@ -49,7 +50,7 @@ export default function AtividadesPage() {
     const controller = new AbortController()
     // Cleanup cancels both the debounce and any request for previous filters.
     const timeout = setTimeout(() => {
-      listarAtividades({ busca, modalidadeId }, controller.signal)
+      listarAtividades({ busca, modalidadeId }, controller.signal, { skipGlobalLoading: true })
         .then((data) => {
           if (!controller.signal.aborted) setResult({ key: requestKey, atividades: data, error: '' })
         })
@@ -126,7 +127,7 @@ export default function AtividadesPage() {
         <section className="activity-results" aria-label="Lista de atividades" aria-busy={loading}>
           {!loading && !error && <div className="activity-results__heading"><span>{atividadesVisiveis.length} {atividadesVisiveis.length === 1 ? 'exercício encontrado' : 'exercícios encontrados'}</span>{grupoMuscular && <button type="button" onClick={() => setGrupoMuscular('')}>Limpar grupo <X size={14} /></button>}</div>}
           {loading ? (
-            <div className="activity-loading-list" role="status" aria-label="Carregando atividades">{[0, 1, 2].map((item) => <div className="activity-loading-row" key={item}><span /><div><i /><b /></div><em /></div>)}</div>
+            <div className="activity-search-loading"><Loader size="sm" title={busca.trim() ? 'Buscando exercícios' : 'Carregando exercícios'} subtitle={busca.trim() ? 'Atualizando resultados' : 'Preparando o catálogo'} /></div>
           ) : error ? (
             <div className="empty-state">
               <p className="feedback error" role="alert">{error}</p>
