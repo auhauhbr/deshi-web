@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
+import { ArrowLeft, ArrowRight, CalendarDays, Check, Clock3, Dumbbell, Mail, MessageSquareText } from 'lucide-react'
 import ProfessionalNavigation from '../../components/ProfessionalNavigation.jsx'
 import WeightTrendChart from '../../components/WeightTrendChart.jsx'
+import FadeContent from '../../components/FadeContent.jsx'
+import SlideTextButton from '../../components/kokonutui/slide-text-button.jsx'
 import { getProfessionalStudentDashboard } from '../../services/studentDashboardService.js'
 import './StudentProfile.css'
 
@@ -50,6 +53,7 @@ function getErrorMessage(error, fallback) {
 function StudentProfilePage() {
   const { studentId } = useParams()
   const navigate = useNavigate()
+  const location = useLocation()
   const [dashboard, setDashboard] = useState(null)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(true)
@@ -103,8 +107,23 @@ function StudentProfilePage() {
   const maxWeeklyTraining = Math.max(1, ...weeklyTraining.map((week) => week.count))
   const sessionsToShow = showAllSessions ? sessions : sessions.slice(0, 4)
   const studentImage = student?.photoUrl || student?.avatarUrl || student?.fotoUrl
-  const studentObjective = student?.objective || student?.objetivo || 'Objetivo não informado'
   const monthName = new Intl.DateTimeFormat('pt-BR', { month: 'long' }).format(now)
+  const latestSession = sessions[0]
+  const sessionComments = sessions.flatMap((session) => (session.activities || [])
+    .filter((activity) => activity.execution?.comment?.trim())
+    .map((activity) => ({
+      comment: activity.execution.comment.trim(),
+      activityName: activity.nome || 'Atividade',
+      sessionId: session.id,
+      programId: session.programId,
+      date: activity.execution.executedAt || session.finishedAt || session.startedAt,
+    })))
+    .sort((first, second) => new Date(second.date) - new Date(first.date))
+  const latestComment = sessionComments[0]
+  const LatestFeedbackContainer = latestComment ? Link : 'section'
+  const latestFeedbackProps = latestComment
+    ? { to: `/professional/sessions/${encodeURIComponent(latestComment.sessionId)}`, state: { from: location.pathname }, 'aria-label': `Abrir sessão com comentário sobre ${latestComment.activityName}` }
+    : {}
 
   function formatDate(value, options = { day: '2-digit', month: 'short' }) {
     if (!value) return 'Data não registrada'
@@ -123,11 +142,11 @@ function StudentProfilePage() {
   return <main className="students-page student-detail-page">
     <ProfessionalNavigation />
     <div className="students-page__container">
-      <header className="student-detail-toolbar"><button className="student-detail-back" type="button" onClick={() => navigate('/alunos')} aria-label="Voltar para alunos">←</button><span>Perfil do aluno</span><span className="student-detail-toolbar__spacer" /></header>
+      <header className="student-detail-toolbar"><button className="student-detail-back" type="button" onClick={() => navigate('/alunos')} aria-label="Voltar para alunos"><ArrowLeft size={18} /></button><span>Perfil do aluno</span><span className="student-detail-toolbar__spacer" /></header>
       {profileLoading ? <p className="students-message">Carregando perfil do aluno…</p> : error ? <p className="students-message students-message--error" role="alert">{error}</p> : <>
         <section className="student-profile-hero" aria-label="Perfil do aluno">
           {studentImage ? <img className="student-profile-hero__avatar" src={studentImage} alt={`Foto de ${student.name}`} /> : <span className="student-profile-hero__avatar student-profile-hero__avatar--fallback" aria-hidden="true">{initials(student.name)}</span>}
-          <div className="student-profile-hero__copy"><p className="students-eyebrow">ALUNO VINCULADO</p><h1 className="student-detail-name">{student.name}</h1><p><strong>Objetivo:</strong> {studentObjective}{student.createdAt && <> <span aria-hidden="true">·</span> desde {formatDate(student.createdAt, { month: 'short', year: 'numeric' })}</>}</p></div>
+          <div className="student-profile-hero__copy"><p className="students-eyebrow">ALUNO VINCULADO</p><h1 className="student-detail-name">{student.name}</h1><div className="student-profile-hero__details">{student.email && <span><Mail size={15} aria-hidden="true" />{student.email}</span>}{student.createdAt && <span><CalendarDays size={15} aria-hidden="true" />Na DESHI desde {formatDate(student.createdAt, { month: 'short', year: 'numeric' })}</span>}</div></div>
         </section>
 
         <div className="student-view-switch" role="tablist" aria-label="Visão do aluno">
@@ -139,7 +158,16 @@ function StudentProfilePage() {
           <section className="student-period-stats" aria-label="Frequência de treinos">
             <article><strong>{completedThisMonth}</strong><span>treinos em {monthName}</span><small>{completedSessions.length} no histórico total</small></article>
             <article><strong>{completedThisWeek}</strong><span>nesta semana</span><small>Semana iniciada na segunda</small></article>
+            <article className="student-period-stats__last"><Clock3 size={17} aria-hidden="true" /><span>Último treino</span><strong>{latestSession ? formatDate(latestSession.finishedAt || latestSession.startedAt, { day: '2-digit', month: 'short' }) : '—'}</strong><small>{latestSession ? formatDuration(latestSession) : 'Ainda sem sessões'}</small></article>
           </section>
+
+          <LatestFeedbackContainer className={`student-latest-feedback${latestComment ? ' student-latest-feedback--link' : ''}`} aria-labelledby="student-latest-feedback-title" {...latestFeedbackProps}>
+            <div className="student-latest-feedback__icon"><MessageSquareText size={18} aria-hidden="true" /></div>
+            <div className="student-latest-feedback__body">
+              <div className="student-latest-feedback__heading"><h2 id="student-latest-feedback-title">Retorno mais recente</h2>{latestComment && <ArrowRight className="student-latest-feedback__arrow" size={17} aria-hidden="true" />}</div>
+              {latestComment ? <><blockquote>“{latestComment.comment}”</blockquote><div className="student-latest-feedback__meta"><span className="student-latest-feedback__source">{latestComment.activityName}{programs.find((program) => program.id === latestComment.programId)?.nome ? ` · ${programs.find((program) => program.id === latestComment.programId).nome}` : ''}</span><time dateTime={new Date(latestComment.date).toISOString()}>{formatDate(latestComment.date)}</time></div></> : <p className="student-latest-feedback__empty">Os comentários deixados ao concluir uma atividade aparecerão aqui.</p>}
+            </div>
+          </LatestFeedbackContainer>
 
           <section className="student-week-calendar-card" aria-labelledby="student-week-calendar-title">
             <div className="student-week-calendar-card__heading">
@@ -168,20 +196,20 @@ function StudentProfilePage() {
 
           <section className="student-detail-section">
             <div className="student-detail-section__heading"><div><p className="students-eyebrow">PRESCRIÇÃO</p><h2>Programas de treino</h2></div><span className="student-detail-count">{programs.length}</span></div>
-            <div className="student-program-list">{programs.length ? programs.map((program, index) => <Link className="student-program-card" key={program.id} to={`/alunos/${studentId}/programas/${program.id}/editar`} aria-label={`Editar programa ${program.nome}`}>
-              <span className={`student-program-card__mark student-program-card__mark--${index % 4}`}>{String.fromCharCode(65 + (index % 26))}</span><span className="student-program-card__copy"><strong>{program.nome}</strong><span>{program.atividades?.length || 0} {(program.atividades?.length || 0) === 1 ? 'atividade' : 'atividades'}{program.modalidade?.nome ? ` · ${program.modalidade.nome}` : ''}</span></span><span className="student-program-card__meta"><span>Atualizado</span><strong>{formatDate(program.criadoEm)}</strong></span><span className="student-program-card__action" aria-hidden="true">Editar <b>↗</b></span>
-            </Link>) : <div className="student-detail-empty"><span className="student-detail-empty__icon" aria-hidden="true">▤</span><strong>Nenhum programa por aqui</strong><span>Crie o primeiro treino deste aluno para começar o acompanhamento.</span></div>}</div>
-            <Link className="student-add-program" to={`/alunos/${studentId}/programas/novo`}><span aria-hidden="true">＋</span> Adicionar treino</Link>
+            {programs.length ? <FadeContent className="student-program-list" trigger="mount" duration={0.36} stagger={0.045}>{programs.map((program, index) => <Link className="student-program-card" key={program.id} to={`/alunos/${studentId}/programas/${program.id}/editar`} aria-label={`Editar programa ${program.nome}`}>
+              <span className={`student-program-card__mark student-program-card__mark--${index % 4}`}><Dumbbell size={19} aria-hidden="true" />{(program.iconeUrl || program.iconUrl) && <img src={program.iconeUrl || program.iconUrl} alt="" onError={(event) => { event.currentTarget.style.opacity = '0' }} />}</span><span className="student-program-card__copy"><strong>{program.nome}</strong><span>{program.atividades?.length || 0} {(program.atividades?.length || 0) === 1 ? 'atividade' : 'atividades'}{program.modalidade?.nome ? ` · ${program.modalidade.nome}` : ''}</span></span><span className="student-program-card__meta"><span>Criado em</span><strong>{formatDate(program.criadoEm || program.createdAt)}</strong></span><span className="student-program-card__action" aria-hidden="true">Editar <ArrowRight size={15} /></span>
+            </Link>)}</FadeContent> : <div className="student-detail-empty"><span className="student-detail-empty__icon" aria-hidden="true"><Dumbbell size={19} /></span><strong>Nenhum programa por aqui</strong><span>Crie o primeiro treino deste aluno para começar o acompanhamento.</span></div>}
+            <SlideTextButton className="student-add-program" text="Adicionar treino" hoverText="Montar novo programa" to={`/alunos/${studentId}/programas/novo`} animateIn={false} />
           </section>
 
           <section className="student-detail-section">
             <div className="student-detail-section__heading"><div><p className="students-eyebrow">HISTÓRICO</p><h2>Últimas sessões</h2></div><span className="student-detail-count">{sessions.length}</span></div>
-            <div className="student-session-list">{sessionsToShow.length ? sessionsToShow.map((session) => {
+            {sessionsToShow.length ? <FadeContent className="student-session-list" trigger="mount" duration={0.34} stagger={0.04}>{sessionsToShow.map((session) => {
               const program = programs.find((item) => item.id === session.programId)
               const completedActivities = session.activities?.filter((activity) => activity.status === 'COMPLETED').length || 0
               const totalActivities = session.activities?.length || 0
-              return <article className="student-session-card" key={session.id}><span className={`student-session-card__mark student-session-card__mark--${session.status.toLowerCase()}`} aria-hidden="true">{session.status === 'COMPLETED' ? '✓' : session.status === 'IN_PROGRESS' ? '↗' : '–'}</span><div className="student-session-card__copy"><strong>{program?.nome || 'Sessão de treino'}</strong><span>{formatDate(session.startedAt, { day: '2-digit', month: 'short', year: 'numeric' })} · {totalActivities ? `${completedActivities} de ${totalActivities} atividades` : 'Atividades não registradas'}</span></div><div className="student-session-card__meta"><strong>{formatDuration(session)}</strong><span>{session.status === 'COMPLETED' ? 'Concluída' : session.status === 'IN_PROGRESS' ? 'Em andamento' : 'Interrompida'}</span></div></article>
-            }) : <div className="student-detail-empty"><span className="student-detail-empty__icon" aria-hidden="true">◷</span><strong>Sem sessões registradas</strong><span>Quando o aluno iniciar um treino, o histórico aparecerá aqui.</span></div>}</div>
+              return <Link className="student-session-card" key={session.id} to={`/professional/sessions/${encodeURIComponent(session.id)}`} state={{ from: location.pathname }} aria-label={`Ver detalhes da sessão ${program?.nome || 'de treino'}, ${formatDate(session.startedAt, { day: '2-digit', month: 'short', year: 'numeric' })}`}><span className={`student-session-card__mark student-session-card__mark--${session.status.toLowerCase()}`} aria-hidden="true">{session.status === 'COMPLETED' ? <Check size={18} /> : session.status === 'IN_PROGRESS' ? <ArrowRight size={17} /> : <Clock3 size={17} />}</span><span className="student-session-card__copy"><strong>{program?.nome || 'Sessão de treino'}</strong><span>{formatDate(session.startedAt, { day: '2-digit', month: 'short', year: 'numeric' })} · {totalActivities ? `${completedActivities} de ${totalActivities} atividades` : 'Atividades não registradas'}</span></span><span className="student-session-card__meta"><strong>{formatDuration(session)}</strong><span>{session.status === 'COMPLETED' ? 'Concluída' : session.status === 'IN_PROGRESS' ? 'Em andamento' : 'Interrompida'}</span></span><ArrowRight className="student-session-card__open" size={17} aria-hidden="true" /></Link>
+            })}</FadeContent> : <div className="student-detail-empty"><span className="student-detail-empty__icon" aria-hidden="true"><Clock3 size={18} /></span><strong>Sem sessões registradas</strong><span>Quando o aluno iniciar um treino, o histórico aparecerá aqui.</span></div>}
             {sessions.length > 4 && <button className="student-history-toggle" type="button" onClick={() => setShowAllSessions((value) => !value)}>{showAllSessions ? 'Mostrar menos' : 'Ver histórico completo'}</button>}
           </section>
         </div> : <div role="tabpanel" className="student-detail-content student-evolution">

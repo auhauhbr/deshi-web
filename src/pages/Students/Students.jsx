@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { Activity, ArrowRight, Check, ChevronRight, Clock3, Copy, Search, Trash2, UserPlus, UsersRound, X } from 'lucide-react'
 import ProfessionalNavigation from '../../components/ProfessionalNavigation.jsx'
+import FadeContent from '../../components/FadeContent.jsx'
+import SlideTextButton from '../../components/kokonutui/slide-text-button.jsx'
 import { api } from '../../services/api.js'
 import './Students.css'
 
@@ -24,9 +27,13 @@ async function copyText(value) {
   field.remove()
 }
 
-function StudentPageHeader({ eyebrow, title, action }) {
+function StudentPageHeader({ action }) {
   return <header className="students-header">
-    <div><p className="students-eyebrow">{eyebrow}</p><h1>{title}</h1></div>
+    <div className="students-header__copy">
+      <p className="students-eyebrow">GESTÃO DE CLIENTELA</p>
+      <h1>Alunos</h1>
+      <p className="students-header__description">Acompanhe sua equipe e mantenha cada vínculo em dia.</p>
+    </div>
     <div className="students-header__actions">{action}</div>
   </header>
 }
@@ -64,13 +71,13 @@ function InviteStudentDialog({ onClose, onCreated }) {
 
   return <div className="invite-backdrop" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose() }}>
     <section className="invite-dialog" role="dialog" aria-modal="true" aria-labelledby="invite-title">
-      <button className="invite-dialog__close" type="button" onClick={onClose} aria-label="Fechar">×</button>
+      <button className="invite-dialog__close" type="button" onClick={onClose} aria-label="Fechar"><X size={18} /></button>
       {invitation ? <>
-        <span className="invite-dialog__success" aria-hidden="true">✓</span>
+        <span className="invite-dialog__success" aria-hidden="true"><Check size={20} /></span>
         <p className="students-eyebrow">CONVITE CRIADO</p><h2 id="invite-title">Compartilhe o código</h2>
         <p className="invite-dialog__description">Peça ao aluno para entrar na conta dele e aceitar o convite com este código. Ele expira em 7 dias.</p>
         <div className="invite-code">{invitation.codigo}</div>
-        <button className="students-primary-button" type="button" onClick={copyInvitationCode}>{copied ? 'Código copiado' : 'Copiar código'}</button>
+        <button className="students-primary-button" type="button" onClick={copyInvitationCode}><Copy size={16} />{copied ? 'Código copiado' : 'Copiar código'}</button>
         <button className="invite-dialog__secondary" type="button" onClick={onClose}>Concluir</button>
       </> : <>
         <p className="students-eyebrow">NOVO VÍNCULO</p><h2 id="invite-title">Adicionar aluno</h2>
@@ -79,7 +86,7 @@ function InviteStudentDialog({ onClose, onCreated }) {
           <label className="invite-email-label" htmlFor="student-email">E-mail do aluno</label>
           <input id="student-email" className="invite-email-input" type="email" autoComplete="email" placeholder="aluno@email.com" value={email} onChange={(event) => setEmail(event.target.value)} required />
           {error && <p className="invite-error" role="alert">{error}</p>}
-          <button className="students-primary-button" type="submit" disabled={submitting}>{submitting ? 'Criando convite…' : 'Gerar convite'}</button>
+          <button className="students-primary-button" type="submit" disabled={submitting}>{submitting ? 'Criando convite…' : 'Gerar convite'}<ArrowRight size={16} /></button>
         </form>
       </>}
     </section>
@@ -148,35 +155,54 @@ function StudentsPage() {
   return <main className="students-page">
     <ProfessionalNavigation />
     <div className="students-page__container">
-      <StudentPageHeader eyebrow="SUA EQUIPE" title="Alunos" action={<button className="students-add-button students-add-button--header" type="button" onClick={() => setShowInvite(true)}><span>＋</span> Adicionar</button>} />
+      <StudentPageHeader action={<SlideTextButton asButton text="Adicionar aluno" hoverText="Convidar por e-mail" onClick={() => setShowInvite(true)} className="students-add-button" />} />
+
       <section className="students-insights" aria-label="Resumo dos alunos de hoje">
-        <article className="students-insight students-insight--live"><strong>{dashboard?.counts?.training ?? '—'}</strong><span>Treinando agora</span></article>
-        <article className="students-insight students-insight--done"><strong>{dashboard?.counts?.completed ?? '—'}</strong><span>Concluíram hoje</span></article>
-        <article className="students-insight students-insight--pending"><strong>{dashboard?.counts?.notStarted ?? '—'}</strong><span>Sem treino hoje</span></article>
+        <div className="students-insights__heading"><Activity size={17} /><span>Hoje na equipe</span></div>
+        <div className="students-insights__metrics">
+          <article className="students-insight"><strong>{dashboard?.counts?.training ?? '—'}</strong><span><i className="status-dot status-dot--live" />Treinando agora</span></article>
+          <article className="students-insight"><strong>{dashboard?.counts?.completed ?? '—'}</strong><span><i className="status-dot status-dot--done" />Concluíram hoje</span></article>
+          <article className="students-insight"><strong>{dashboard?.counts?.notStarted ?? '—'}</strong><span><i className="status-dot" />Sem treino hoje</span></article>
+        </div>
       </section>
-      {pendingInvitations.length > 0 && <section className="pending-invitations" aria-label="Convites pendentes">
-        <div className="students-list-heading"><div><p className="students-eyebrow">AGUARDANDO ACEITE</p><h2>Convites pendentes <span className="students-total">{pendingInvitations.length}</span></h2></div></div>
-        <div className="pending-invitations__list">{pendingInvitations.map((invitation) => <article className="pending-invitation" key={invitation.id}>
-          <div className="pending-invitation__student"><span className="pending-invitation__icon" aria-hidden="true">⌛</span><div><strong>{invitation.alunoNome}</strong><span>Expira em {new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'short' }).format(new Date(invitation.expiraEm))}</span></div></div>
-          <div className="pending-invitation__code"><code>{invitation.codigo}</code><button type="button" onClick={() => copyPendingCode(invitation)} aria-label={`Copiar código de convite para ${invitation.alunoNome}`}>{copiedInvitationId === invitation.id ? 'Copiado' : 'Copiar'}</button></div>
-        </article>)}</div>
-      </section>}
-      <div className="students-list-heading"><div><p className="students-eyebrow">ACOMPANHAMENTO</p><h2>Seus alunos <span className="students-total">{students.length}</span></h2></div></div>
-      <label className="students-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg><input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Buscar aluno" aria-label="Buscar aluno" /></label>
+
       {error && <p className="students-message students-message--error" role="alert">{error}</p>}
-      <section className="students-list" aria-label="Lista de alunos">
-        {loading ? <p className="students-message">Carregando alunos…</p> : filteredStudents.length ? filteredStudents.map((student, index) => <div className="student-card" key={student.id}>
-          <Link className="student-card__link" to={`/alunos/${student.id}`}>
-            <span className={`student-card__avatar student-card__avatar--${index % 5}`}>{initials(student.name)}</span><span className="student-card__info"><strong>{student.name}</strong><span>Aluno vinculado</span></span><span className="student-card__arrow" aria-hidden="true">›</span>
-          </Link>
-          <button className="student-card__remove" type="button" onClick={() => removeStudent(student)} disabled={removingStudentId === student.id} aria-label={`Remover ${student.name}`} title="Remover aluno"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 14h10l1-14M9 7V4h6v3"/><path d="M18 4v6m-3-3h6"/></svg></button>
-        </div>) : <div className="students-empty"><span className="students-empty__icon" aria-hidden="true">♧</span><strong>{query ? 'Nenhum aluno encontrado' : 'Sua lista começa aqui'}</strong><span>{query ? 'Tente buscar por outro nome.' : 'Adicione um aluno para acompanhar os treinos por aqui.'}</span></div>}
-      </section>
-      <button className="students-add-button students-add-button--mobile" type="button" onClick={() => setShowInvite(true)}><span>＋</span> Adicionar aluno</button>
+
+      <div className="students-workspace">
+        <section className="students-roster" aria-label="Lista de alunos">
+          <div className="students-roster__heading">
+            <div><p className="students-eyebrow">ACOMPANHAMENTO</p><h2>Seus alunos <span className="students-total">{students.length}</span></h2></div>
+            <span className="students-roster__caption"><UsersRound size={15} />Vínculos ativos</span>
+          </div>
+          <label className="students-search"><Search size={18} aria-hidden="true" /><input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Buscar por nome" aria-label="Buscar aluno" />{query && <button type="button" onClick={() => setQuery('')} aria-label="Limpar busca"><X size={15} /></button>}</label>
+
+          <div className="students-list">
+            {loading ? <div className="students-loading" aria-label="Carregando alunos">{[0, 1, 2].map((item) => <div className="students-skeleton" key={item}><span /><i /><b /></div>)}</div> : filteredStudents.length ? <FadeContent className="students-list__items" trigger="mount" duration={0.42} stagger={0.055}>
+              {filteredStudents.map((student) => <article className="student-card" key={student.id}>
+                <Link className="student-card__link" to={`/alunos/${student.id}`}>
+                  <span className="student-card__avatar">{initials(student.name)}</span>
+                  <span className="student-card__info"><strong>{student.name}</strong><span><i className="status-dot status-dot--done" />Aluno vinculado</span></span>
+                  <span className="student-card__open">Abrir perfil <ArrowRight size={16} /></span>
+                  <span className="student-card__mobile-arrow" aria-hidden="true"><ChevronRight size={19} /></span>
+                </Link>
+                <button className="student-card__remove" type="button" onClick={() => removeStudent(student)} disabled={removingStudentId === student.id} aria-label={`Remover ${student.name}`} title="Remover aluno"><Trash2 size={17} /></button>
+              </article>)}
+            </FadeContent> : <div className="students-empty"><span className="students-empty__icon"><UsersRound size={21} /></span><strong>{query ? 'Nenhum aluno encontrado' : 'Sua lista começa aqui'}</strong><span>{query ? 'Tente buscar por outro nome.' : 'Adicione um aluno para acompanhar os treinos por aqui.'}</span>{!query && <button type="button" onClick={() => setShowInvite(true)}>Adicionar primeiro aluno <ArrowRight size={15} /></button>}</div>}
+          </div>
+        </section>
+
+        <aside className="students-invitations" aria-label="Convites pendentes">
+          <div className="students-invitations__heading"><div><p className="students-eyebrow">AGUARDANDO ACEITE</p><h2>Convites</h2></div><span className="students-total">{pendingInvitations.length}</span></div>
+          {pendingInvitations.length ? <div className="pending-invitations__list">{pendingInvitations.map((invitation) => <article className="pending-invitation" key={invitation.id}>
+            <div className="pending-invitation__student"><span className="pending-invitation__icon"><Clock3 size={17} /></span><div><strong>{invitation.alunoNome}</strong><span>Expira em {new Intl.DateTimeFormat('pt-BR', { day: '2-digit', month: 'short' }).format(new Date(invitation.expiraEm))}</span></div></div>
+            <div className="pending-invitation__code"><code>{invitation.codigo}</code><button type="button" onClick={() => copyPendingCode(invitation)} aria-label={`Copiar código de convite para ${invitation.alunoNome}`}>{copiedInvitationId === invitation.id ? <><Check size={14} /> Copiado</> : <><Copy size={14} /> Copiar</>}</button></div>
+          </article>)}</div> : <div className="invitations-empty"><span><Check size={17} /></span><strong>Nenhum convite pendente</strong><p>Quando convidar alguém, o código e o prazo de aceite aparecem aqui.</p></div>}
+        </aside>
+      </div>
+      <button className="students-mobile-add" type="button" onClick={() => setShowInvite(true)}><UserPlus size={18} />Adicionar aluno</button>
     </div>
     {showInvite && <InviteStudentDialog onClose={() => setShowInvite(false)} onCreated={loadStudents} />}
   </main>
 }
-
 
 export default StudentsPage

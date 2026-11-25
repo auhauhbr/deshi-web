@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useLocation, useParams } from 'react-router-dom'
 import { Activity, Clock3, MessageSquareText, UserRound } from 'lucide-react'
 import ProfessionalNavigation from '../../components/ProfessionalNavigation.jsx'
 import AccountMenu from '../../components/AccountMenu.jsx'
@@ -109,6 +109,9 @@ function ExerciseCard({ activity, index }) {
 
 export default function ProfessionalSessionDetails() {
   const { sessionId } = useParams()
+  const location = useLocation()
+  const returnTo = location.state?.from || '/home'
+  const returnLabel = returnTo.startsWith('/alunos/') ? 'Voltar ao perfil' : 'Voltar para início'
   const [session, setSession] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -133,7 +136,7 @@ export default function ProfessionalSessionDetails() {
     <ProfessionalNavigation />
     <div className="professional-session-page__container">
       <header className="professional-session-page__topbar">
-        <SlideTextButton className="professional-session-page__back" variant="ghost" text="Voltar à atividade recente" hoverText="Voltar para início" to="/home" animateIn={false} />
+        <SlideTextButton className="professional-session-page__back" variant="ghost" text="Voltar" hoverText={returnLabel} to={returnTo} animateIn={false} />
         <AccountMenu fallbackLabel="Profissional" />
       </header>
 

@@ -90,7 +90,7 @@ function ProfessionalHomePage() {
               {loading ? <p className="empty-state">Carregando atividades…</p> : dashboard?.recentActivities?.length ? dashboard.recentActivities.map((activity) => {
                 const interrupted = activity.type === 'interrupted'
                 const Icon = interrupted ? CirclePause : Check
-                return <Link className="activity-row" key={activity.id} to={`/professional/sessions/${encodeURIComponent(activity.id)}`} aria-label={`Ver sessão de ${activity.studentName || 'aluno'}: ${activity.programName || activity.title}`}>
+                return <Link className="activity-row" key={activity.id} to={`/professional/sessions/${encodeURIComponent(activity.id)}`} state={{ from: '/home' }} aria-label={`Ver sessão de ${activity.studentName || 'aluno'}: ${activity.programName || activity.title}`}>
                   <span className={`activity-icon activity-icon--${activity.type}`} aria-hidden="true"><Icon size={17} strokeWidth={2} /></span>
                   <div className="activity-row__main">
                     <strong>{activity.studentName ? <>{activity.studentName}<span className="activity-row__separator"> · </span>{activity.programName}</> : activity.title}</strong>
