@@ -43,7 +43,17 @@ function RegisterPage() {
     }
   }
 
-  return <AuthLayout pageClassName="register-page" title="Crie sua conta" subtitle="Leva apenas alguns instantes para começar." footerText="Já possui uma conta?" footerLink="/login" footerLinkText="Entrar">
+  return <AuthLayout
+    pageClassName="register-page"
+    title="Criar uma conta"
+    subtitle="Escolha como você vai usar o Deshi."
+    introTitle="Uma rotina melhor, aluno por aluno."
+    introDescription="Crie seu acesso para organizar treinos ou acompanhar os programas que recebeu."
+    introFooter="Para profissionais independentes e seus alunos."
+    footerText="Já possui uma conta?"
+    footerLink="/login"
+    footerLinkText="Entrar"
+  >
     <form className="auth-form" onSubmit={handleSubmit} noValidate>
       <div className="field"><label htmlFor="nome">Nome completo</label><input id="nome" name="nome" type="text" autoComplete="name" placeholder="Como você quer ser chamado?" value={form.nome} onChange={updateField} required /></div>
       <div className="field"><label htmlFor="email">E-mail</label><input id="email" name="email" type="email" autoComplete="email" placeholder="voce@exemplo.com" value={form.email} onChange={updateField} required /></div>
@@ -53,7 +63,7 @@ function RegisterPage() {
         <label className={`profile-option ${form.perfil === 'aluno' ? 'selected' : ''}`}><input type="radio" name="perfil" value="aluno" checked={form.perfil === 'aluno'} onChange={updateField} /><span>Sou aluno</span><small>Acompanho meus treinos</small></label>
       </div></fieldset>
       {message && <p className="form-message" role="alert">{message}</p>}
-      <button className="primary-button" type="submit" disabled={isSubmitting}>{isSubmitting ? 'Criando conta...' : 'Criar conta'}</button>
+      <button className="auth-submit" type="submit" disabled={isSubmitting}>{isSubmitting ? 'Criando conta...' : 'Criar conta'}</button>
     </form>
   </AuthLayout>
 }
