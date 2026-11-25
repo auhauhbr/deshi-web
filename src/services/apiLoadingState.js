@@ -1,5 +1,6 @@
 let pendingRequests = 0
 let visible = false
+let suppressionCount = 0
 const subscribers = new Set()
 
 function notify() {
@@ -15,16 +16,29 @@ export function getApiLoadingSnapshot() {
   return visible
 }
 
+function syncVisibility() {
+  const shouldBeVisible = pendingRequests > 0 && suppressionCount === 0
+  if (visible === shouldBeVisible) return
+  visible = shouldBeVisible
+  notify()
+}
+
 export function beginApiRequest() {
   pendingRequests += 1
-  if (visible) return
-  visible = true
-  notify()
+  syncVisibility()
 }
 
 export function endApiRequest() {
   pendingRequests = Math.max(0, pendingRequests - 1)
-  if (pendingRequests > 0 || !visible) return
-  visible = false
-  notify()
+  syncVisibility()
+}
+
+export function suppressApiLoadingScreen() {
+  suppressionCount += 1
+  syncVisibility()
+}
+
+export function resumeApiLoadingScreen() {
+  suppressionCount = Math.max(0, suppressionCount - 1)
+  syncVisibility()
 }

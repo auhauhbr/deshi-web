@@ -1,16 +1,22 @@
 import { useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import AppRoutes from './routes.jsx'
 import DatabaseLoadingScreen from './components/DatabaseLoadingScreen.jsx'
+import { resumeApiLoadingScreen } from './services/apiLoadingState.js'
 
 function App() {
   const navigate = useNavigate()
+  const location = useLocation()
 
   useEffect(() => {
     const handleSessionExpired = () => navigate('/sessao-expirada', { replace: true })
     window.addEventListener('deshi:session-expired', handleSessionExpired)
     return () => window.removeEventListener('deshi:session-expired', handleSessionExpired)
   }, [navigate])
+
+  useEffect(() => {
+    if (location.pathname !== '/home') resumeApiLoadingScreen()
+  }, [location.pathname])
 
   return (
     <>

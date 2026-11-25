@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import AuthLayout from '../../components/AuthLayout.jsx'
 import PasswordField from '../../components/PasswordField.jsx'
 import { getApiErrorMessage, loginUser } from '../../services/authService.js'
+import { suppressApiLoadingScreen } from '../../services/apiLoadingState.js'
 import './Login.css'
 
 function LoginPage() {
@@ -28,6 +29,9 @@ function LoginPage() {
     setMessage('')
     try {
       const user = await loginUser({ email: form.email, password: form.senha })
+      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        suppressApiLoadingScreen()
+      }
       navigate('/home', {
         replace: true,
         state: { profile: user.profile, playLoginReveal: true },

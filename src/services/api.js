@@ -13,8 +13,9 @@ api.interceptors.request.use((config) => {
   const token = localStorage.getItem(TOKEN_STORAGE_KEY)
 
   if (token) config.headers.Authorization = `Bearer ${token}`
-  config.__deshiLoadingTracked = true
-  beginApiRequest()
+  const requestPath = (config.url || '').split('?')[0].replace(/\/+$/, '')
+  config.__deshiLoadingTracked = requestPath !== '/login'
+  if (config.__deshiLoadingTracked) beginApiRequest()
 
   return config
 })

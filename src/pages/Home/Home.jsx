@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import StudentBottomNav from '../../components/StudentBottomNav.jsx'
 import StudentButton from '../../components/StudentButton.jsx'
 import BrandLogo from '../../components/BrandLogo.jsx'
+import { resumeApiLoadingScreen } from '../../services/apiLoadingState.js'
 import './Home.css'
 
 const FitnessScene = lazy(() => import('../../components/FitnessScene.jsx'))
@@ -16,6 +17,15 @@ function HomePage() {
     && !window.matchMedia('(prefers-reduced-motion: reduce)').matches
   ))
 
+  function finishLoginReveal() {
+    setIsLoginRevealVisible(false)
+    resumeApiLoadingScreen()
+  }
+
+  useEffect(() => {
+    if (location.state?.playLoginReveal && !isLoginRevealVisible) resumeApiLoadingScreen()
+  }, [isLoginRevealVisible, location.state])
+
   useEffect(() => {
     if (!location.state?.playLoginReveal) return
     navigate('/home', {
@@ -28,12 +38,12 @@ function HomePage() {
     if (!isLoginRevealVisible) return undefined
 
     function skipOnEscape(event) {
-      if (event.key === 'Escape') setIsLoginRevealVisible(false)
+      if (event.key === 'Escape') finishLoginReveal()
     }
 
     window.addEventListener('keydown', skipOnEscape)
     const playPromise = videoRef.current?.play()
-    playPromise?.catch(() => setIsLoginRevealVisible(false))
+    playPromise?.catch(finishLoginReveal)
 
     return () => window.removeEventListener('keydown', skipOnEscape)
   }, [isLoginRevealVisible])
@@ -76,8 +86,8 @@ function HomePage() {
               muted
               playsInline
               preload="auto"
-              onEnded={() => setIsLoginRevealVisible(false)}
-              onError={() => setIsLoginRevealVisible(false)}
+              onEnded={finishLoginReveal}
+              onError={finishLoginReveal}
             />
           </div>
         </div>
