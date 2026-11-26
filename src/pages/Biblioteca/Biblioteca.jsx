@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { Check, Dumbbell, ListFilter, Plus, Search, SlidersHorizontal, X } from 'lucide-react'
-import ProfessionalNavigation from '../../components/ProfessionalNavigation.jsx'
 import ActivityListItem from '../../components/ActivityListItem.jsx'
 import Loader from '../../components/kokonutui/loader.jsx'
 import { listarAtividades } from '../../services/atividades.service.js'
@@ -85,7 +84,6 @@ export default function BibliotecaPage() {
 
   return (
     <div className="activities-page-shell library-page-shell">
-      <ProfessionalNavigation />
       <main className="activities-main library-main">
         <header className="library-heading">
           <div>

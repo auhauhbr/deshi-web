@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { ArrowDown, ArrowLeft, ArrowUp, Check, Dumbbell, Plus, Save, Trash2, UserRound } from 'lucide-react'
-import ProfessionalNavigation from '../../components/ProfessionalNavigation.jsx'
 import SlideTextButton from '../../components/kokonutui/slide-text-button.jsx'
 import { api } from '../../services/api.js'
 import { getApiErrorMessage } from '../../services/authService.js'
@@ -135,11 +134,10 @@ function TrainingProgramEditorPage() {
     }
   }
 
-  if (screen.phase === 'loading') return <main className="training-program-page"><ProfessionalNavigation /><div className="training-program-page__container"><div className="training-program-status" role="status"><span className="training-program-spinner" /><span>Carregando programa…</span></div></div></main>
-  if (screen.phase === 'error') return <main className="training-program-page"><ProfessionalNavigation /><div className="training-program-page__container"><Link className="training-program-back" to={editProfilePath}><ArrowLeft size={16} /> Voltar ao perfil</Link><div className="training-program-error" role="alert">{screen.error}</div></div></main>
+  if (screen.phase === 'loading') return <main className="training-program-page"><div className="training-program-page__container"><div className="training-program-status" role="status"><span className="training-program-spinner" /><span>Carregando programa…</span></div></div></main>
+  if (screen.phase === 'error') return <main className="training-program-page"><div className="training-program-page__container"><Link className="training-program-back" to={editProfilePath}><ArrowLeft size={16} /> Voltar ao perfil</Link><div className="training-program-error" role="alert">{screen.error}</div></div></main>
 
   return <main className="training-program-page">
-    <ProfessionalNavigation />
     <div className="training-program-page__container">
       <header className="training-program-header">
         <Link className="training-program-back" to={editProfilePath}><ArrowLeft size={16} /> Perfil de {screen.student.name}</Link>

@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { ArrowRight, Dumbbell, ListFilter, Plus, Search, SlidersHorizontal, X } from 'lucide-react'
-import ProfessionalNavigation from '../../components/ProfessionalNavigation.jsx'
 import ActivityListItem from '../../components/ActivityListItem.jsx'
 import PageAppBar from '../../components/PageAppBar.jsx'
 import FadeContent from '../../components/FadeContent.jsx'
@@ -77,7 +76,6 @@ export default function AtividadesPage() {
 
   return (
     <div className="activities-page-shell">
-      <ProfessionalNavigation />
       <main className="activities-main">
         {programContext ? <PageAppBar title="Adicionar atividade" backTo={returnTo} backLabel="Voltar ao programa" onBack={() => navigate(returnTo, { state: { programDraft } })} /> : <div className="activities-heading">
           <div>

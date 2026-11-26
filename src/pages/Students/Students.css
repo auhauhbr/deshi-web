@@ -1,5 +1,6 @@
 .students-page {
   min-height: 100svh;
+  overflow-x: clip;
   padding: clamp(1.25rem, 3vw, 2.5rem) 1rem calc(6rem + env(safe-area-inset-bottom));
   background: var(--color-professional-background);
   color: var(--color-professional-ink);
@@ -73,9 +74,9 @@
 .pending-invitation__student > div { min-width: 0; display: flex; flex-direction: column; gap: .2rem; }
 .pending-invitation__student strong { overflow: hidden; color: var(--color-professional-ink); font-size: .84rem; text-overflow: ellipsis; white-space: nowrap; }
 .pending-invitation__student span { color: var(--color-professional-muted); font-size: .72rem; }
-.pending-invitation__code { min-height: 2.7rem; display: flex; align-items: center; justify-content: space-between; gap: .5rem; margin: .75rem 0 0; padding: .35rem .45rem .35rem .7rem; border: 1px dashed var(--color-professional-border); border-radius: .65rem; background: var(--color-surface); }
-.pending-invitation__code code { overflow: hidden; color: var(--color-professional-ink); font-family: var(--font-family-secondary); font-size: .96rem; font-weight: 700; letter-spacing: .12em; text-overflow: ellipsis; }
-.pending-invitation__code button { min-height: 2rem; display: inline-flex; align-items: center; justify-content: center; gap: .3rem; padding: 0 .55rem; border: 0; border-radius: .45rem; background: var(--color-professional-green-light); color: var(--color-professional-green); font: inherit; font-size: .7rem; font-weight: 700; cursor: pointer; transition: background var(--transition-fast), transform var(--transition-fast); }
+.pending-invitation__code { min-height: 2.7rem; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem; margin: .75rem 0 0; padding: .35rem .45rem .35rem .7rem; border: 1px dashed var(--color-professional-border); border-radius: .65rem; background: var(--color-surface); }
+.pending-invitation__code input { min-width: 0; flex: 1 1 10ch; padding: 0; border: 0; border-radius: .15rem; background: transparent; color: var(--color-professional-ink); font-family: var(--font-family-secondary); font-size: .96rem; font-weight: 700; letter-spacing: .12em; }
+.pending-invitation__code button { --particle-color: var(--color-professional-green); min-height: 2rem; display: inline-flex; align-items: center; justify-content: center; gap: .3rem; padding: 0 .55rem; border: 0; border-radius: .45rem; background: var(--color-professional-green-light); color: var(--color-professional-green-active); font: inherit; font-size: .7rem; font-weight: 700; cursor: pointer; transition: background var(--transition-fast), transform var(--transition-fast); }
 .pending-invitation__code button:hover { background: color-mix(in srgb, var(--color-primary) 20%, var(--color-professional-green-light)); }
 .pending-invitation__code button:active { transform: scale(.96); }
 .invitations-empty { padding: 1.25rem 0; border-top: 1px solid var(--color-professional-border); }
@@ -99,7 +100,7 @@
 @keyframes student-skeleton-pulse { to { opacity: .48; } }
 
 .invite-backdrop { position: fixed; z-index: 30; inset: 0; display: flex; align-items: flex-end; justify-content: center; padding: 0; background: var(--color-overlay); backdrop-filter: blur(5px); }
-.invite-dialog { position: relative; width: min(100%, 440px); max-height: min(92svh, 660px); overflow-y: auto; padding: 2rem 1.35rem calc(1.5rem + env(safe-area-inset-bottom)); border: 1px solid var(--color-border); border-radius: 1.35rem 1.35rem 0 0; background: var(--color-surface-raised); color: var(--color-text); box-shadow: var(--shadow-dropdown); animation: invite-sheet-in .22s cubic-bezier(.2,.8,.2,1); }
+.invite-dialog { position: relative; width: min(100%, 440px); max-height: min(92svh, 660px); overflow-x: hidden; overflow-y: auto; padding: 2rem 1.35rem calc(1.5rem + env(safe-area-inset-bottom)); border: 1px solid var(--color-border); border-radius: 1.35rem 1.35rem 0 0; background: var(--color-surface-raised); color: var(--color-text); box-shadow: var(--shadow-dropdown); animation: invite-sheet-in .22s cubic-bezier(.2,.8,.2,1); }
 @keyframes invite-sheet-in { from { transform: translateY(18px); opacity: .7; } to { transform: translateY(0); opacity: 1; } }
 .invite-dialog__close { position: absolute; right: 1rem; top: 1rem; width: 2.35rem; height: 2.35rem; display: grid; place-items: center; border: 1px solid var(--color-border); border-radius: .7rem; background: var(--color-surface); color: var(--color-text-secondary); cursor: pointer; transition: color var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast); }
 .invite-dialog__close:hover { border-color: var(--color-border-focus); color: var(--color-text); }
@@ -117,7 +118,8 @@
 .students-primary-button:disabled { opacity: .6; cursor: wait; }
 .invite-error { margin: .65rem 0 0; color: var(--color-error); font-size: .82rem; }
 .invite-dialog__success { width: 2.8rem; height: 2.8rem; margin-bottom: 1rem; display: grid; place-items: center; border-radius: 50%; background: var(--color-success-surface); color: var(--color-success); }
-.invite-code { padding: 1rem; border: 1px dashed var(--color-professional-green); border-radius: .75rem; background: var(--color-professional-green-light); color: var(--color-professional-forest); text-align: center; font-family: var(--font-family-secondary); font-size: 1.6rem; font-weight: 800; letter-spacing: .2em; }
+.invite-code { width: 100%; padding: 1rem; border: 1px dashed var(--color-professional-green); border-radius: .75rem; background: var(--color-professional-green-light); color: var(--color-professional-forest); text-align: center; font-family: var(--font-family-secondary); font-size: 1.6rem; font-weight: 800; letter-spacing: .2em; }
+.students-page [data-particle-feedback="error"] { flex: 1 0 100%; margin: .4rem 0 0; color: var(--color-error); font-size: .8rem; }
 .invite-dialog__secondary { width: 100%; min-height: 2.8rem; margin-top: .4rem; border: 0; background: transparent; color: var(--color-text-secondary); font: inherit; font-weight: 700; cursor: pointer; }
 
 @media (min-width: 800px) {
@@ -169,5 +171,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .students-primary-button[data-status]:active, .pending-invitation__code button:active { transform: none; }
   .students-page *, .students-page *::before, .students-page *::after, .invite-dialog { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
 }

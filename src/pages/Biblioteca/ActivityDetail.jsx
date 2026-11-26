@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation, useParams } from 'react-router-dom'
 import { ArrowUpRight, Dumbbell, Layers3, Pencil, Tag } from 'lucide-react'
-import ProfessionalNavigation from '../../components/ProfessionalNavigation.jsx'
 import PageAppBar from '../../components/PageAppBar.jsx'
 import ExerciseMedia from '../../components/ExerciseMedia.jsx'
 import { useModalidadesCatalogo } from '../../hooks/useModalidadesCatalogo.js'
@@ -41,7 +40,6 @@ export default function ActivityDetailPage() {
 
   return (
     <main className="activity-detail-page">
-      <ProfessionalNavigation />
       <div className="activity-detail-content">
         <PageAppBar title="Detalhes do exercício" backTo={returnTo} backLabel="Voltar para a biblioteca" />
         {phase === 'loading' && <div className="activity-detail-state" role="status"><span className="loading-dot" aria-hidden="true" />Carregando exercício...</div>}

@@ -88,7 +88,7 @@
 @keyframes training-program-spin { to { transform: rotate(360deg); } }
 
 @media (min-width: 800px) {
-  .training-program-page { min-height: 100vh; padding: 2rem 2.5rem 2.5rem 16rem; }
+  .training-program-page { min-height: 100vh; padding: 2rem 2.5rem 2.5rem 2rem; }
   .training-program-header { margin-bottom: 1.7rem; }
   .training-program-section { padding: 1.35rem; }
   .training-program-footer { bottom: 1rem; }

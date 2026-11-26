@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowRight, Check, CirclePause, Clock3, Radio } from 'lucide-react'
 import { api } from '../../services/api.js'
-import ProfessionalNavigation from '../../components/ProfessionalNavigation.jsx'
 import FadeContent from '../../components/FadeContent.jsx'
 import SlideTextButton from '../../components/kokonutui/slide-text-button.jsx'
 import './ProfessionalHome.css'
@@ -44,7 +43,6 @@ function ProfessionalHomePage() {
   const today = new Intl.DateTimeFormat('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date())
 
   return <main className="professional-home">
-    <ProfessionalNavigation />
     <div className="professional-home__container">
       <header className="professional-home__header">
         <div className="professional-home__intro">

@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { ArrowRight, Dumbbell, ImagePlus } from 'lucide-react'
-import ProfessionalNavigation from '../../components/ProfessionalNavigation.jsx'
 import PageAppBar from '../../components/PageAppBar.jsx'
 import ExerciseMedia from '../../components/ExerciseMedia.jsx'
 import Loader from '../../components/kokonutui/loader.jsx'
@@ -104,7 +103,6 @@ export default function NovaAtividadePage() {
 
   return (
     <main className="new-activity-page">
-      <ProfessionalNavigation />
       <div className="new-activity-page__container">
         <PageAppBar title={isEditing ? 'Editar atividade' : 'Nova atividade'} backTo={returnTo} backLabel="Voltar para a biblioteca" />
         <div className="new-activity-intro"><h2>{isEditing ? 'Ajuste os detalhes do movimento' : 'Descreva o movimento'}</h2><p>Nome e modalidade identificam o exercício. Os demais dados ajudam a encontrá-lo e reconhecê-lo na biblioteca.</p></div>

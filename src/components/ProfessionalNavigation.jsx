@@ -1,8 +1,4 @@
-import { useState } from 'react'
-import { NavLink, useNavigate } from 'react-router-dom'
-import { LogOut } from 'lucide-react'
-import BrandLogo from './BrandLogo.jsx'
-import { logoutUser } from '../services/authService.js'
+import { NavLink } from 'react-router-dom'
 import './ProfessionalNavigation.css'
 
 const items = [
@@ -13,18 +9,7 @@ const items = [
 ]
 
 function ProfessionalNavigation() {
-  const navigate = useNavigate()
-  const [loggingOut, setLoggingOut] = useState(false)
-
-  async function handleLogout() {
-    if (loggingOut) return
-    setLoggingOut(true)
-    try { await logoutUser() } catch { /* A sessão local também é removida quando a API está indisponível. */ }
-    navigate('/login', { replace: true, state: { message: 'Você saiu da sua conta com segurança.' } })
-  }
-
   return <nav className="professional-nav" aria-label="Navegação principal">
-    <div className="professional-nav__brand"><BrandLogo className="professional-nav__brand-logo" variant="adaptive" to="/home" /></div>
     <div className="professional-nav__items">
       {items.map((item) => item.path ? <NavLink key={item.label} to={item.path} end={item.path === '/home'} className={({ isActive }) => `professional-nav__item${isActive ? ' is-active' : ''}`}>
         <svg viewBox="0 0 24 24" aria-hidden="true">{item.icon}</svg><span>{item.label}</span>
@@ -33,9 +18,6 @@ function ProfessionalNavigation() {
       </button>)}
     </div>
     <span className="professional-nav__caption">Seu treino, no seu ritmo.</span>
-    <button className="professional-nav__logout" type="button" onClick={handleLogout} disabled={loggingOut}>
-      <LogOut aria-hidden="true" /><span>{loggingOut ? 'Saindo...' : 'Sair da conta'}</span>
-    </button>
   </nav>
 }
 

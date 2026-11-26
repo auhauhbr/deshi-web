@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { Navigate, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { ArrowRight, Check, Dumbbell, Target } from 'lucide-react'
-import ProfessionalNavigation from '../../components/ProfessionalNavigation.jsx'
 import PageAppBar from '../../components/PageAppBar.jsx'
 import ExerciseMedia from '../../components/ExerciseMedia.jsx'
 import { useModalidadesCatalogo } from '../../hooks/useModalidadesCatalogo.js'
@@ -237,7 +236,6 @@ function ConfigurarAtividade({ atividadeId, programContext, returnTo }) {
 
   return (
     <main className="configure-activity-page">
-      <ProfessionalNavigation />
       <div className="configure-activity-page__container">
         <PageAppBar title={programContext ? 'Metas da atividade' : 'Configurar atividade'} backTo={programContext ? '/atividades' : returnTo} backLabel={programContext ? 'Voltar à seleção' : 'Voltar para a biblioteca'} onBack={handleBack} />
         {programContext && <section className="configure-activity-context" aria-label="Programa em edição"><span className="configure-activity-context__icon"><Dumbbell size={19} aria-hidden="true" /></span><span className="configure-activity-context__copy"><span>Programa em edição</span><strong>{programContext.programDraft.nome || 'Novo programa'}</strong></span><span className="configure-activity-context__status">Rascunho</span></section>}

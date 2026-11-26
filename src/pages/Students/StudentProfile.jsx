@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { ArrowLeft, ArrowRight, CalendarDays, Check, Clock3, Dumbbell, Mail, MessageSquareText } from 'lucide-react'
-import ProfessionalNavigation from '../../components/ProfessionalNavigation.jsx'
 import WeightTrendChart from '../../components/WeightTrendChart.jsx'
 import FadeContent from '../../components/FadeContent.jsx'
 import SlideTextButton from '../../components/kokonutui/slide-text-button.jsx'
@@ -142,7 +141,6 @@ function StudentProfilePage() {
   const metricLabels = { weight: 'Carga', repetitions: 'Repetições', reps: 'Repetições', series: 'Séries', duration: 'Duração', distance: 'Distância' }
 
   return <main className="students-page student-detail-page">
-    <ProfessionalNavigation />
     <div className="students-page__container">
       <header className="student-detail-toolbar"><button className="student-detail-back" type="button" onClick={() => navigate('/alunos')} aria-label="Voltar para alunos"><ArrowLeft size={18} /></button><span>Perfil do aluno</span><span className="student-detail-toolbar__spacer" /></header>
       {profileLoading ? <p className="students-message">Carregando perfil do aluno…</p> : error ? <p className="students-message students-message--error" role="alert">{error}</p> : <>

@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
 import HomeEntry from './components/HomeEntry.jsx'
+import ProfessionalLayout from './components/ProfessionalLayout.jsx'
 import LoginPage from './pages/Login/Login.jsx'
 import RegisterPage from './pages/Register/Register.jsx'
 import LandingPage from './pages/Landing/Landing.jsx'
@@ -32,19 +33,21 @@ function AppRoutes() {
       <Route path="/sessao-expirada" element={<SessionExpiredPage />} />
       <Route path="/" element={<LandingPage />} />
       <Route path="/home" element={<ProtectedRoute><HomeEntry /></ProtectedRoute>} />
-      <Route path="/modalidades" element={<ProtectedRoute profile="PROFESSIONAL"><ModalidadesPage /></ProtectedRoute>} />
-      <Route path="/atividades" element={<ProtectedRoute profile="PROFESSIONAL"><AtividadesPage /></ProtectedRoute>} />
-      <Route path="/biblioteca" element={<ProtectedRoute profile="PROFESSIONAL"><BibliotecaPage /></ProtectedRoute>} />
-      <Route path="/biblioteca/atividades/:id" element={<ProtectedRoute profile="PROFESSIONAL"><ActivityDetailPage /></ProtectedRoute>} />
-      <Route path="/perfil" element={<ProtectedRoute profile="PROFESSIONAL"><ProfessionalProfilePage /></ProtectedRoute>} />
-      <Route path="/atividades/nova" element={<ProtectedRoute profile="PROFESSIONAL"><NovaAtividadePage /></ProtectedRoute>} />
-      <Route path="/atividades/:id/editar" element={<ProtectedRoute profile="PROFESSIONAL"><NovaAtividadePage /></ProtectedRoute>} />
-      <Route path="/atividades/:id/configurar" element={<ProtectedRoute profile="PROFESSIONAL"><ConfigurarAtividadePage /></ProtectedRoute>} />
-      <Route path="/alunos" element={<ProtectedRoute profile="PROFESSIONAL"><StudentsPage /></ProtectedRoute>} />
-      <Route path="/alunos/:studentId" element={<ProtectedRoute profile="PROFESSIONAL"><StudentProfilePage /></ProtectedRoute>} />
-      <Route path="/alunos/:studentId/programas/novo" element={<ProtectedRoute profile="PROFESSIONAL"><TrainingProgramEditorPage /></ProtectedRoute>} />
-      <Route path="/alunos/:studentId/programas/:programId/editar" element={<ProtectedRoute profile="PROFESSIONAL"><TrainingProgramEditorPage /></ProtectedRoute>} />
-      <Route path="/professional/sessions/:sessionId" element={<ProtectedRoute profile="PROFESSIONAL"><ProfessionalSessionDetails /></ProtectedRoute>} />
+      <Route element={<ProtectedRoute profile="PROFESSIONAL"><ProfessionalLayout /></ProtectedRoute>}>
+        <Route path="/modalidades" element={<ModalidadesPage />} />
+        <Route path="/atividades" element={<AtividadesPage />} />
+        <Route path="/biblioteca" element={<BibliotecaPage />} />
+        <Route path="/biblioteca/atividades/:id" element={<ActivityDetailPage />} />
+        <Route path="/perfil" element={<ProfessionalProfilePage />} />
+        <Route path="/atividades/nova" element={<NovaAtividadePage />} />
+        <Route path="/atividades/:id/editar" element={<NovaAtividadePage />} />
+        <Route path="/atividades/:id/configurar" element={<ConfigurarAtividadePage />} />
+        <Route path="/alunos" element={<StudentsPage />} />
+        <Route path="/alunos/:studentId" element={<StudentProfilePage />} />
+        <Route path="/alunos/:studentId/programas/novo" element={<TrainingProgramEditorPage />} />
+        <Route path="/alunos/:studentId/programas/:programId/editar" element={<TrainingProgramEditorPage />} />
+        <Route path="/professional/sessions/:sessionId" element={<ProfessionalSessionDetails />} />
+      </Route>
       <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
       <Route path="/invites/accept" element={<ProtectedRoute><AcceptInvitePage /></ProtectedRoute>} />
       <Route path="/sessions/start" element={<ProtectedRoute><StartSession /></ProtectedRoute>} />
