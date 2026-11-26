@@ -375,17 +375,6 @@ function ProfilePage() {
     <main className="start-session-page profile-page">
       <header className="session-header profile-header">
         <div className="session-brand"><BrandLogo className="session-brand-logo" variant="adaptive" to="/home" /></div>
-        <StudentButton
-          variant="icon"
-          type="button"
-          className="profile-logout-icon"
-          onClick={handleLogout}
-          disabled={isLoggingOut}
-          aria-label={isLoggingOut ? 'Saindo da conta' : 'Sair da conta'}
-          title="Sair da conta"
-        >
-          <ExitIcon />
-        </StudentButton>
       </header>
 
       <section className="profile-dashboard-content">
@@ -681,6 +670,13 @@ function ProfilePage() {
           </section>
         </div>
       ), document.body)}
+
+      <section className="profile-logout-section" aria-label="Sair da conta">
+        <div><strong>Quer sair da sua conta?</strong><span>Você poderá entrar novamente a qualquer momento.</span></div>
+        <StudentButton variant="secondary" type="button" onClick={handleLogout} disabled={isLoggingOut}>
+          <ExitIcon />{isLoggingOut ? 'Saindo...' : 'Sair da conta'}
+        </StudentButton>
+      </section>
 
       <StudentBottomNav active="profile" onEditProfile={openProfileEditor} />
     </main>

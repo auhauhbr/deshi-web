@@ -5,6 +5,7 @@
 .professional-nav__item svg { width: 1.35rem; height: 1.35rem; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 .professional-nav__item.is-active { color: var(--color-primary-active); }
 .professional-nav__item:disabled { cursor: default; opacity: 1; }
+.professional-nav__logout { display: none; }
 @media (min-width: 800px) {
   .professional-nav { top: 0; right: auto; bottom: 0; width: 224px; min-height: 100vh; padding: 1.5rem 1rem; display: flex; flex-direction: column; justify-content: flex-start; align-items: stretch; border-top: 0; border-right: 1px solid var(--color-border); box-shadow: 8px 0 28px color-mix(in srgb, var(--color-text) 5%, transparent); }
   .professional-nav__brand { display: flex; align-items: center; padding: 0 .7rem 2.5rem; }
@@ -16,4 +17,9 @@
   .professional-nav__item.is-active { background: var(--color-primary-light); color: var(--color-primary-active); font-weight: var(--font-weight-bold); }
   .professional-nav__item:not(.is-active):not(:disabled):hover { background: var(--color-surface-secondary); color: var(--color-text); }
   .professional-nav__caption { display: block; margin: auto .8rem .7rem; color: var(--color-text-secondary); font-size: var(--font-size-xs); }
+  .professional-nav__logout { display: flex; width: 100%; min-height: 3rem; flex: none; align-items: center; gap: .75rem; padding: 0 .85rem; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: transparent; color: var(--color-error); text-align: left; font: inherit; font-size: .88rem; font-weight: var(--font-weight-semibold); cursor: pointer; transition: background var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast); }
+  .professional-nav__logout svg { width: 1.1rem; height: 1.1rem; stroke-width: 1.8; }
+  .professional-nav__logout:hover:not(:disabled) { transform: translateY(-1px); border-color: color-mix(in srgb, var(--color-error) 35%, var(--color-border)); background: var(--color-error-surface); }
+  .professional-nav__logout:focus-visible { outline: 3px solid color-mix(in srgb, var(--color-error) 32%, transparent); outline-offset: 3px; }
+  .professional-nav__logout:disabled { cursor: wait; opacity: .65; }
 }

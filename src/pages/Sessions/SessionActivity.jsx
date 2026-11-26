@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { getApiErrorMessage } from '../../services/authService.js'
 import StudentButton from '../../components/StudentButton.jsx'
-import StudentAccountMenu from '../../components/StudentAccountMenu.jsx'
 import ExerciseMedia from '../../components/ExerciseMedia.jsx'
 import { METRICAS_ATIVIDADE } from '../../utils/metricas-atividade.js'
 import {
@@ -320,7 +319,6 @@ function SessionActivity() {
         </button>
         <span>ATIVIDADE {activity.order}</span>
       </header>
-      <StudentAccountMenu />
 
       <section className="activity-player-main" aria-label={label}>
         <div className="activity-player-title">

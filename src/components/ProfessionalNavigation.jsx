@@ -1,5 +1,8 @@
-import { NavLink } from 'react-router-dom'
+import { useState } from 'react'
+import { NavLink, useNavigate } from 'react-router-dom'
+import { LogOut } from 'lucide-react'
 import BrandLogo from './BrandLogo.jsx'
+import { logoutUser } from '../services/authService.js'
 import './ProfessionalNavigation.css'
 
 const items = [
@@ -10,6 +13,16 @@ const items = [
 ]
 
 function ProfessionalNavigation() {
+  const navigate = useNavigate()
+  const [loggingOut, setLoggingOut] = useState(false)
+
+  async function handleLogout() {
+    if (loggingOut) return
+    setLoggingOut(true)
+    try { await logoutUser() } catch { /* A sessão local também é removida quando a API está indisponível. */ }
+    navigate('/login', { replace: true, state: { message: 'Você saiu da sua conta com segurança.' } })
+  }
+
   return <nav className="professional-nav" aria-label="Navegação principal">
     <div className="professional-nav__brand"><BrandLogo className="professional-nav__brand-logo" variant="adaptive" to="/home" /></div>
     <div className="professional-nav__items">
@@ -20,6 +33,9 @@ function ProfessionalNavigation() {
       </button>)}
     </div>
     <span className="professional-nav__caption">Seu treino, no seu ritmo.</span>
+    <button className="professional-nav__logout" type="button" onClick={handleLogout} disabled={loggingOut}>
+      <LogOut aria-hidden="true" /><span>{loggingOut ? 'Saindo...' : 'Sair da conta'}</span>
+    </button>
   </nav>
 }
 
