@@ -1,6 +1,8 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Activity, ArrowRight, Check, ChevronRight, Clock3, Copy, Search, Trash2, UserPlus, UsersRound, X } from 'lucide-react'
+import { Activity, ArrowRight, Check, ChevronRight, Clock3, Copy, Search, UserPlus, UsersRound, X } from 'lucide-react'
+import SwipeDeleteCard from '../../components/SwipeDeleteCard.jsx'
+import { Toaster, usePromiseToast } from '../../components/kokonutui/promise-toast.jsx'
 import FadeContent from '../../components/FadeContent.jsx'
 import ParticleButton from '../../components/kokonutui/particle-button.jsx'
 import SlideTextButton from '../../components/kokonutui/slide-text-button.jsx'
@@ -105,6 +107,38 @@ function InviteStudentDialog({ onClose, onCreated }) {
   </div>
 }
 
+function StudentRemovalDialog({ student, onCancel, onConfirm }) {
+  const dialogRef = useRef(null)
+  const cancelRef = useRef(null)
+
+  useLayoutEffect(() => {
+    const dialog = dialogRef.current
+    const trigger = document.activeElement
+    dialog.showModal()
+    cancelRef.current?.focus()
+    return () => {
+      dialog.close()
+      trigger?.focus({ preventScroll: true })
+    }
+  }, [])
+
+  return <dialog
+    ref={dialogRef}
+    className="student-removal-dialog"
+    role="alertdialog"
+    aria-labelledby="student-removal-title"
+    aria-describedby="student-removal-description"
+    onCancel={(event) => { event.preventDefault(); onCancel() }}
+  >
+    <h2 id="student-removal-title">Remover {student.name} da sua lista?</h2>
+    <p id="student-removal-description">O histórico e os treinos serão preservados.</p>
+    <div className="student-removal-actions">
+      <button ref={cancelRef} type="button" onClick={onCancel}>Cancelar</button>
+      <button type="button" onClick={onConfirm}>Remover aluno</button>
+    </div>
+  </dialog>
+}
+
 function StudentsPage() {
   const [students, setStudents] = useState([])
   const [query, setQuery] = useState('')
@@ -113,7 +147,11 @@ function StudentsPage() {
   const [showInvite, setShowInvite] = useState(false)
   const [dashboard, setDashboard] = useState(null)
   const [pendingInvitations, setPendingInvitations] = useState([])
+  const toaster = usePromiseToast()
   const [removingStudentId, setRemovingStudentId] = useState('')
+  const [studentToRemove, setStudentToRemove] = useState(null)
+  const removalRequest = useRef(null)
+  const activeDeletion = useRef(false)
 
   async function loadStudents() {
     try {
@@ -133,23 +171,60 @@ function StudentsPage() {
     }
   }
 
-  async function removeStudent(student) {
-    const confirmed = window.confirm(`Remover ${student.name} da sua lista? O histórico e os treinos serão preservados.`)
-    if (!confirmed) return
+  function requestStudentRemoval(student) {
+    if (removalRequest.current || activeDeletion.current) return
+    return new Promise((resolve) => {
+      const request = { student, resolve, confirmed: false }
+      removalRequest.current = request
+      setStudentToRemove(request)
+    })
+  }
 
-    setRemovingStudentId(student.id)
-    setError('')
-    try {
-      await api.delete(`/vinculos/alunos/${student.id}`)
-      await loadStudents()
-    } catch (requestError) {
-      setError(getErrorMessage(requestError, 'Não foi possível remover o aluno.'))
-    } finally {
-      setRemovingStudentId('')
-    }
+  function finishRemovalRequest(request) {
+    if (removalRequest.current !== request) return
+    removalRequest.current = null
+    request.resolve()
+  }
+
+  function cancelStudentRemoval() {
+    setStudentToRemove(null)
+    finishRemovalRequest(studentToRemove)
+  }
+
+  function removeStudent(request) {
+    if (removalRequest.current !== request || request.confirmed) return
+    request.confirmed = true
+    const { student } = request
+    setStudentToRemove(null)
+    toaster.show(async () => {
+      if (activeDeletion.current) {
+        finishRemovalRequest(request)
+        throw new Error('Já existe uma remoção em andamento.')
+      }
+      activeDeletion.current = true
+      setRemovingStudentId(student.id)
+      setError('')
+      try {
+        await api.delete(`/vinculos/alunos/${student.id}`)
+        setStudents((current) => current.filter(({ id }) => id !== student.id))
+        await loadStudents()
+      } finally {
+        activeDeletion.current = false
+        setRemovingStudentId('')
+        finishRemovalRequest(request)
+      }
+    }, {
+      loading: 'Removendo vínculo',
+      success: ['Aluno removido', student.name],
+      error: (failure) => ['Falha ao remover o aluno', getErrorMessage(failure, 'Tente novamente.')],
+    })
   }
 
   useEffect(() => { loadStudents() }, [])
+  useEffect(() => () => {
+    removalRequest.current?.resolve()
+    removalRequest.current = null
+  }, [])
 
   const filteredStudents = useMemo(() => students.filter((student) => student.name.toLocaleLowerCase('pt-BR').includes(query.toLocaleLowerCase('pt-BR'))), [students, query])
 
@@ -178,15 +253,17 @@ function StudentsPage() {
 
           <div className="students-list">
             {loading ? <div className="students-loading" aria-label="Carregando alunos">{[0, 1, 2].map((item) => <div className="students-skeleton" key={item}><span /><i /><b /></div>)}</div> : filteredStudents.length ? <FadeContent className="students-list__items" trigger="mount" duration={0.42} stagger={0.055}>
-              {filteredStudents.map((student) => <article className="student-card" key={student.id}>
-                <Link className="student-card__link" to={`/alunos/${student.id}`}>
-                  <span className="student-card__avatar">{initials(student.name)}</span>
-                  <span className="student-card__info"><strong>{student.name}</strong><span><i className="status-dot status-dot--done" />Aluno vinculado</span></span>
-                  <span className="student-card__open">Abrir perfil <ArrowRight size={16} /></span>
-                  <span className="student-card__mobile-arrow" aria-hidden="true"><ChevronRight size={19} /></span>
-                </Link>
-                <button className="student-card__remove" type="button" onClick={() => removeStudent(student)} disabled={removingStudentId === student.id} aria-label={`Remover ${student.name}`} title="Remover aluno"><Trash2 size={17} /></button>
-              </article>)}
+              {filteredStudents.map((student) => <SwipeDeleteCard as="article" key={student.id}
+                label={`Remover ${student.name}`} disabled={Boolean(removingStudentId || studentToRemove)} onRemove={() => requestStudentRemoval(student)}>
+                <div className="student-card">
+                  <Link className="student-card__link" to={`/alunos/${student.id}`} draggable={false}>
+                    <span className="student-card__avatar">{initials(student.name)}</span>
+                    <span className="student-card__info"><strong>{student.name}</strong><span><i className="status-dot status-dot--done" />Aluno vinculado</span></span>
+                    <span className="student-card__open">Abrir perfil <ArrowRight size={16} /></span>
+                    <span className="student-card__mobile-arrow" aria-hidden="true"><ChevronRight size={19} /></span>
+                  </Link>
+                </div>
+              </SwipeDeleteCard>)}
             </FadeContent> : <div className="students-empty"><span className="students-empty__icon"><UsersRound size={21} /></span><strong>{query ? 'Nenhum aluno encontrado' : 'Sua lista começa aqui'}</strong><span>{query ? 'Tente buscar por outro nome.' : 'Adicione um aluno para acompanhar os treinos por aqui.'}</span>{!query && <button type="button" onClick={() => setShowInvite(true)}>Adicionar primeiro aluno <ArrowRight size={15} /></button>}</div>}
           </div>
         </section>
@@ -211,6 +288,12 @@ function StudentsPage() {
       </div>
       <button className="students-mobile-add" type="button" onClick={() => setShowInvite(true)}><UserPlus size={18} />Adicionar aluno</button>
     </div>
+    <Toaster toaster={toaster} className="deshi-action-toasts !fixed" />
+    {studentToRemove && <StudentRemovalDialog
+      student={studentToRemove.student}
+      onCancel={cancelStudentRemoval}
+      onConfirm={() => removeStudent(studentToRemove)}
+    />}
     {showInvite && <InviteStudentDialog onClose={() => setShowInvite(false)} onCreated={loadStudents} />}
   </main>
 }

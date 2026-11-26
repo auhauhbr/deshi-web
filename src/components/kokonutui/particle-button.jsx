@@ -113,7 +113,9 @@ function Burst({
     <span
       aria-hidden="true"
       className="pointer-events-none absolute"
+      data-particle-burst
       style={{
+        "--particle-bleed": `${BLEED}px`,
         top: -BLEED,
         left: -BLEED,
         width: `calc(100% + ${BLEED * 2}px)`,

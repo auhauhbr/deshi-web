@@ -58,19 +58,13 @@
 .training-program-activity__actions button:hover:not(:disabled) { border-color: var(--color-professional-border); background: var(--color-surface); color: var(--color-professional-green); transform: translateY(-1px); }
 .training-program-activity__actions button:active:not(:disabled) { transform: scale(.94); }
 .training-program-activity__actions button:disabled { opacity: .35; cursor: not-allowed; }
-.training-program-activity__actions button.is-remove { color: var(--color-professional-muted); }
-.training-program-activity__actions button.is-remove:hover:not(:disabled) { border-color: color-mix(in srgb, var(--color-error) 20%, var(--color-border)); background: var(--color-error-surface); color: var(--color-error); }
-.training-program-activity__actions button:focus-visible, .training-program-add:focus-visible, .training-program-save:focus-visible { outline: 2px solid var(--color-border-focus); outline-offset: 3px; }
+.training-program-activity__actions button:focus-visible, .training-program-save:focus-visible { outline: 2px solid var(--color-border-focus); outline-offset: 3px; }
 @keyframes program-activity-in { from { opacity: .5; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
 .training-program-empty { min-height: 12.5rem; padding: 1.2rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .45rem; border: 1px dashed var(--color-professional-border); border-radius: .75rem; background: var(--color-professional-background); text-align: center; }
 .training-program-empty > span { width: 2.8rem; height: 2.8rem; margin-bottom: .15rem; display: grid; place-items: center; border-radius: .8rem; background: var(--color-professional-green-light); color: var(--color-professional-green); }
 .training-program-empty strong { font-family: var(--font-family-secondary); font-size: .98rem; }
 .training-program-empty p { max-width: 28ch; margin: 0; color: var(--color-professional-muted); font-size: .76rem; line-height: 1.5; }
-.training-program-add { width: 100% !important; min-height: 3.1rem !important; margin-top: .7rem; padding: 0 .9rem !important; border: 1px dashed var(--color-professional-green) !important; border-radius: .7rem !important; background: var(--color-professional-green-light) !important; color: var(--color-professional-green) !important; font-family: var(--font-family-base) !important; font-size: .84rem !important; font-weight: var(--font-weight-bold) !important; box-shadow: none !important; transition: background var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast) !important; }
-.training-program-add:hover:not(:disabled) { border-style: solid !important; background: color-mix(in srgb, var(--color-professional-green-light) 68%, var(--color-surface)) !important; transform: translateY(-1px); }
-.training-program-add:active:not(:disabled) { transform: scale(.99); }
-.training-program-add:disabled { opacity: .48; cursor: not-allowed; }
 
 .training-program-form-error, .training-program-error { padding: .85rem 1rem; border: 1px solid color-mix(in srgb, var(--color-error) 28%, var(--color-border)); border-radius: .7rem; background: var(--color-error-surface); color: var(--color-error); font-size: var(--font-size-sm); line-height: 1.45; }
 .training-program-form-error { grid-column: 1 / -1; margin: 0; }
@@ -128,5 +122,49 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .training-program-back, .training-program-activity, .training-program-activity__actions button, .training-program-add, .training-program-save, .training-program-spinner, .training-program-save__spinner, .training-program-icon-preview { animation: none !important; transition: none !important; }
+  .training-program-back, .training-program-activity, .training-program-activity__actions button, .training-program-save, .training-program-spinner, .training-program-save__spinner, .training-program-icon-preview { animation: none !important; transition: none !important; }
 }
+
+.training-program-morph {
+  width: min(100%, 340px);
+  margin-top: .7rem;
+  scroll-margin-block: 5rem;
+}
+
+.training-program-morph [data-morph-shell] {
+  border-color: var(--color-professional-border);
+  background: var(--color-surface);
+  color: var(--color-professional-ink);
+}
+
+.training-program-morph button[aria-haspopup]:disabled { opacity: .55; cursor: not-allowed; }
+.training-program-morph__copy { margin: 0; padding: .65rem .875rem; color: var(--color-text-secondary); font-size: .82rem; }
+
+.training-program-morph__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: .25rem;
+  padding: .5rem .75rem;
+  border-top: 1px solid var(--color-professional-border);
+  background: var(--color-surface-secondary);
+}
+
+.training-program-morph__actions button {
+  display: inline-flex;
+  align-items: center;
+  gap: .25rem;
+  padding: .35rem .65rem;
+  border-radius: .5rem;
+  font-size: .75rem;
+  font-weight: 650;
+  cursor: pointer;
+}
+
+.training-program-morph__browse {
+  background: var(--color-professional-forest);
+  color: var(--color-text-inverse);
+}
+
+.swipe-delete-card .training-program-activity { padding-inline-end: calc(.55rem + var(--swipe-action-space)); }

@@ -48,11 +48,11 @@
 .students-search button:hover { background: var(--color-surface-secondary); color: var(--color-professional-ink); }
 .students-list { min-height: 14rem; border-bottom: 1px solid var(--color-professional-border); }
 .students-list__items { display: block; }
-.student-card { min-height: 78px; display: flex; align-items: center; gap: .45rem; border-top: 1px solid var(--color-professional-border); }
+.student-card { background: var(--color-professional-background); min-height: 78px; display: flex; align-items: center; gap: .45rem; border-top: 1px solid var(--color-professional-border); }
 .student-card__link { min-width: 0; min-height: 76px; flex: 1; display: flex; align-items: center; gap: .85rem; padding: .65rem .6rem; border-radius: .7rem; color: inherit; text-decoration: none; transition: background var(--transition-fast), transform var(--transition-fast); }
 .student-card__link:hover { background: color-mix(in srgb, var(--color-primary) 6%, var(--color-surface)); }
 .student-card__link:active { transform: scale(.995); }
-.student-card__link:focus-visible, .student-card__remove:focus-visible, .pending-invitation button:focus-visible, .students-empty button:focus-visible { outline: 2px solid var(--color-border-focus); outline-offset: 2px; }
+.student-card__link:focus-visible, .pending-invitation button:focus-visible, .students-empty button:focus-visible { outline: 2px solid var(--color-border-focus); outline-offset: 2px; }
 .student-card__avatar { width: 2.85rem; height: 2.85rem; flex: none; display: grid; place-items: center; border: 1px solid color-mix(in srgb, var(--color-professional-green) 20%, var(--color-professional-border)); border-radius: 50%; background: var(--color-professional-green-light); color: var(--color-professional-green); font-family: var(--font-family-secondary); font-size: .94rem; font-weight: 700; }
 .student-card__info { min-width: 0; display: flex; flex: 1; flex-direction: column; gap: .3rem; }
 .student-card__info strong { overflow: hidden; color: var(--color-professional-ink); font-size: .92rem; font-weight: 650; text-overflow: ellipsis; white-space: nowrap; }
@@ -60,10 +60,6 @@
 .student-card__open { display: inline-flex; align-items: center; gap: .45rem; color: var(--color-professional-muted); font-size: .75rem; opacity: 0; transform: translateX(-4px); transition: opacity var(--transition-fast), transform var(--transition-fast), color var(--transition-fast); }
 .student-card__link:hover .student-card__open, .student-card__link:focus-visible .student-card__open { color: var(--color-professional-green); opacity: 1; transform: translateX(0); }
 .student-card__mobile-arrow { display: none; }
-.student-card__remove { width: 2.5rem; height: 2.5rem; flex: none; display: grid; place-items: center; border: 0; border-radius: .65rem; background: transparent; color: var(--color-professional-muted); cursor: pointer; transition: color var(--transition-fast), background var(--transition-fast), transform var(--transition-fast); }
-.student-card__remove:hover { background: var(--color-error-surface); color: var(--color-error); }
-.student-card__remove:active { transform: scale(.95); }
-.student-card__remove:disabled { cursor: wait; opacity: .5; }
 
 .students-invitations { min-width: 0; padding-top: .05rem; }
 .students-invitations__heading { align-items: center; margin-bottom: 1.1rem; }
@@ -152,13 +148,13 @@
   .students-roster__heading h2, .students-invitations__heading h2 { font-size: 1.4rem; }
   .students-roster__caption { font-size: .68rem; }
   .students-search { min-height: 3rem; }
-  .student-card { min-height: 0; gap: .15rem; margin-bottom: .6rem; padding: .2rem .35rem .2rem .15rem; overflow: hidden; border: 1px solid var(--color-professional-border); border-radius: .85rem; background: var(--color-surface); transition: border-color var(--transition-fast), background var(--transition-fast), transform var(--transition-fast); }
+  .students-list__items .swipe-delete-card { margin-bottom: .6rem; border-radius: .85rem; }
+  .student-card { min-height: 0; gap: .15rem; padding: .2rem .35rem .2rem .15rem; overflow: hidden; border: 1px solid var(--color-professional-border); border-radius: .85rem; background: var(--color-surface); transition: border-color var(--transition-fast), background var(--transition-fast), transform var(--transition-fast); }
   .student-card:has(.student-card__link:active) { border-color: var(--color-professional-green); background: color-mix(in srgb, var(--color-primary) 7%, var(--color-surface)); transform: scale(.99); }
   .student-card__link { min-height: 4.6rem; gap: .7rem; padding: .55rem .55rem; }
   .student-card__open { display: none; }
   .student-card__mobile-arrow { width: 1.9rem; height: 1.9rem; display: grid; flex: none; place-items: center; border-radius: 50%; background: var(--color-professional-green-light); color: var(--color-professional-green); transition: transform var(--transition-fast), background var(--transition-fast); }
   .student-card__link:active .student-card__mobile-arrow { background: var(--color-primary); color: var(--color-text-on-primary); transform: translateX(2px); }
-  .student-card__remove { width: 2.35rem; }
   .students-list { border-bottom: 0; }
   .students-invitations { border-top: 1px solid var(--color-professional-border); padding-top: 1.3rem; }
   .students-invitations__heading { margin-bottom: .6rem; }
@@ -174,3 +170,46 @@
   .students-primary-button[data-status]:active, .pending-invitation__code button:active { transform: none; }
   .students-page *, .students-page *::before, .students-page *::after, .invite-dialog { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
 }
+
+.swipe-delete-card .student-card { padding-inline-end: var(--swipe-action-space); }
+
+.student-removal-dialog {
+  position: fixed;
+  inset: 0;
+  width: min(26rem, calc(100% - 2rem));
+  max-height: calc(100dvh - 2rem);
+  margin: auto;
+  padding: 1.25rem;
+  border: 1px solid var(--color-border);
+  border-radius: 1.15rem;
+  background: var(--color-surface-raised);
+  color: var(--color-text);
+  box-shadow: var(--shadow-dropdown);
+}
+
+.student-removal-dialog::backdrop { background: var(--color-overlay); backdrop-filter: blur(5px); }
+.student-removal-dialog h2 { margin: 0; font-size: 1.2rem; overflow-wrap: anywhere; }
+.student-removal-dialog p { margin: .55rem 0 1.15rem; color: var(--color-text-secondary); font-size: .9rem; }
+
+.student-removal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: .65rem;
+}
+
+.student-removal-actions button {
+  min-height: 44px;
+  padding: .5rem .8rem;
+  border: 1px solid var(--color-border);
+  border-radius: .65rem;
+  background: var(--color-surface);
+  font: inherit;
+  font-size: .85rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.student-removal-actions button:focus-visible { outline: 2px solid var(--color-professional-green); outline-offset: 2px; }
+.student-removal-actions button:last-child { border-color: #b42332; background: #b42332; color: #fff; }
+.student-removal-actions button:last-child:hover { background: #941a29; }
