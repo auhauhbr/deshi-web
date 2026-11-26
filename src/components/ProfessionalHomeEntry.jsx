@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { api } from '../services/api.js'
 import { getApiErrorMessage } from '../services/authService.js'
+import { resumeApiLoadingScreen } from '../services/apiLoadingState.js'
 import ProfessionalHomePage from '../pages/ProfessionalHome/ProfessionalHome.jsx'
 import './ProfessionalHomeEntry.css'
 
@@ -16,6 +17,15 @@ function ProfessionalHomeEntry() {
   const [status, setStatus] = useState({ loading: true, hasModalities: false, error: '' })
   const [attempt, setAttempt] = useState(0)
 
+  function finishLoginReveal() {
+    setIsLoginRevealVisible(false)
+    resumeApiLoadingScreen()
+  }
+
+  useEffect(() => {
+    if (location.state?.playLoginReveal && !isLoginRevealVisible) resumeApiLoadingScreen()
+  }, [isLoginRevealVisible, location.state])
+
   useEffect(() => {
     if (!location.state?.playLoginReveal) return
     navigate('/home', { replace: true, state: { profile: location.state.profile } })
@@ -25,11 +35,11 @@ function ProfessionalHomeEntry() {
     if (!isLoginRevealVisible) return undefined
 
     function skipOnEscape(event) {
-      if (event.key === 'Escape') setIsLoginRevealVisible(false)
+      if (event.key === 'Escape') finishLoginReveal()
     }
 
     window.addEventListener('keydown', skipOnEscape)
-    videoRef.current?.play()?.catch(() => {})
+    videoRef.current?.play()?.catch(finishLoginReveal)
     return () => window.removeEventListener('keydown', skipOnEscape)
   }, [isLoginRevealVisible])
 
@@ -62,8 +72,8 @@ function ProfessionalHomeEntry() {
             muted
             playsInline
             preload="auto"
-            onEnded={() => setIsLoginRevealVisible(false)}
-            onError={() => setIsLoginRevealVisible(false)}
+            onEnded={finishLoginReveal}
+            onError={finishLoginReveal}
           />
         </div>
       </div>

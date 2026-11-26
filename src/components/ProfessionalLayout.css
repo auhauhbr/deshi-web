@@ -1,0 +1,56 @@
+.professional-layout {
+  --professional-header-height: 4.75rem;
+  --professional-sidebar-width: 224px;
+  --professional-bottom-nav-height: calc(4.3rem + env(safe-area-inset-bottom));
+  background: var(--color-professional-background);
+}
+
+.app-header.professional-header {
+  z-index: 20;
+  height: var(--professional-header-height);
+  padding-inline: max(1.5rem, env(safe-area-inset-left)) max(1.5rem, env(safe-area-inset-right));
+}
+
+.professional-header a:focus-visible,
+.professional-header button:focus-visible {
+  outline: 2px solid var(--color-professional-green);
+  outline-offset: 3px;
+}
+
+.professional-header .account-menu__panel {
+  max-width: calc(100vw - max(.75rem, env(safe-area-inset-left)) - max(.75rem, env(safe-area-inset-right)));
+  max-height: calc(100dvh - var(--professional-header-height) - var(--professional-bottom-nav-height) - 1rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.professional-layout__content > :is(main, .activities-page-shell) {
+  min-height: calc(100svh - var(--professional-header-height));
+}
+
+.professional-layout__content :focus-visible {
+  scroll-margin-top: calc(var(--professional-header-height) + .75rem);
+  scroll-margin-bottom: calc(var(--professional-bottom-nav-height) + .75rem);
+}
+
+@media (min-width: 800px) {
+  .professional-layout {
+    --professional-bottom-nav-height: 0px;
+  }
+
+  .professional-layout__content {
+    margin-inline-start: var(--professional-sidebar-width);
+  }
+}
+
+@media (max-width: 700px) {
+  .app-header.professional-header {
+    padding-inline: max(.75rem, env(safe-area-inset-left)) max(.75rem, env(safe-area-inset-right));
+  }
+}
+
+@media (max-width: 650px) {
+  .professional-layout {
+    --professional-header-height: 3.75rem;
+  }
+}

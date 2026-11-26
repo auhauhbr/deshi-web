@@ -20,8 +20,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid rgb(225 229 227 / 80%);
-  background: rgb(255 255 255 / 82%);
+  border-bottom: 1px solid color-mix(in srgb, var(--color-border) 80%, transparent);
+  background: color-mix(in srgb, var(--color-surface) 86%, transparent);
   backdrop-filter: blur(16px);
 }
 
@@ -221,10 +221,10 @@
 
 .login-transition-overlay {
   position: fixed;
-  z-index: 100;
+  z-index: 10001;
   inset: 0;
   overflow: hidden;
-  background: #ffffff;
+  background: var(--color-surface);
   animation: login-transition-appear 180ms ease-out both;
 }
 
@@ -233,7 +233,7 @@
   inset: 0;
   overflow: hidden;
   clip-path: inset(0 0 14% 0);
-  background: #ffffff;
+  background: var(--color-surface);
 }
 
 .login-transition-video {
@@ -242,7 +242,7 @@
   display: block;
   object-fit: contain;
   object-position: center;
-  background: #ffffff;
+  background: var(--color-surface);
 }
 
 .login-transition-skip {
@@ -254,7 +254,7 @@
   padding: 0 .9rem;
   border: 1px solid rgb(26 29 35 / 10%);
   border-radius: var(--radius-full);
-  background: rgb(255 255 255 / 86%);
+  background: color-mix(in srgb, var(--color-surface) 86%, transparent);
   color: var(--color-text-secondary);
   font: inherit;
   font-size: var(--font-size-xs);
@@ -265,7 +265,7 @@
 }
 
 .login-transition-skip:hover {
-  background: #fff;
+  background: var(--color-surface);
   color: var(--color-text);
   transform: translateY(-1px);
 }

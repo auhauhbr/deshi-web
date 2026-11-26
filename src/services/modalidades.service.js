@@ -13,8 +13,8 @@ export async function getModalidades(signal) {
   return validateModalidades(data)
 }
 
-export async function getMinhasModalidades(signal) {
-  const { data } = await api.get('/modalidades/minhas', { signal })
+export async function getMinhasModalidades(signal, { skipGlobalLoading = false } = {}) {
+  const { data } = await api.get('/modalidades/minhas', { signal, skipGlobalLoading })
   return validateModalidades(data)
 }
 

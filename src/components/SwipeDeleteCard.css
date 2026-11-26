@@ -1,0 +1,50 @@
+.swipe-delete-card {
+  position: relative;
+  min-width: 0;
+  overflow: clip;
+  border-radius: inherit;
+}
+
+.swipe-delete-card__content { position: relative; touch-action: pan-y; }
+.swipe-delete-card[data-swipe-phase="exited"] { visibility: hidden !important; }
+.swipe-delete-card__error { margin: .35rem 0; color: var(--color-error); font-size: .8rem; }
+
+.swipe-delete-card__reveal {
+  position: absolute;
+  inset: 0 0 0 auto;
+  border-radius: .7rem;
+  pointer-events: none;
+}
+
+.swipe-delete-card__action {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  translate: 0 -50%;
+  display: grid;
+  height: 44px;
+  place-items: center;
+  border: 0;
+  border-radius: .65rem;
+  background: transparent;
+  cursor: pointer;
+  touch-action: pan-y;
+}
+
+.swipe-delete-card__action:hover:not(:disabled) { background: color-mix(in srgb, currentColor 13%, transparent); }
+.swipe-delete-card__action:disabled { opacity: .45; cursor: not-allowed; }
+.swipe-delete-card__action:focus-visible { outline: 2px solid currentColor; outline-offset: -5px; }
+.swipe-delete-card__content :focus-visible { outline-offset: -2px; }
+
+.deshi-action-toasts {
+  position: fixed;
+  z-index: 110;
+  right: 1rem;
+  bottom: 1rem;
+  width: min(26rem, calc(100vw - 2rem));
+  pointer-events: none;
+}
+
+@media (max-width: 799px) {
+  .deshi-action-toasts { bottom: calc(8.5rem + env(safe-area-inset-bottom)); }
+}

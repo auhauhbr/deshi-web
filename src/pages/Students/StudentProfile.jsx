@@ -1,7 +1,11 @@
 import { useEffect, useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
-import ProfessionalNavigation from '../../components/ProfessionalNavigation.jsx'
+import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
+import { ArrowLeft, ArrowRight, CalendarDays, Check, Clock3, Dumbbell, Mail, MessageSquareText } from 'lucide-react'
+import WeightTrendChart from '../../components/WeightTrendChart.jsx'
+import FadeContent from '../../components/FadeContent.jsx'
+import SlideTextButton from '../../components/kokonutui/slide-text-button.jsx'
 import { getProfessionalStudentDashboard } from '../../services/studentDashboardService.js'
+import { getAgeInfo } from '../../utils/userAge.js'
 import './StudentProfile.css'
 
 const WEEKDAY_FORMATTER = new Intl.DateTimeFormat('pt-BR', { weekday: 'short' })
@@ -49,6 +53,7 @@ function getErrorMessage(error, fallback) {
 function StudentProfilePage() {
   const { studentId } = useParams()
   const navigate = useNavigate()
+  const location = useLocation()
   const [dashboard, setDashboard] = useState(null)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(true)
@@ -56,6 +61,7 @@ function StudentProfilePage() {
   const [activeTab, setActiveTab] = useState('overview')
   const [showAllSessions, setShowAllSessions] = useState(false)
   const [weekOffset, setWeekOffset] = useState(0)
+  const studentAgeInfo = getAgeInfo(dashboard?.bodyMetrics?.birthDate)
 
   useEffect(() => {
     getProfessionalStudentDashboard(studentId).then((data) => {
@@ -102,8 +108,23 @@ function StudentProfilePage() {
   const maxWeeklyTraining = Math.max(1, ...weeklyTraining.map((week) => week.count))
   const sessionsToShow = showAllSessions ? sessions : sessions.slice(0, 4)
   const studentImage = student?.photoUrl || student?.avatarUrl || student?.fotoUrl
-  const studentObjective = student?.objective || student?.objetivo || 'Objetivo não informado'
   const monthName = new Intl.DateTimeFormat('pt-BR', { month: 'long' }).format(now)
+  const latestSession = sessions[0]
+  const sessionComments = sessions.flatMap((session) => (session.activities || [])
+    .filter((activity) => activity.execution?.comment?.trim())
+    .map((activity) => ({
+      comment: activity.execution.comment.trim(),
+      activityName: activity.nome || 'Atividade',
+      sessionId: session.id,
+      programId: session.programId,
+      date: activity.execution.executedAt || session.finishedAt || session.startedAt,
+    })))
+    .sort((first, second) => new Date(second.date) - new Date(first.date))
+  const latestComment = sessionComments[0]
+  const LatestFeedbackContainer = latestComment ? Link : 'section'
+  const latestFeedbackProps = latestComment
+    ? { to: `/professional/sessions/${encodeURIComponent(latestComment.sessionId)}`, state: { from: location.pathname }, 'aria-label': `Abrir sessão com comentário sobre ${latestComment.activityName}` }
+    : {}
 
   function formatDate(value, options = { day: '2-digit', month: 'short' }) {
     if (!value) return 'Data não registrada'
@@ -120,13 +141,12 @@ function StudentProfilePage() {
   const metricLabels = { weight: 'Carga', repetitions: 'Repetições', reps: 'Repetições', series: 'Séries', duration: 'Duração', distance: 'Distância' }
 
   return <main className="students-page student-detail-page">
-    <ProfessionalNavigation />
     <div className="students-page__container">
-      <header className="student-detail-toolbar"><button className="student-detail-back" type="button" onClick={() => navigate('/alunos')} aria-label="Voltar para alunos">←</button><span>Perfil do aluno</span><span className="student-detail-toolbar__spacer" /></header>
+      <header className="student-detail-toolbar"><button className="student-detail-back" type="button" onClick={() => navigate('/alunos')} aria-label="Voltar para alunos"><ArrowLeft size={18} /></button><span>Perfil do aluno</span><span className="student-detail-toolbar__spacer" /></header>
       {profileLoading ? <p className="students-message">Carregando perfil do aluno…</p> : error ? <p className="students-message students-message--error" role="alert">{error}</p> : <>
         <section className="student-profile-hero" aria-label="Perfil do aluno">
           {studentImage ? <img className="student-profile-hero__avatar" src={studentImage} alt={`Foto de ${student.name}`} /> : <span className="student-profile-hero__avatar student-profile-hero__avatar--fallback" aria-hidden="true">{initials(student.name)}</span>}
-          <div className="student-profile-hero__copy"><p className="students-eyebrow">ALUNO VINCULADO</p><h1 className="student-detail-name">{student.name}</h1><p><strong>Objetivo:</strong> {studentObjective}{student.createdAt && <> <span aria-hidden="true">·</span> desde {formatDate(student.createdAt, { month: 'short', year: 'numeric' })}</>}</p></div>
+          <div className="student-profile-hero__copy"><p className="students-eyebrow">ALUNO VINCULADO</p><h1 className="student-detail-name">{student.name}</h1><div className="student-profile-hero__details">{student.email && <span><Mail size={15} aria-hidden="true" />{student.email}</span>}{student.createdAt && <span><CalendarDays size={15} aria-hidden="true" />Na DESHI desde {formatDate(student.createdAt, { month: 'short', year: 'numeric' })}</span>}</div></div>
         </section>
 
         <div className="student-view-switch" role="tablist" aria-label="Visão do aluno">
@@ -138,7 +158,16 @@ function StudentProfilePage() {
           <section className="student-period-stats" aria-label="Frequência de treinos">
             <article><strong>{completedThisMonth}</strong><span>treinos em {monthName}</span><small>{completedSessions.length} no histórico total</small></article>
             <article><strong>{completedThisWeek}</strong><span>nesta semana</span><small>Semana iniciada na segunda</small></article>
+            <article className="student-period-stats__last"><Clock3 size={17} aria-hidden="true" /><span>Último treino</span><strong>{latestSession ? formatDate(latestSession.finishedAt || latestSession.startedAt, { day: '2-digit', month: 'short' }) : '—'}</strong><small>{latestSession ? formatDuration(latestSession) : 'Ainda sem sessões'}</small></article>
           </section>
+
+          <LatestFeedbackContainer className={`student-latest-feedback${latestComment ? ' student-latest-feedback--link' : ''}`} aria-labelledby="student-latest-feedback-title" {...latestFeedbackProps}>
+            <div className="student-latest-feedback__icon"><MessageSquareText size={18} aria-hidden="true" /></div>
+            <div className="student-latest-feedback__body">
+              <div className="student-latest-feedback__heading"><h2 id="student-latest-feedback-title">Retorno mais recente</h2>{latestComment && <ArrowRight className="student-latest-feedback__arrow" size={17} aria-hidden="true" />}</div>
+              {latestComment ? <><blockquote>“{latestComment.comment}”</blockquote><div className="student-latest-feedback__meta"><span className="student-latest-feedback__source">{latestComment.activityName}{programs.find((program) => program.id === latestComment.programId)?.nome ? ` · ${programs.find((program) => program.id === latestComment.programId).nome}` : ''}</span><time dateTime={new Date(latestComment.date).toISOString()}>{formatDate(latestComment.date)}</time></div></> : <p className="student-latest-feedback__empty">Os comentários deixados ao concluir uma atividade aparecerão aqui.</p>}
+            </div>
+          </LatestFeedbackContainer>
 
           <section className="student-week-calendar-card" aria-labelledby="student-week-calendar-title">
             <div className="student-week-calendar-card__heading">
@@ -167,23 +196,43 @@ function StudentProfilePage() {
 
           <section className="student-detail-section">
             <div className="student-detail-section__heading"><div><p className="students-eyebrow">PRESCRIÇÃO</p><h2>Programas de treino</h2></div><span className="student-detail-count">{programs.length}</span></div>
-            <div className="student-program-list">{programs.length ? programs.map((program, index) => <Link className="student-program-card" key={program.id} to={`/alunos/${studentId}/programas/${program.id}/editar`} aria-label={`Editar programa ${program.nome}`}>
-              <span className={`student-program-card__mark student-program-card__mark--${index % 4}`}>{String.fromCharCode(65 + (index % 26))}</span><span className="student-program-card__copy"><strong>{program.nome}</strong><span>{program.atividades?.length || 0} {(program.atividades?.length || 0) === 1 ? 'atividade' : 'atividades'}{program.modalidade?.nome ? ` · ${program.modalidade.nome}` : ''}</span></span><span className="student-program-card__meta"><span>Atualizado</span><strong>{formatDate(program.criadoEm)}</strong></span><span className="student-program-card__action" aria-hidden="true">Editar <b>↗</b></span>
-            </Link>) : <div className="student-detail-empty"><span className="student-detail-empty__icon" aria-hidden="true">▤</span><strong>Nenhum programa por aqui</strong><span>Crie o primeiro treino deste aluno para começar o acompanhamento.</span></div>}</div>
-            <Link className="student-add-program" to={`/alunos/${studentId}/programas/novo`}><span aria-hidden="true">＋</span> Adicionar treino</Link>
+            {programs.length ? <FadeContent className="student-program-list" trigger="mount" duration={0.36} stagger={0.045}>{programs.map((program, index) => <Link className="student-program-card" key={program.id} to={`/alunos/${studentId}/programas/${program.id}/editar`} aria-label={`Editar programa ${program.nome}`}>
+              <span className={`student-program-card__mark student-program-card__mark--${index % 4}`}><Dumbbell size={19} aria-hidden="true" />{(program.iconeUrl || program.iconUrl) && <img src={program.iconeUrl || program.iconUrl} alt="" onError={(event) => { event.currentTarget.style.opacity = '0' }} />}</span><span className="student-program-card__copy"><strong>{program.nome}</strong><span>{program.atividades?.length || 0} {(program.atividades?.length || 0) === 1 ? 'atividade' : 'atividades'}{program.modalidade?.nome ? ` · ${program.modalidade.nome}` : ''}</span></span><span className="student-program-card__meta"><span>Criado em</span><strong>{formatDate(program.criadoEm || program.createdAt)}</strong></span><span className="student-program-card__action" aria-hidden="true">Editar <ArrowRight size={15} /></span>
+            </Link>)}</FadeContent> : <div className="student-detail-empty"><span className="student-detail-empty__icon" aria-hidden="true"><Dumbbell size={19} /></span><strong>Nenhum programa por aqui</strong><span>Crie o primeiro treino deste aluno para começar o acompanhamento.</span></div>}
+            <SlideTextButton className="student-add-program" text="Adicionar treino" hoverText="Montar novo programa" to={`/alunos/${studentId}/programas/novo`} animateIn={false} />
           </section>
 
           <section className="student-detail-section">
             <div className="student-detail-section__heading"><div><p className="students-eyebrow">HISTÓRICO</p><h2>Últimas sessões</h2></div><span className="student-detail-count">{sessions.length}</span></div>
-            <div className="student-session-list">{sessionsToShow.length ? sessionsToShow.map((session) => {
+            {sessionsToShow.length ? <FadeContent className="student-session-list" trigger="mount" duration={0.34} stagger={0.04}>{sessionsToShow.map((session) => {
               const program = programs.find((item) => item.id === session.programId)
               const completedActivities = session.activities?.filter((activity) => activity.status === 'COMPLETED').length || 0
               const totalActivities = session.activities?.length || 0
-              return <article className="student-session-card" key={session.id}><span className={`student-session-card__mark student-session-card__mark--${session.status.toLowerCase()}`} aria-hidden="true">{session.status === 'COMPLETED' ? '✓' : session.status === 'IN_PROGRESS' ? '↗' : '–'}</span><div className="student-session-card__copy"><strong>{program?.nome || 'Sessão de treino'}</strong><span>{formatDate(session.startedAt, { day: '2-digit', month: 'short', year: 'numeric' })} · {totalActivities ? `${completedActivities} de ${totalActivities} atividades` : 'Atividades não registradas'}</span></div><div className="student-session-card__meta"><strong>{formatDuration(session)}</strong><span>{session.status === 'COMPLETED' ? 'Concluída' : session.status === 'IN_PROGRESS' ? 'Em andamento' : 'Interrompida'}</span></div></article>
-            }) : <div className="student-detail-empty"><span className="student-detail-empty__icon" aria-hidden="true">◷</span><strong>Sem sessões registradas</strong><span>Quando o aluno iniciar um treino, o histórico aparecerá aqui.</span></div>}</div>
+              return <Link className="student-session-card" key={session.id} to={`/professional/sessions/${encodeURIComponent(session.id)}`} state={{ from: location.pathname }} aria-label={`Ver detalhes da sessão ${program?.nome || 'de treino'}, ${formatDate(session.startedAt, { day: '2-digit', month: 'short', year: 'numeric' })}`}><span className={`student-session-card__mark student-session-card__mark--${session.status.toLowerCase()}`} aria-hidden="true">{session.status === 'COMPLETED' ? <Check size={18} /> : session.status === 'IN_PROGRESS' ? <ArrowRight size={17} /> : <Clock3 size={17} />}</span><span className="student-session-card__copy"><strong>{program?.nome || 'Sessão de treino'}</strong><span>{formatDate(session.startedAt, { day: '2-digit', month: 'short', year: 'numeric' })} · {totalActivities ? `${completedActivities} de ${totalActivities} atividades` : 'Atividades não registradas'}</span></span><span className="student-session-card__meta"><strong>{formatDuration(session)}</strong><span>{session.status === 'COMPLETED' ? 'Concluída' : session.status === 'IN_PROGRESS' ? 'Em andamento' : 'Interrompida'}</span></span><ArrowRight className="student-session-card__open" size={17} aria-hidden="true" /></Link>
+            })}</FadeContent> : <div className="student-detail-empty"><span className="student-detail-empty__icon" aria-hidden="true"><Clock3 size={18} /></span><strong>Sem sessões registradas</strong><span>Quando o aluno iniciar um treino, o histórico aparecerá aqui.</span></div>}
             {sessions.length > 4 && <button className="student-history-toggle" type="button" onClick={() => setShowAllSessions((value) => !value)}>{showAllSessions ? 'Mostrar menos' : 'Ver histórico completo'}</button>}
           </section>
         </div> : <div role="tabpanel" className="student-detail-content student-evolution">
+           <div className="student-detail-section__heading"><div><p className="students-eyebrow">ACOMPANHAMENTO</p><h2 id="student-body-metrics-title">Peso, altura e IMC</h2></div></div>
+          <section className="student-detail-section student-body-metrics" aria-labelledby="student-body-metrics-title">
+            {dashboard.bodyMetrics ? (
+              <>
+                <table className="student-body-metrics-table">
+                  <caption>Medidas registradas pelo aluno</caption>
+                  <tbody>
+                    <tr><th scope="row">Peso</th><td>{dashboard.bodyMetrics.weightKg.toLocaleString('pt-BR', { maximumFractionDigits: 2 })} kg</td></tr>
+                    <tr><th scope="row">Altura</th><td>{dashboard.bodyMetrics.heightCm.toLocaleString('pt-BR', { maximumFractionDigits: 1 })} cm</td></tr>
+                    <tr><th scope="row">IMC</th><td><strong>{dashboard.bodyMetrics.bmi.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong> kg/m²</td></tr>
+                    {studentAgeInfo && <tr><th scope="row">Faixa etária</th><td>{studentAgeInfo.category} · {studentAgeInfo.age} anos</td></tr>}
+                    {dashboard.bodyMetrics.gender && <tr><th scope="row">Gênero</th><td>{dashboard.bodyMetrics.gender === 'MALE' ? 'Masculino' : 'Feminino'}</td></tr>}
+                  </tbody>
+                </table>
+                <p className="student-body-metrics-updated">Atualizado em {formatDate(dashboard.bodyMetrics.updatedAt, { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+                {studentAgeInfo?.age < 20 && <p className="student-body-metrics-note">Em crianças e adolescentes, a interpretação do IMC considera idade e sexo. O valor acima é o cálculo do IMC, sem classificação clínica.</p>}
+              </>
+            ) : <p className="student-body-metrics-empty">O aluno ainda não registrou peso e altura.</p>}
+            <WeightTrendChart records={dashboard.bodyMetrics?.history ?? []} heightCm={dashboard.bodyMetrics?.heightCm} birthDate={dashboard.bodyMetrics?.birthDate} gender={dashboard.bodyMetrics?.gender} />
+          </section>
           <section className="student-detail-section"><div className="student-detail-section__heading"><div><p className="students-eyebrow">DESEMPENHO</p><h2>Evolução por atividade</h2></div></div>
             <article className="student-frequency-card"><div className="student-evolution-card__heading"><div><span>REGULARIDADE</span><h3>Treinos por semana</h3></div><span>Últimas 8 semanas</span></div><svg className="student-frequency-chart" viewBox="0 0 320 150" role="img" aria-label="Treinos concluídos por semana nas últimas oito semanas"><title>Frequência semanal de treinos concluídos</title><path className="student-frequency-chart__axis" d="M20 116H310" />{weeklyTraining.map((week, index) => { const height = week.count ? Math.max(8, (week.count / maxWeeklyTraining) * 82) : 2; const x = 28 + index * 36; const y = 116 - height; return <g key={week.start.toISOString()}><rect className={index === 7 ? 'is-current' : ''} x={x} y={y} width="19" height={height} rx="5"><title>{`${week.count} ${week.count === 1 ? 'treino concluído' : 'treinos concluídos'} na semana de ${formatDate(week.start)}`}</title></rect><text x={x + 9.5} y="138" textAnchor="middle">{formatDate(week.start, { day: '2-digit', month: '2-digit' })}</text></g> })}</svg><p>{completedSessions.length ? 'Sessões concluídas pelo aluno, agrupadas pela semana de início.' : 'As sessões concluídas aparecerão aqui conforme o aluno registrar seus treinos.'}</p></article>
             {dashboard.evolution.length ? <div className="student-evolution-list">{dashboard.evolution.map((item) => {

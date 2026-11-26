@@ -43,6 +43,6 @@
 .modalidades-secondary-button:hover { border-color: var(--color-primary); background: var(--color-primary-light); }
 .modalidades-page__footnote { max-width: 680px; margin: .8rem auto 0; color: var(--color-text-secondary); font-size: var(--font-size-xs); line-height: 1.5; text-align: center; }
 @keyframes modalidades-spin { to { transform: rotate(360deg); } }
-@media (min-width: 800px) { .modalidades-page { padding: 3.5rem 2.5rem 3rem 16rem; } .modalidades-page__header { margin-bottom: 1.7rem; } .modalidades-grid { gap: .75rem; } .modalidade-card { min-height: 5rem; padding: .8rem; } }
+@media (min-width: 800px) { .modalidades-page { padding: 3.5rem 2.5rem 3rem 2rem; } .modalidades-page__header { margin-bottom: 1.7rem; } .modalidades-grid { gap: .75rem; } .modalidade-card { min-height: 5rem; padding: .8rem; } }
 @media (max-width: 380px) { .modalidades-page__header h1 { font-size: 1.7rem; } .modalidades-panel { padding: .85rem; } .modalidades-grid { grid-template-columns: 1fr; } .modalidade-card { min-height: 3.9rem; } .modalidades-count { padding: .35rem .5rem; font-size: .68rem; } }
 @media (prefers-reduced-motion: reduce) { .modalidade-card,.modalidade-card__mark,.modalidade-card__check,.modalidades-submit,.modalidades-secondary-button,.modalidades-spinner { transition: none; animation: none; } }

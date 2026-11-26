@@ -3,4 +3,11 @@
   z-index: 80;
   top: max(.65rem, env(safe-area-inset-top));
   right: max(1rem, env(safe-area-inset-right), calc((100vw - var(--container-max-width)) / 2));
+  display: flex;
+  align-items: center;
+  gap: .65rem;
+}
+
+@media (max-width: 700px) {
+  .student-account-menu { top: max(.55rem, env(safe-area-inset-top)); right: max(.75rem, env(safe-area-inset-right)); gap: .5rem; }
 }

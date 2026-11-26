@@ -1,7 +1,8 @@
 import { Link, useNavigate } from 'react-router-dom'
+import { ArrowRight, Check, Plus } from 'lucide-react'
 import ExerciseMedia from './ExerciseMedia.jsx'
 
-export default function ActivityListItem({ atividade, modalidade, programContext, alreadyAdded = false, returnTo = '/atividades', detailPath }) {
+export default function ActivityListItem({ atividade, modalidade, programContext, alreadyAdded = false, returnTo = '/atividades', detailPath, showDetailsLabel = false, style }) {
   const navigate = useNavigate()
   const { nome, descricao, midiaUrl, grupoMuscular, origem } = atividade
   const emptyThumbnail = <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.25" aria-hidden="true">
@@ -27,12 +28,13 @@ export default function ActivityListItem({ atividade, modalidade, programContext
           <span className={`activity-origin${origem === 'PERSONALIZADA' ? ' activity-origin-mine' : ''}`}>
             {origem === 'PERSONALIZADA' ? 'Minha' : 'Padrão'}
           </span>
-          {programContext && <span className="activity-add-label">{alreadyAdded ? 'Adicionada' : 'Adicionar'}</span>}
-          <span className="navigation-chevron" aria-hidden="true">›</span>
+          {programContext
+            ? <span className="activity-add-label">{alreadyAdded ? <><Check size={17} aria-hidden="true" />Adicionada</> : <><Plus size={17} aria-hidden="true" />Adicionar</>}</span>
+            : <>{showDetailsLabel && <span className="activity-details-label">Detalhes</span>}<ArrowRight className="navigation-chevron" size={19} aria-hidden="true" /></>}
         </div>
   </>
 
   return <li>
-    {programContext ? <button className={`activity-row activity-row--button${alreadyAdded ? ' is-added' : ''}`} type="button" disabled={alreadyAdded} aria-label={alreadyAdded ? `${nome} já adicionada ao programa` : `Adicionar ${nome} ao programa`} onClick={() => navigate(`/atividades/${encodeURIComponent(atividade.id)}/configurar`, { state: { ...programContext, atividadeSelecionada: atividade } })}>{content}</button> : <Link className="activity-row" to={detailPath || `/biblioteca/atividades/${encodeURIComponent(atividade.id)}`} state={{ returnTo, atividade }} aria-label={`Ver detalhes de ${nome}`}>{content}</Link>}
+    {programContext ? <button className={`activity-row activity-row--button${alreadyAdded ? ' is-added' : ''}`} style={style} type="button" disabled={alreadyAdded} aria-label={alreadyAdded ? `${nome} já adicionada ao programa` : `Adicionar ${nome} ao programa`} onClick={() => navigate(`/atividades/${encodeURIComponent(atividade.id)}/configurar`, { state: { ...programContext, atividadeSelecionada: atividade } })}>{content}</button> : <Link className="activity-row" style={style} to={detailPath || `/biblioteca/atividades/${encodeURIComponent(atividade.id)}`} state={{ returnTo, atividade }} aria-label={`Ver detalhes de ${nome}`}>{content}</Link>}
   </li>
 }

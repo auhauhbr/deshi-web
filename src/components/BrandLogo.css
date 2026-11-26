@@ -1,0 +1,17 @@
+.brand-logo-adaptive {
+  display: grid;
+}
+
+.brand-logo-adaptive img {
+  grid-area: 1 / 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: inherit;
+}
+
+:root:not([data-theme="dark"]) .brand-logo-adaptive-dark,
+:root[data-theme="dark"] .brand-logo-adaptive-light {
+  display: none;
+}

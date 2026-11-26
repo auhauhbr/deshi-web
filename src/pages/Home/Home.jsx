@@ -2,7 +2,8 @@ import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import StudentBottomNav from '../../components/StudentBottomNav.jsx'
 import StudentButton from '../../components/StudentButton.jsx'
-import BrandLogo from '../../components/BrandLogo.jsx'
+import StudentHeader from '../../components/StudentHeader.jsx'
+import { resumeApiLoadingScreen } from '../../services/apiLoadingState.js'
 import './Home.css'
 
 const FitnessScene = lazy(() => import('../../components/FitnessScene.jsx'))
@@ -16,6 +17,15 @@ function HomePage() {
     && !window.matchMedia('(prefers-reduced-motion: reduce)').matches
   ))
 
+  function finishLoginReveal() {
+    setIsLoginRevealVisible(false)
+    resumeApiLoadingScreen()
+  }
+
+  useEffect(() => {
+    if (location.state?.playLoginReveal && !isLoginRevealVisible) resumeApiLoadingScreen()
+  }, [isLoginRevealVisible, location.state])
+
   useEffect(() => {
     if (!location.state?.playLoginReveal) return
     navigate('/home', {
@@ -28,23 +38,19 @@ function HomePage() {
     if (!isLoginRevealVisible) return undefined
 
     function skipOnEscape(event) {
-      if (event.key === 'Escape') setIsLoginRevealVisible(false)
+      if (event.key === 'Escape') finishLoginReveal()
     }
 
     window.addEventListener('keydown', skipOnEscape)
     const playPromise = videoRef.current?.play()
-    playPromise?.catch(() => setIsLoginRevealVisible(false))
+    playPromise?.catch(finishLoginReveal)
 
     return () => window.removeEventListener('keydown', skipOnEscape)
   }, [isLoginRevealVisible])
 
   return (
     <main className="home-page">
-      <header className="home-header">
-        <div className="session-brand">
-          <BrandLogo className="session-brand-logo" to="/home" />
-        </div>
-      </header>
+      <StudentHeader className="home-header" />
       <section className="home-content">
         <div className="home-card">
           <div className="home-copy">
@@ -64,7 +70,7 @@ function HomePage() {
           </div>
         </div>
       </section>
-      <StudentBottomNav active="home" />
+      <StudentBottomNav active="home" showAccountMenu={false} />
       {isLoginRevealVisible && (
         <div className="login-transition-overlay" role="status" aria-label="Animação de entrada do Deshi">
           <div className="login-transition-crop">
@@ -76,8 +82,8 @@ function HomePage() {
               muted
               playsInline
               preload="auto"
-              onEnded={() => setIsLoginRevealVisible(false)}
-              onError={() => setIsLoginRevealVisible(false)}
+              onEnded={finishLoginReveal}
+              onError={finishLoginReveal}
             />
           </div>
         </div>

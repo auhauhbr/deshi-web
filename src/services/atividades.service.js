@@ -15,14 +15,14 @@ function isAtividade(item) {
     (item.midiaUrl == null || typeof item.midiaUrl === 'string')
 }
 
-export async function listarAtividades({ busca, modalidadeId } = {}, signal) {
+export async function listarAtividades({ busca, modalidadeId } = {}, signal, { skipGlobalLoading = false } = {}) {
   const params = new URLSearchParams()
   if (busca?.trim()) params.set('busca', busca.trim())
   if (modalidadeId?.trim()) params.set('modalidadeId', modalidadeId.trim())
   const query = params.toString()
   let data
   try {
-    const response = await api.get(`/atividades${query ? `?${query}` : ''}`, { signal })
+    const response = await api.get(`/atividades${query ? `?${query}` : ''}`, { signal, skipGlobalLoading })
     data = response.data
   } catch (error) {
     requestError(error, 'Não foi possível carregar as atividades.')

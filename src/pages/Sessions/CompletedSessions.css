@@ -40,8 +40,8 @@
   display: grid;
   place-items: center;
   border-radius: 50%;
-  background: #e4f9ec;
-  color: #218651;
+  background: var(--color-success-surface);
+  color: var(--color-success);
   font-weight: var(--font-weight-bold);
 }
 
@@ -84,8 +84,8 @@
   place-items: center;
   margin: 0 auto var(--spacing-md);
   border-radius: 50%;
-  background: #e4f9ec;
-  color: #218651;
+  background: var(--color-success-surface);
+  color: var(--color-success);
   font-size: var(--font-size-xl);
 }
 
@@ -100,6 +100,6 @@
   font-size: var(--font-size-sm);
 }
 
-.completed-session-icon.is-interrupted { background: #fff3df; color: #8b5d12; }
+.completed-session-icon.is-interrupted { background: var(--color-warning-surface); color: var(--color-warning); }
 .session-message-history { display: grid; justify-items: start; gap: .6rem; }
 .session-message-history p { margin: 0; color: var(--color-error); }

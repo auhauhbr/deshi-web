@@ -9,7 +9,7 @@ import {
 import { getApiErrorMessage } from '../../services/authService.js'
 import StudentBottomNav from '../../components/StudentBottomNav.jsx'
 import StudentButton from '../../components/StudentButton.jsx'
-import BrandLogo from '../../components/BrandLogo.jsx'
+import StudentHeader from '../../components/StudentHeader.jsx'
 import './StartSession.css'
 
 function ProgramIcon({ url, completed = false }) {
@@ -22,6 +22,7 @@ function StartSession() {
   const navigate = useNavigate()
 
   const [programs, setPrograms] = useState([])
+  const [activeSessions, setActiveSessions] = useState([])
   const [completedTodayIds, setCompletedTodayIds] = useState([])
   const [recommendedTodayIds, setRecommendedTodayIds] = useState([])
   const [hasActiveProfessional, setHasActiveProfessional] = useState(null)
@@ -58,6 +59,8 @@ function StartSession() {
         ])
 
         if (!isCurrent) return
+
+        setActiveSessions((history || []).filter((session) => ['IN_PROGRESS', 'PAUSED'].includes(session.status)))
 
         if (professionals.length === 0) {
           setHasActiveProfessional(false)
@@ -153,11 +156,7 @@ async function handleStartSession(event, programId = selectedProgram) {
 
   return (
     <main className="start-session-page programs-page">
-      <header className="session-header programs-header">
-        <div className="session-brand">
-          <BrandLogo className="session-brand-logo" to="/home" />
-        </div>
-      </header>
+      <StudentHeader className="programs-header" />
 
       <section className="start-session-content">
         <div className="session-heading programs-heading">
@@ -169,6 +168,35 @@ async function handleStartSession(event, programId = selectedProgram) {
           className="program-selection"
           onSubmit={handleStartSession}
         >
+          {!isLoading && activeSessions.length > 0 && <section className="active-session-resume" aria-labelledby="active-session-title">
+            <div className="active-session-resume__heading">
+              <span className="active-session-resume__indicator" aria-hidden="true" />
+              <div>
+                <h2 id="active-session-title">Sessão em andamento</h2>
+                <p>Você pode voltar para onde parou.</p>
+              </div>
+            </div>
+            <div className="active-session-resume__list">
+              {activeSessions.map((session) => {
+                const program = programs.find((item) => String(item.id) === String(session.programId))
+                const completedCount = session.activities?.filter((activity) => activity.status === 'COMPLETED').length || 0
+                return <Link
+                  key={session.id}
+                  className="active-session-card"
+                  to={`/sessions/${session.id}`}
+                  state={{ session, programName: program?.name }}
+                  aria-label={`Retomar ${program?.name || 'sessão de treino'}${session.status === 'PAUSED' ? ', pausada' : ''}`}
+                >
+                  <span className="active-session-card__mark" aria-hidden="true">↗</span>
+                  <span className="active-session-card__copy">
+                    <strong>{program?.name || 'Sessão de treino'}</strong>
+                    <span>{session.status === 'PAUSED' ? 'Pausada' : 'Em andamento'} · {completedCount} de {session.activities?.length || 0} atividades concluídas</span>
+                  </span>
+                  <span className="active-session-card__action">Retomar <span aria-hidden="true">→</span></span>
+                </Link>
+              })}
+            </div>
+          </section>}
           {!isLoading && !historyWarning && recommendedTodayIds.length > 0 && <section className="program-recommendations" aria-labelledby="recommended-programs-title">
             <div className="program-section-heading"><div><h2 id="recommended-programs-title">Recomendados para hoje</h2><p>{recommendedTodayIds.every((id) => completedTodayIds.includes(id)) ? 'Você já concluiu os treinos recomendados de hoje. Muito bem!' : 'Treinos indicados para manter sua rotina nesta semana.'}</p></div></div>
             <div className="program-grid">{programs.filter((program) => recommendedTodayIds.includes(String(program.id))).map((program) => <article key={`recommended-${program.id}`} className={`program-card${completedTodayIds.includes(String(program.id)) ? ' is-done' : ''}`} role="button" tabIndex={0} onClick={() => navigate(`/sessions/preview/${program.id}`, { state: { program, returnTo: '/sessions/start' } })} onKeyDown={(event) => { if (event.key === 'Enter' || event.key === ' ') navigate(`/sessions/preview/${program.id}`, { state: { program, returnTo: '/sessions/start' } }) }}><div className="program-card-choice"><ProgramIcon url={program.iconeUrl} completed={completedTodayIds.includes(String(program.id))} /><div className="program-card-content"><h3>{program.name}</h3><p>{completedTodayIds.includes(String(program.id)) ? 'Concluído hoje · toque para repetir' : `${program.activities?.length ?? 0} atividades · toque para visualizar`}</p><p className="program-professional">{program.professionalName || 'Programa do seu profissional'}</p></div></div></article>)}</div>
@@ -283,7 +311,7 @@ async function handleStartSession(event, programId = selectedProgram) {
 
         </form>
       </section>
-      <StudentBottomNav active="todo" />
+      <StudentBottomNav active="todo" showAccountMenu={false} />
     </main>
   )
 }

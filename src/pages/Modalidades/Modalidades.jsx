@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
-import ProfessionalNavigation from '../../components/ProfessionalNavigation.jsx'
 import { getApiErrorMessage } from '../../services/authService.js'
 import { getMinhasModalidades, getModalidades, saveModalidades } from '../../services/modalidades.service.js'
 import './Modalidades.css'
@@ -76,7 +75,6 @@ function ModalidadesPage() {
   if (alreadyConfigured && !loading) return <Navigate to="/home" replace />
 
   return <main className="modalidades-page">
-    <ProfessionalNavigation />
     <div className="modalidades-page__container">
       <header className="modalidades-page__header">
         <span className="modalidades-page__step">PRIMEIRO ACESSO <i aria-hidden="true">·</i> 01</span>

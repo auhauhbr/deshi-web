@@ -1,31 +1,22 @@
-import { useEffect, useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import ProfessionalNavigation from '../../components/ProfessionalNavigation.jsx'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import { api } from '../../services/api.js'
-import { getApiErrorMessage, logoutUser } from '../../services/authService.js'
+import { getApiErrorMessage, getStoredUser } from '../../services/authService.js'
 import { getMinhasModalidades, getModalidades, saveModalidades } from '../../services/modalidades.service.js'
 import { listarAtividades } from '../../services/atividades.service.js'
 import './ProfessionalProfile.css'
-
-function readSessionUser() {
-  try {
-    return JSON.parse(localStorage.getItem('deshi.user') || '{}')
-  } catch {
-    return {}
-  }
-}
 
 function initials(name = '') {
   return name.trim().split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part[0].toLocaleUpperCase('pt-BR')).join('') || 'P'
 }
 
 export default function ProfessionalProfilePage() {
-  const navigate = useNavigate()
-  const [user] = useState(readSessionUser)
+  const { hash, key } = useLocation()
+  const modalitiesHeadingRef = useRef(null)
+  const user = getStoredUser() || {}
   const [state, setState] = useState({ phase: 'loading', catalog: [], selected: [], students: [], programs: [], activities: [], error: '' })
   const [selected, setSelected] = useState(new Set())
   const [saving, setSaving] = useState(false)
-  const [loggingOut, setLoggingOut] = useState(false)
   const [feedback, setFeedback] = useState(null)
   const [attempt, setAttempt] = useState(0)
 
@@ -47,6 +38,13 @@ export default function ProfessionalProfilePage() {
     })
     return () => controller.abort()
   }, [attempt])
+
+  useEffect(() => {
+    const heading = modalitiesHeadingRef.current
+    if (!heading || hash !== `#${heading.id}`) return
+    heading.focus({ preventScroll: true })
+    heading.scrollIntoView({ block: 'start' })
+  }, [hash, key, state.phase])
 
   const selectedIds = useMemo(() => new Set([...selected]), [selected])
   const isDirty = useMemo(() => {
@@ -85,16 +83,8 @@ export default function ProfessionalProfilePage() {
     }
   }
 
-  async function handleLogout() {
-    if (loggingOut) return
-    setLoggingOut(true)
-    try { await logoutUser() } catch { /* A sessão local também é removida quando a API está indisponível. */ }
-    navigate('/login', { replace: true, state: { message: 'Você saiu da sua conta com segurança.' } })
-  }
-
   return (
     <main className="professional-profile-page">
-      <ProfessionalNavigation />
       <div className="professional-profile-content">
         <header className="professional-profile-header">
           <div><span className="professional-profile-eyebrow">SUA CONTA</span><h1>Perfil</h1><p>Seus dados e sua área de atuação.</p></div>
@@ -116,7 +106,7 @@ export default function ProfessionalProfilePage() {
               </section>
 
               <section className="professional-profile-section" aria-labelledby="profile-modalities-title">
-                <div className="professional-profile-section__heading"><div><span>ATUAÇÃO</span><h2 id="profile-modalities-title">Suas modalidades</h2><p>Escolha as áreas em que você trabalha. A Biblioteca e os programas usam essa seleção.</p></div><span className="professional-profile-selected-count">{selected.size} {selected.size === 1 ? 'selecionada' : 'selecionadas'}</span></div>
+                <div className="professional-profile-section__heading"><div><span>ATUAÇÃO</span><h2 id="profile-modalities-title" ref={modalitiesHeadingRef} tabIndex={-1}>Suas modalidades</h2><p>Escolha as áreas em que você trabalha. A Biblioteca e os programas usam essa seleção.</p></div><span className="professional-profile-selected-count">{selected.size} {selected.size === 1 ? 'selecionada' : 'selecionadas'}</span></div>
                 {state.catalog.length ? <div className="professional-profile-modalities" role="group" aria-labelledby="profile-modalities-title">{state.catalog.map((modality) => {
                   const checked = selected.has(modality.id)
                   return <button key={modality.id} type="button" className={`professional-profile-modality${checked ? ' is-selected' : ''}`} aria-pressed={checked} disabled={saving} onClick={() => toggleModality(modality.id)}>
@@ -130,7 +120,6 @@ export default function ProfessionalProfilePage() {
                 <div className="professional-profile-section__heading"><div><span>CONTA</span><h2 id="account-details-title">Seus dados</h2><p>Informações usadas para identificar seu acesso.</p></div></div>
                 <dl><div><dt>Nome</dt><dd>{user.name || 'Não informado'}</dd></div><div><dt>E-mail</dt><dd>{user.email || 'Não informado'}</dd></div><div><dt>Tipo de conta</dt><dd>Profissional</dd></div></dl>
               </section>
-              <div className="professional-profile-logout"><div><strong>Quer sair da sua conta?</strong><span>Você poderá entrar novamente a qualquer momento.</span></div><button type="button" onClick={handleLogout} disabled={loggingOut}>{loggingOut ? 'Saindo...' : 'Sair da conta'}</button></div>
             </>}
       </div>
     </main>

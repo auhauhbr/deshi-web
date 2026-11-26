@@ -1,0 +1,111 @@
+.session-expired-page {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: var(--spacing-lg);
+  background:
+    radial-gradient(circle at 50% 0%, rgb(0 217 160 / 9%), transparent 34rem),
+    var(--color-background);
+}
+
+.session-expired-card {
+  width: min(100%, 27rem);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: clamp(1.5rem, 6vw, 3rem);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-card);
+  text-align: center;
+  animation: session-expired-enter 420ms cubic-bezier(.2, .75, .25, 1) both;
+}
+
+.session-expired-logo {
+  width: 6rem;
+  height: 3.75rem;
+  object-fit: contain;
+  margin-bottom: 1.75rem;
+}
+
+.session-expired-icon {
+  width: 3.5rem;
+  height: 3.5rem;
+  display: grid;
+  place-items: center;
+  margin-bottom: 1.25rem;
+  border-radius: 50%;
+  background: var(--color-primary-light);
+  color: var(--color-professional-green);
+}
+
+.session-expired-icon svg {
+  width: 1.8rem;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.4;
+}
+
+.session-expired-eyebrow {
+  margin: 0 0 .45rem;
+  color: var(--color-professional-green);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.session-expired-card h1 {
+  margin: 0;
+  color: var(--color-text);
+  font-size: clamp(1.7rem, 6vw, 2.15rem);
+  letter-spacing: -.045em;
+  line-height: 1.15;
+}
+
+.session-expired-copy {
+  max-width: 21rem;
+  margin: .85rem 0 1.5rem;
+  color: var(--color-text-secondary);
+  line-height: 1.55;
+}
+
+.session-expired-button {
+  width: 100%;
+  min-height: 3.2rem;
+  border: 0;
+  border-radius: var(--radius-md);
+  padding: .75rem 1rem;
+  background: var(--color-primary);
+  color: var(--color-text-on-primary);
+  font: inherit;
+  font-weight: var(--font-weight-bold);
+  cursor: pointer;
+  transition: background var(--transition-fast), transform var(--transition-fast);
+}
+
+.session-expired-button:hover {
+  background: var(--color-primary-hover);
+}
+
+.session-expired-button:active {
+  transform: translateY(1px);
+  background: var(--color-primary-active);
+}
+
+.session-expired-button:focus-visible {
+  outline: 3px solid var(--color-border-focus);
+  outline-offset: 3px;
+}
+
+@keyframes session-expired-enter {
+  from { opacity: 0; transform: translateY(10px) scale(.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .session-expired-card { animation: none; }
+  .session-expired-button { transition: none; }
+}

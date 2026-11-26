@@ -12,7 +12,7 @@
   padding: .35rem max(.55rem, calc((100% - 31rem) / 2)) calc(.35rem + env(safe-area-inset-bottom));
   border-top: 1px solid var(--color-border);
   border-radius: 1.2rem 1.2rem 0 0;
-  background: #fff;
+  background: var(--color-surface);
   box-shadow: 0 -8px 24px rgb(24 29 27 / 7%);
 }
 
@@ -25,7 +25,7 @@
   justify-content: center;
   gap: 0;
   border-radius: 1rem;
-  color: #68736d;
+  color: var(--color-text-secondary);
   font-size: .63rem;
   font-weight: var(--font-weight-semibold);
   line-height: 1.1;
@@ -36,7 +36,7 @@
 
 .student-bottom-nav a.active {
   z-index: 2;
-  color: #fff;
+  color: var(--color-text-on-primary);
   transform: translateY(-.78rem);
 }
 
@@ -47,9 +47,9 @@
   left: 50%;
   width: 3.65rem;
   height: 3.65rem;
-  border: .32rem solid #fff;
+  border: .32rem solid var(--color-surface);
   border-radius: 50%;
-  background: linear-gradient(145deg, #00d9a0, #00a879);
+  background: var(--color-primary);
   content: '';
   transform: translate(-50%, -50%);
 }
