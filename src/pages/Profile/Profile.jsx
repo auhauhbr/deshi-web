@@ -1,13 +1,16 @@
 import { useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { createPortal } from 'react-dom'
-import { Pencil, Save, X } from 'lucide-react'
+import { ArrowLeft, CalendarDays, Check, ChevronLeft, ChevronRight, LockKeyhole, Pencil, Save, UserRound, VenusAndMars, X } from 'lucide-react'
 import StudentBottomNav from '../../components/StudentBottomNav.jsx'
 import StudentButton from '../../components/StudentButton.jsx'
 import BrandLogo from '../../components/BrandLogo.jsx'
 import SmoothTab from '../../components/kokonutui/smooth-tab.jsx'
 import WeightTrendChart from '../../components/WeightTrendChart.jsx'
 import { getApiErrorMessage, getStoredUser, logoutUser } from '../../services/authService.js'
+import { changeStudentPassword, updateStudentProfile } from '../../services/studentProfileService.js'
+import { getLocalDateInputValue } from '../../utils/date.js'
+import { formatBirthDate, getAgeInfo } from '../../utils/userAge.js'
 import { getStudentSessions } from '../../services/sessionService.js'
 import { getStudentBodyMetrics, saveStudentBodyMetrics } from '../../services/studentBodyMetricsService.js'
 import '../Sessions/StartSession.css'
@@ -22,6 +25,20 @@ function getDateKey(value) {
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) return ''
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+}
+
+function toDateInputValue(date) {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+function getCalendarDays(monthDate) {
+  const firstOfMonth = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1)
+  const mondayOffset = (firstOfMonth.getDay() + 6) % 7
+  const start = new Date(firstOfMonth.getFullYear(), firstOfMonth.getMonth(), 1 - mondayOffset)
+  return Array.from({ length: 42 }, (_, index) => new Date(start.getFullYear(), start.getMonth(), start.getDate() + index))
 }
 
 function getWeekDays(today, weekOffset = 0) {
@@ -101,7 +118,9 @@ function CircularMetric({ value, label, progress = 1, showProgress = true, varia
 
 function ProfilePage() {
   const navigate = useNavigate()
-  const user = getStoredUser()
+  const location = useLocation()
+  const [user, setUser] = useState(() => getStoredUser())
+  const ageInfo = getAgeInfo(user?.birthDate)
   const [isLoggingOut, setIsLoggingOut] = useState(false)
   const [sessions, setSessions] = useState([])
   const [isLoadingSessions, setIsLoadingSessions] = useState(true)
@@ -116,6 +135,16 @@ function ProfilePage() {
   const [bodyMetricsTab, setBodyMetricsTab] = useState('evolucao')
   const [weightInput, setWeightInput] = useState('')
   const [heightInput, setHeightInput] = useState('')
+  const [isProfileEditorOpen, setIsProfileEditorOpen] = useState(false)
+  const [profileEditSection, setProfileEditSection] = useState('menu')
+  const [profileEditName, setProfileEditName] = useState('')
+  const [profileEditBirthDate, setProfileEditBirthDate] = useState('')
+  const [profileEditGender, setProfileEditGender] = useState('')
+  const [profileEditPassword, setProfileEditPassword] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' })
+  const [profileEditError, setProfileEditError] = useState('')
+  const [profileEditFeedback, setProfileEditFeedback] = useState('')
+  const [profileEditSaving, setProfileEditSaving] = useState(false)
+  const [birthDateCalendarMonth, setBirthDateCalendarMonth] = useState(() => new Date(new Date().getFullYear(), new Date().getMonth(), 1))
   const [weekOffset, setWeekOffset] = useState(0)
   const swipeStartX = useRef(null)
 
@@ -127,6 +156,26 @@ function ProfilePage() {
     window.addEventListener('keydown', closeOnEscape)
     return () => window.removeEventListener('keydown', closeOnEscape)
   }, [isBodyMetricsEditorOpen, bodyMetricsSaving])
+
+  useEffect(() => {
+    if (!isProfileEditorOpen) return undefined
+    const previousOverflow = document.body.style.overflow
+    const closeOnEscape = (event) => {
+      if (event.key === 'Escape' && !profileEditSaving) setIsProfileEditorOpen(false)
+    }
+    document.body.style.overflow = 'hidden'
+    window.addEventListener('keydown', closeOnEscape)
+    return () => {
+      document.body.style.overflow = previousOverflow
+      window.removeEventListener('keydown', closeOnEscape)
+    }
+  }, [isProfileEditorOpen, profileEditSaving])
+
+  useEffect(() => {
+    if (!location.state?.openEditProfile) return
+    openProfileEditor()
+    navigate(location.pathname, { replace: true, state: null })
+  }, [location.key, location.pathname, location.state, navigate])
 
   useEffect(() => {
     let isCurrent = true
@@ -198,6 +247,76 @@ function ProfilePage() {
     setIsBodyMetricsEditorOpen(true)
   }
 
+  function openProfileEditor() {
+    setProfileEditName(user?.name ?? '')
+    setProfileEditBirthDate(user?.birthDate ?? '')
+    setProfileEditGender(user?.gender ?? '')
+    setProfileEditPassword({ currentPassword: '', newPassword: '', confirmPassword: '' })
+    setProfileEditSection('menu')
+    setProfileEditError('')
+    setProfileEditFeedback('')
+    setIsProfileEditorOpen(true)
+  }
+
+  function selectProfileEditSection(section) {
+    setProfileEditSection(section)
+    setProfileEditError('')
+    if (section === 'birthDate') {
+      const value = user?.birthDate || getLocalDateInputValue()
+      const selected = new Date(`${value}T12:00:00`)
+      setBirthDateCalendarMonth(new Date(selected.getFullYear(), selected.getMonth(), 1))
+    }
+  }
+
+  async function handleProfileEditSubmit(event) {
+    event.preventDefault()
+    setProfileEditError('')
+    if (profileEditSection === 'name' && profileEditName.trim().length < 3) {
+      setProfileEditError('O nome deve ter pelo menos 3 caracteres.')
+      return
+    }
+    if (profileEditSection === 'password') {
+      if (!profileEditPassword.currentPassword || profileEditPassword.newPassword.length < 8) {
+        setProfileEditError('Informe sua senha atual e uma nova senha com pelo menos 8 caracteres.')
+        return
+      }
+      if (profileEditPassword.newPassword !== profileEditPassword.confirmPassword) {
+        setProfileEditError('A nova senha e a confirmação não coincidem.')
+        return
+      }
+    }
+    if (profileEditSection === 'birthDate' && (!profileEditBirthDate || profileEditBirthDate > getLocalDateInputValue())) {
+      setProfileEditError('Selecione uma data de nascimento válida.')
+      return
+    }
+    if (profileEditSection === 'gender' && !profileEditGender) {
+      setProfileEditError('Selecione o gênero para continuar.')
+      return
+    }
+
+    setProfileEditSaving(true)
+    try {
+      if (profileEditSection === 'name') {
+        setUser(await updateStudentProfile({ name: profileEditName.trim() }))
+        setProfileEditFeedback('Nome atualizado com sucesso.')
+      } else if (profileEditSection === 'birthDate') {
+        setUser(await updateStudentProfile({ birthDate: profileEditBirthDate }))
+        setProfileEditFeedback('Data de nascimento cadastrada com sucesso.')
+      } else if (profileEditSection === 'gender') {
+        setUser(await updateStudentProfile({ gender: profileEditGender }))
+        setProfileEditFeedback('Gênero cadastrado com sucesso.')
+      } else if (profileEditSection === 'password') {
+        await changeStudentPassword(profileEditPassword)
+        setProfileEditFeedback('Senha alterada com sucesso.')
+      }
+      setIsProfileEditorOpen(false)
+    } catch (error) {
+      setProfileEditError(getApiErrorMessage(error, 'Não foi possível salvar as alterações. Tente novamente.'))
+    } finally {
+      setProfileEditSaving(false)
+    }
+  }
+
   async function handleLogout() {
     setIsLoggingOut(true)
     try {
@@ -234,6 +353,9 @@ function ProfilePage() {
   const shortestProgress = longestDuration ? shortestSession.duration / longestDuration : 0
   const photoUrl = user?.photoUrl || user?.avatarUrl || user?.imageUrl || user?.picture
   const initials = user?.name?.trim()?.charAt(0)?.toLocaleUpperCase('pt-BR') || '•'
+  const birthDateCalendarDays = getCalendarDays(birthDateCalendarMonth)
+  const birthDateMonthLabel = new Intl.DateTimeFormat('pt-BR', { month: 'long' }).format(birthDateCalendarMonth)
+  const todayDateValue = getLocalDateInputValue()
 
   function handleWeekPointerDown(event) {
     swipeStartX.current = event.clientX
@@ -277,8 +399,10 @@ function ProfilePage() {
             <p className="profile-eyebrow">SUA CONTA</p>
             <h1>{user?.name || 'Aluno'}</h1>
             <p>{user?.email || 'E-mail não informado'}</p>
+            {(user?.birthDate || user?.gender) && <p className="profile-birth-date">{[user?.birthDate && `Nascimento: ${formatBirthDate(user.birthDate)}`, ageInfo && `${ageInfo.category} (${ageInfo.age} anos)`, user?.gender && (user.gender === 'MALE' ? 'Masculino' : 'Feminino')].filter(Boolean).join(' · ')}</p>}
           </div>
         </section>
+        {profileEditFeedback && <p className="profile-body-metrics-message is-success" role="status">{profileEditFeedback}</p>}
 
         <section className="profile-week-section" aria-labelledby="profile-week-title">
           <div className="profile-section-heading">
@@ -356,7 +480,7 @@ function ProfilePage() {
                 {
                   id: 'evolucao',
                   title: 'Evolução do peso',
-                  content: <WeightTrendChart records={bodyMetrics.history ?? []} heightCm={bodyMetrics.heightCm} />,
+                  content: <WeightTrendChart records={bodyMetrics.history ?? []} heightCm={bodyMetrics.heightCm} birthDate={user?.birthDate} gender={user?.gender} />,
                 },
                 {
                   id: 'medidas',
@@ -380,8 +504,10 @@ function ProfilePage() {
                           <tr><th scope="row">Peso atual</th><td>{(bodyMetrics?.weightKg ?? 0).toLocaleString('pt-BR', { maximumFractionDigits: 2 })} kg</td></tr>
                           <tr><th scope="row">Altura</th><td>{(bodyMetrics?.heightCm ?? 0).toLocaleString('pt-BR', { maximumFractionDigits: 1 })} cm</td></tr>
                           <tr><th scope="row">IMC</th><td><strong>{(bodyMetrics?.bmi ?? 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong> kg/m²</td></tr>
+                          {ageInfo && <tr><th scope="row">Faixa etária</th><td>{ageInfo.category} · {ageInfo.age} anos</td></tr>}
                         </tbody>
                       </table>
+                      {ageInfo?.age < 20 && <p className="profile-body-metrics-help">Em crianças e adolescentes, a interpretação do IMC considera idade e sexo. O valor exibido é o cálculo do IMC, sem classificação clínica.</p>}
                       {bodyMetrics?.updatedAt
                         ? <small>Atualizado em {new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(bodyMetrics.updatedAt))}</small>
                         : <small>Medidas ainda não cadastradas.</small>}
@@ -503,7 +629,60 @@ function ProfilePage() {
         )}
       </section>
 
-      <StudentBottomNav active="profile" showAccountMenu={false} />
+      {isProfileEditorOpen && createPortal((
+        <div className="profile-edit-modal-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget && !profileEditSaving) setIsProfileEditorOpen(false) }}>
+          <section className="profile-edit-modal" role="dialog" aria-modal="true" aria-labelledby="profile-edit-title">
+            <header className="profile-edit-modal__header">
+              <div className="profile-edit-modal__title-wrap">
+                {profileEditSection !== 'menu' && <button className="profile-edit-back" type="button" onClick={() => selectProfileEditSection('menu')} disabled={profileEditSaving} aria-label="Voltar às opções"><ArrowLeft size={18} /></button>}
+                <div><p className="profile-eyebrow">SUA CONTA</p><h2 id="profile-edit-title">{profileEditSection === 'menu' ? 'Editar perfil' : profileEditSection === 'name' ? 'Alterar nome' : profileEditSection === 'password' ? 'Alterar senha' : profileEditSection === 'birthDate' ? 'Data de nascimento' : 'Cadastrar gênero'}</h2></div>
+              </div>
+              <button className="profile-body-metrics-modal-close" type="button" onClick={() => setIsProfileEditorOpen(false)} disabled={profileEditSaving} aria-label="Fechar edição do perfil"><X size={19} /></button>
+            </header>
+
+            {profileEditSection === 'menu' ? <div className="profile-edit-options">
+              <button type="button" onClick={() => selectProfileEditSection('name')}><span className="profile-edit-option-icon"><UserRound size={18} /></span><span><strong>Nome</strong><small>Atualize como seu nome aparece no perfil</small></span><ChevronRight size={18} /></button>
+              <button type="button" onClick={() => selectProfileEditSection('password')}><span className="profile-edit-option-icon"><LockKeyhole size={18} /></span><span><strong>Senha</strong><small>Altere sua senha de acesso</small></span><ChevronRight size={18} /></button>
+              {!user?.birthDate && <button type="button" onClick={() => selectProfileEditSection('birthDate')}><span className="profile-edit-option-icon"><CalendarDays size={18} /></span><span><strong>Data de nascimento</strong><small>Adicione sua data para completar o perfil</small></span><ChevronRight size={18} /></button>}
+              {!user?.gender && <button type="button" onClick={() => selectProfileEditSection('gender')}><span className="profile-edit-option-icon"><VenusAndMars size={18} /></span><span><strong>Gênero</strong><small>Adicione essa informação ao perfil</small></span><ChevronRight size={18} /></button>}
+            </div> : null}
+
+            {profileEditSection === 'name' && <form className="profile-edit-form" onSubmit={handleProfileEditSubmit}>
+              <label htmlFor="profile-edit-name">Nome completo<input id="profile-edit-name" name="name" type="text" autoComplete="name" minLength="3" required value={profileEditName} onChange={(event) => setProfileEditName(event.target.value)} disabled={profileEditSaving} autoFocus /></label>
+              {profileEditError && <p className="profile-body-metrics-message is-error" role="alert">{profileEditError}</p>}
+              <button className="profile-edit-submit" type="submit" disabled={profileEditSaving || profileEditName.trim().length < 3}><Save size={17} />{profileEditSaving ? 'Salvando...' : 'Salvar nome'}</button>
+            </form>}
+
+            {profileEditSection === 'password' && <form className="profile-edit-form" onSubmit={handleProfileEditSubmit}>
+              <label htmlFor="profile-current-password">Senha atual<input id="profile-current-password" name="currentPassword" type="password" autoComplete="current-password" minLength="8" required value={profileEditPassword.currentPassword} onChange={(event) => setProfileEditPassword((current) => ({ ...current, currentPassword: event.target.value }))} disabled={profileEditSaving} autoFocus /></label>
+              <label htmlFor="profile-new-password">Nova senha<input id="profile-new-password" name="newPassword" type="password" autoComplete="new-password" minLength="8" required value={profileEditPassword.newPassword} onChange={(event) => setProfileEditPassword((current) => ({ ...current, newPassword: event.target.value }))} disabled={profileEditSaving} /></label>
+              <label htmlFor="profile-confirm-password">Digite novamente a nova senha<input id="profile-confirm-password" name="confirmPassword" type="password" autoComplete="new-password" minLength="8" required value={profileEditPassword.confirmPassword} onChange={(event) => setProfileEditPassword((current) => ({ ...current, confirmPassword: event.target.value }))} disabled={profileEditSaving} /></label>
+              {profileEditError && <p className="profile-body-metrics-message is-error" role="alert">{profileEditError}</p>}
+              <button className="profile-edit-submit" type="submit" disabled={profileEditSaving || !profileEditPassword.currentPassword || profileEditPassword.newPassword.length < 8 || !profileEditPassword.confirmPassword}><Save size={17} />{profileEditSaving ? 'Salvando...' : 'Alterar senha'}</button>
+            </form>}
+
+            {profileEditSection === 'birthDate' && <form className="profile-edit-form" onSubmit={handleProfileEditSubmit}>
+              <div className="profile-edit-calendar">
+                <div className="profile-edit-calendar__navigation"><button type="button" onClick={() => setBirthDateCalendarMonth((month) => new Date(month.getFullYear(), month.getMonth() - 1, 1))} aria-label="Mês anterior"><ChevronLeft size={18} /></button><strong>{birthDateMonthLabel}</strong><label>Ano<input type="number" min="1900" max={new Date().getFullYear()} value={birthDateCalendarMonth.getFullYear()} aria-label="Ano de nascimento" onChange={(event) => { const year = Number(event.target.value); if (year >= 1900 && year <= new Date().getFullYear()) setBirthDateCalendarMonth((month) => new Date(year, month.getMonth(), 1)) }} /></label><button type="button" onClick={() => setBirthDateCalendarMonth((month) => new Date(month.getFullYear(), month.getMonth() + 1, 1))} disabled={toDateInputValue(new Date(birthDateCalendarMonth.getFullYear(), birthDateCalendarMonth.getMonth() + 1, 1)) > todayDateValue} aria-label="Próximo mês"><ChevronRight size={18} /></button></div>
+                <div className="profile-edit-calendar__weekdays" aria-hidden="true">{['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'].map((day) => <span key={day}>{day}</span>)}</div>
+                <div className="profile-edit-calendar__grid">{birthDateCalendarDays.map((date) => { const dateValue = toDateInputValue(date); return <button className={`${date.getMonth() === birthDateCalendarMonth.getMonth() ? '' : 'is-outside-month'} ${profileEditBirthDate === dateValue ? 'is-selected' : ''}`} type="button" key={dateValue} disabled={dateValue > todayDateValue} aria-pressed={profileEditBirthDate === dateValue} aria-label={new Intl.DateTimeFormat('pt-BR', { dateStyle: 'full' }).format(date)} onClick={() => setProfileEditBirthDate(dateValue)}>{date.getDate()}</button> })}</div>
+              </div>
+              {profileEditBirthDate && <p className="profile-edit-selected-date">Data selecionada: {formatBirthDate(profileEditBirthDate)}</p>}
+              {profileEditError && <p className="profile-body-metrics-message is-error" role="alert">{profileEditError}</p>}
+              <button className="profile-edit-submit" type="submit" disabled={profileEditSaving || !profileEditBirthDate}><Save size={17} />{profileEditSaving ? 'Salvando...' : 'Salvar data de nascimento'}</button>
+            </form>}
+
+            {profileEditSection === 'gender' && <form className="profile-edit-form" onSubmit={handleProfileEditSubmit}>
+              <p className="profile-edit-description">Selecione o gênero para completar seus dados e a referência de IMC por idade.</p>
+              <div className="profile-edit-gender-options"><button type="button" aria-pressed={profileEditGender === 'MALE'} onClick={() => setProfileEditGender('MALE')}><span>Masculino</span>{profileEditGender === 'MALE' && <Check size={18} />}</button><button type="button" aria-pressed={profileEditGender === 'FEMALE'} onClick={() => setProfileEditGender('FEMALE')}><span>Feminino</span>{profileEditGender === 'FEMALE' && <Check size={18} />}</button></div>
+              {profileEditError && <p className="profile-body-metrics-message is-error" role="alert">{profileEditError}</p>}
+              <button className="profile-edit-submit" type="submit" disabled={profileEditSaving || !profileEditGender}><Save size={17} />{profileEditSaving ? 'Salvando...' : 'Salvar gênero'}</button>
+            </form>}
+          </section>
+        </div>
+      ), document.body)}
+
+      <StudentBottomNav active="profile" onEditProfile={openProfileEditor} />
     </main>
   )
 }

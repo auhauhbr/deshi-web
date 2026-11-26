@@ -182,6 +182,53 @@
   font-size: var(--font-size-sm);
 }
 
+.profile-identity-copy > .profile-birth-date { margin-top: .25rem; font-size: var(--font-size-xs); }
+.profile-edit-trigger { flex: 0 0 auto; margin-left: auto; }
+.profile-edit-modal-backdrop { position: fixed; z-index: 1200; inset: 0; display: grid; place-items: center; overflow-y: auto; padding: max(1rem, env(safe-area-inset-top)) 1rem max(1rem, env(safe-area-inset-bottom)); background: rgb(13 30 24 / 44%); backdrop-filter: blur(9px); -webkit-backdrop-filter: blur(9px); overscroll-behavior: contain; }
+.profile-edit-modal { width: min(100%, 31rem); max-height: 100%; overflow-y: auto; box-sizing: border-box; margin: auto; padding: clamp(1rem, 4vw, 1.4rem); border: 1px solid var(--color-border); border-radius: 1.2rem; background: var(--color-surface); color: var(--color-text); box-shadow: 0 1.5rem 4rem rgb(10 35 25 / 28%); animation: profile-metrics-modal-in 170ms ease-out both; }
+.profile-edit-modal__header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1.1rem; }
+.profile-edit-modal__title-wrap { min-width: 0; display: flex; align-items: center; gap: .65rem; }
+.profile-edit-modal__header .profile-eyebrow { margin: 0 0 .2rem; }
+.profile-edit-modal__header h2 { margin: 0; color: var(--color-text); font-size: 1.25rem; letter-spacing: -.03em; }
+.profile-edit-back { width: 2.35rem; height: 2.35rem; display: grid; flex: 0 0 auto; place-items: center; border: 1px solid var(--color-border); border-radius: .7rem; background: var(--color-surface); color: var(--color-primary-active); cursor: pointer; }
+.profile-edit-back:hover:not(:disabled) { background: var(--color-primary-light); }
+.profile-edit-options { display: grid; gap: .55rem; }
+.profile-edit-options > button { min-width: 0; display: grid; grid-template-columns: 2.5rem minmax(0, 1fr) 1.1rem; align-items: center; gap: .7rem; padding: .7rem .75rem; border: 1px solid var(--color-border); border-radius: .85rem; background: var(--color-surface); color: var(--color-text); text-align: left; cursor: pointer; transition: border-color 150ms ease, background 150ms ease, transform 150ms ease; }
+.profile-edit-options > button:hover { transform: translateY(-1px); border-color: var(--color-primary-active); background: color-mix(in srgb, var(--color-primary) 6%, var(--color-surface)); }
+.profile-edit-options > button > span:nth-child(2) { min-width: 0; display: grid; gap: .16rem; }
+.profile-edit-options strong { font-size: .9rem; }
+.profile-edit-options small { color: var(--color-text-secondary); font-size: .72rem; line-height: 1.35; }
+.profile-edit-options > button > svg { color: var(--color-text-secondary); }
+.profile-edit-option-icon { width: 2.35rem; height: 2.35rem; display: grid; place-items: center; border-radius: .7rem; background: var(--color-primary-light); color: var(--color-primary-active); }
+.profile-edit-form { display: grid; gap: .85rem; }
+.profile-edit-form > label { display: grid; gap: .4rem; color: var(--color-text-secondary); font-size: .82rem; font-weight: var(--font-weight-semibold); }
+.profile-edit-form input { width: 100%; min-height: 2.8rem; box-sizing: border-box; padding: 0 .8rem; border: 1px solid var(--color-border); border-radius: .75rem; background: var(--color-surface); color: var(--color-text); font: inherit; font-size: .9rem; }
+.profile-edit-form input:focus { outline: 3px solid rgb(0 159 117 / 16%); border-color: var(--color-primary-active); }
+.profile-edit-submit { min-height: 2.8rem; display: inline-flex; align-items: center; justify-content: center; gap: .5rem; margin-top: .15rem; padding: 0 1rem; border: 0; border-radius: .75rem; background: var(--color-primary); color: var(--color-text-on-primary); font: inherit; font-size: .88rem; font-weight: var(--font-weight-bold); cursor: pointer; transition: background 150ms ease, opacity 150ms ease; }
+.profile-edit-submit:hover:not(:disabled) { background: var(--color-primary-hover); }
+.profile-edit-submit:disabled { cursor: not-allowed; opacity: .55; }
+.profile-edit-description { margin: 0; color: var(--color-text-secondary); font-size: .82rem; line-height: 1.45; }
+.profile-edit-gender-options { display: grid; gap: .55rem; }
+.profile-edit-gender-options button { min-height: 3rem; display: flex; align-items: center; justify-content: space-between; gap: .75rem; padding: .65rem .8rem; border: 1px solid var(--color-border); border-radius: .75rem; background: var(--color-surface); color: var(--color-text); font: inherit; text-align: left; cursor: pointer; }
+.profile-edit-gender-options button[aria-pressed="true"], .profile-edit-gender-options button:hover { border-color: var(--color-primary-active); background: color-mix(in srgb, var(--color-primary) 10%, var(--color-surface)); }
+.profile-edit-gender-options button svg { color: var(--color-primary-active); }
+.profile-edit-calendar { display: grid; gap: .35rem; }
+.profile-edit-calendar__navigation { display: flex; align-items: center; justify-content: space-between; gap: .4rem; margin-bottom: .25rem; }
+.profile-edit-calendar__navigation > button { width: 2.1rem; height: 2.1rem; display: grid; flex: 0 0 auto; place-items: center; border: 1px solid var(--color-border); border-radius: .65rem; background: var(--color-surface); color: var(--color-text-secondary); cursor: pointer; }
+.profile-edit-calendar__navigation > button:hover:not(:disabled) { border-color: var(--color-primary-active); color: var(--color-primary-active); }
+.profile-edit-calendar__navigation > button:disabled { opacity: .35; cursor: not-allowed; }
+.profile-edit-calendar__navigation strong { color: var(--color-text); font-size: .9rem; text-transform: capitalize; }
+.profile-edit-calendar__navigation label { display: grid; gap: .1rem; color: var(--color-text-secondary); font-size: .6rem; font-weight: 700; }
+.profile-edit-calendar__navigation input { width: 3.8rem; min-height: 1.9rem; padding: 0 .25rem; font-size: .78rem; text-align: center; }
+.profile-edit-calendar__weekdays, .profile-edit-calendar__grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: .2rem; }
+.profile-edit-calendar__weekdays span { padding: .25rem 0; color: var(--color-text-secondary); font-size: .65rem; font-weight: 700; text-align: center; }
+.profile-edit-calendar__grid button { aspect-ratio: 1; display: grid; place-items: center; border: 1px solid transparent; border-radius: .65rem; background: transparent; color: var(--color-text); font: inherit; font-size: .77rem; cursor: pointer; }
+.profile-edit-calendar__grid button:hover:not(:disabled), .profile-edit-calendar__grid button.is-selected { border-color: var(--color-primary-active); background: var(--color-primary); color: #063d2e; font-weight: 800; }
+.profile-edit-calendar__grid button.is-outside-month { color: var(--color-text-secondary); opacity: .55; }
+.profile-edit-calendar__grid button:disabled { opacity: .25; cursor: not-allowed; }
+.profile-edit-selected-date { margin: 0; color: var(--color-text-secondary); font-size: .78rem; }
+.profile-edit-modal button:focus-visible { outline: 3px solid rgb(0 159 117 / 24%); outline-offset: 2px; }
+
 .profile-week-section,
 .profile-stat-card {
   min-width: 0;

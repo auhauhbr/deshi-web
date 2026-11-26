@@ -2,8 +2,8 @@ import { api, TOKEN_STORAGE_KEY } from './api.js'
 
 const USER_STORAGE_KEY = 'deshi.user'
 
-export async function registerUser({ email, name, password, profile }) {
-  const { data } = await api.post('/users', { email, name, password, profile })
+export async function registerUser({ email, name, password, profile, birthDate, gender }) {
+  const { data } = await api.post('/users', { email, name, password, profile, birthDate, gender })
   return data
 }
 
@@ -20,6 +20,13 @@ export function getStoredUser() {
   } catch {
     return null
   }
+}
+
+export function updateStoredUser(fields) {
+  const storedUser = getStoredUser() || {}
+  const updatedUser = { ...storedUser, ...fields }
+  localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(updatedUser))
+  return updatedUser
 }
 
 export async function logoutUser() {

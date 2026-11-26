@@ -69,11 +69,21 @@
 
 .account-menu__identity {
   display: flex;
+  width: 100%;
   align-items: center;
   gap: .75rem;
   min-width: 0;
   padding: .65rem .65rem .75rem;
+  border: 0;
+  border-radius: .75rem;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
 }
+.account-menu__identity:hover { background: var(--color-surface-secondary, #eef2f0); }
+.account-menu__identity:focus-visible { outline: 3px solid color-mix(in srgb, var(--color-primary, #00d9a0) 38%, transparent); outline-offset: 1px; }
 
 .account-menu__identity-avatar {
   display: grid;

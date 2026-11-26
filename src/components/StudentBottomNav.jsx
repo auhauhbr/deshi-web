@@ -2,7 +2,7 @@ import { NavLink, useLocation } from 'react-router-dom'
 import StudentAccountMenu from './StudentAccountMenu.jsx'
 import './StudentBottomNav.css'
 
-function StudentBottomNav({ active, showAccountMenu = true }) {
+function StudentBottomNav({ active, showAccountMenu = true, onEditProfile }) {
   const location = useLocation()
   const current = active || (
     location.pathname === '/home'
@@ -16,7 +16,7 @@ function StudentBottomNav({ active, showAccountMenu = true }) {
 
   return (
     <>
-      {showAccountMenu && <StudentAccountMenu />}
+      {showAccountMenu && <StudentAccountMenu onEditProfile={onEditProfile} />}
       <nav className="student-bottom-nav" aria-label="Navegação principal">
         <NavLink title="Home" to="/home" className={current === 'home' ? 'active' : ''} aria-current={current === 'home' ? 'page' : undefined}>
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-6v-7h-4v7H4a1 1 0 0 1-1-1z" /></svg>

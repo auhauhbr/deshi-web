@@ -1,3 +1,164 @@
-.register-page .auth-card {
-    max-width: 32rem;
+.register-page .auth-card { max-width: 36rem; }
+.required-asterisk { color: #c62828; font-weight: 800; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; clip-path: inset(50%); }
+.password-strength { display: grid; gap: .35rem; margin-top: -.8rem; color: var(--color-text-secondary); font-size: .75rem; }
+.password-strength__meter { display: grid; grid-template-columns: repeat(4, 1fr); gap: .3rem; }
+.password-strength__meter span { height: .28rem; border-radius: 999px; background: #e5e9e7; }
+.password-strength--1 .password-strength__meter .is-active { background: #dc3545; }
+.password-strength--2 .password-strength__meter .is-active { background: #f28c28; }
+.password-strength--3 .password-strength__meter .is-active { background: #e3bd19; }
+.password-strength--4 .password-strength__meter .is-active { background: #12a875; }
+.register-picker-trigger {
+  width: 100%;
+  min-height: 3.3rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  padding: 0 .9rem;
+  border: 1px solid var(--color-border);
+  border-radius: .65rem;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-size: .92rem;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+.register-picker-trigger > svg { flex: 0 0 auto; color: var(--color-primary-active); }
+.register-picker-trigger .is-placeholder { color: var(--color-text-secondary); }
+.register-picker-trigger:hover { border-color: var(--color-primary-active); }
+.register-picker-trigger:focus-visible { outline: 3px solid color-mix(in srgb, var(--color-primary) 24%, transparent); border-color: var(--color-primary-active); }
+.register-dialog-backdrop {
+  position: fixed;
+  z-index: 2200;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  overflow-y: auto;
+  padding: max(1rem, env(safe-area-inset-top)) 1rem max(1rem, env(safe-area-inset-bottom));
+  background: rgb(10 31 24 / 40%);
+  backdrop-filter: blur(9px);
+  -webkit-backdrop-filter: blur(9px);
+  animation: register-backdrop-in 150ms ease-out both;
+}
+.register-dialog {
+  width: min(100%, 25rem);
+  max-height: min(42rem, 100%);
+  overflow-y: auto;
+  box-sizing: border-box;
+  padding: 1.2rem;
+  border: 1px solid var(--color-border);
+  border-radius: 1.25rem;
+  background: var(--color-surface);
+  color: var(--color-text);
+  box-shadow: 0 24px 80px rgb(4 30 20 / 24%);
+  animation: register-dialog-in 180ms ease-out both;
+}
+.register-dialog__header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 1.1rem; }
+.register-dialog__header h2 { margin: .15rem 0 0; color: var(--color-text); font-size: 1.15rem; letter-spacing: -.025em; }
+.register-dialog__eyebrow { margin: 0; color: var(--color-primary-active); font-size: .65rem; font-weight: 800; letter-spacing: .12em; }
+.register-dialog__close,
+.register-calendar__navigation button {
+  width: 2.35rem;
+  height: 2.35rem;
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid var(--color-border);
+  border-radius: .75rem;
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+.register-dialog__close:hover,
+.register-calendar__navigation button:hover:not(:disabled) { border-color: var(--color-primary); background: var(--color-primary-light); color: var(--color-primary-active); }
+.register-calendar__navigation { display: flex; align-items: center; justify-content: space-between; gap: .75rem; margin-bottom: .85rem; }
+.register-calendar__navigation strong { color: var(--color-text); font-size: .98rem; text-transform: capitalize; }
+.register-calendar__year { display: grid; gap: .15rem; color: var(--color-text-secondary); font-size: .62rem !important; font-weight: 700 !important; }
+.register-calendar__year input { width: 4.2rem; min-height: 2rem; box-sizing: border-box; padding: 0 .35rem; border: 1px solid var(--color-border); border-radius: .5rem; background: var(--color-surface); color: var(--color-text); font: inherit; font-size: .78rem; text-align: center; }
+.register-calendar__year input:focus { outline: 2px solid color-mix(in srgb, var(--color-primary) 32%, transparent); border-color: var(--color-primary-active); }
+.register-calendar__navigation button:disabled { cursor: not-allowed; opacity: .35; }
+.register-calendar__weekdays,
+.register-calendar__grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: .28rem; }
+.register-calendar__weekdays { margin-bottom: .35rem; }
+.register-calendar__weekdays span { padding: .3rem 0; color: var(--color-text-secondary); font-size: .7rem; font-weight: 700; text-align: center; }
+.register-calendar__grid button {
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border: 1px solid transparent;
+  border-radius: .7rem;
+  background: transparent;
+  color: var(--color-text);
+  font: inherit;
+  font-size: .82rem;
+  cursor: pointer;
+}
+.register-calendar__grid button:hover:not(:disabled) { border-color: var(--color-primary); background: var(--color-primary-light); }
+.register-calendar__grid button.is-outside-month { color: var(--color-text-secondary); opacity: .56; }
+.register-calendar__grid button.is-selected { border-color: var(--color-primary-active); background: var(--color-primary); color: #063d2e; font-weight: 800; }
+.register-calendar__grid button:disabled { cursor: not-allowed; opacity: .25; }
+.register-calendar__grid button:focus-visible,
+.register-gender-options button:focus-visible,
+.register-dialog__close:focus-visible,
+.register-calendar__navigation button:focus-visible { outline: 3px solid color-mix(in srgb, var(--color-primary) 35%, transparent); outline-offset: 2px; }
+.register-calendar__hint { margin: .85rem 0 0; padding-top: .75rem; border-top: 1px solid var(--color-border); color: var(--color-text-secondary); font-size: .75rem; line-height: 1.5; }
+.register-gender-options { display: grid; gap: .65rem; }
+.register-gender-options button { min-height: 3.5rem; display: flex; align-items: center; justify-content: space-between; gap: .75rem; padding: .75rem .9rem; border: 1px solid var(--color-border); border-radius: .85rem; background: var(--color-surface); color: var(--color-text); font: inherit; font-weight: 650; text-align: left; cursor: pointer; transition: border-color 150ms ease, background 150ms ease; }
+.register-gender-options button:hover,
+.register-gender-options button[aria-pressed="true"] { border-color: var(--color-primary-active); background: color-mix(in srgb, var(--color-primary) 10%, var(--color-surface)); }
+.register-gender-options button svg { color: var(--color-primary-active); }
+@keyframes register-backdrop-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes register-dialog-in { from { opacity: 0; transform: translateY(8px) scale(.985); } to { opacity: 1; transform: translateY(0) scale(1); } }
+.register-profile-step { width: 100%; }
+.register-profile-cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .9rem; }
+.register-profile-card {
+  position: relative;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0;
+  border: 1px solid #e0e9e4;
+  border-radius: 1.25rem;
+  background: #fff;
+  color: #073d2e;
+  box-shadow: 0 10px 24px rgb(5 59 43 / 8%);
+  text-align: left;
+  cursor: pointer;
+  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+}
+.register-profile-card:hover { transform: translateY(-3px); border-color: #00a879; box-shadow: 0 15px 30px rgb(5 59 43 / 15%); }
+.register-profile-card:focus-visible { outline: 3px solid #00bd8b; outline-offset: 3px; }
+.register-profile-card__art {
+  width: 100%;
+  aspect-ratio: .78;
+  display: block;
+  overflow: hidden;
+  background-image: url('/register-profiles.png');
+  background-repeat: no-repeat;
+  background-size: 210% 164%;
+  background-position-y: 35%;
+}
+.register-profile-card__art.is-professional { background-position-x: left; }
+.register-profile-card__art.is-student { background-position-x: right; }
+.register-profile-card__copy { min-height: 5.5rem; display: grid; align-content: center; gap: .18rem; padding: .65rem .8rem .8rem; }
+.register-profile-card__copy small { color: #548073; font-size: .62rem; font-weight: 800; letter-spacing: .1em; }
+.register-profile-card__copy strong { color: #073d2e; font-size: clamp(.92rem, 2vw, 1.08rem); font-weight: 800; }
+.register-back { display: inline-flex; align-items: center; gap: .4rem; margin: -1rem 0 .9rem; padding: .4rem 0; border: 0; background: transparent; color: #087657; font: inherit; font-size: .82rem; font-weight: 700; cursor: pointer; }
+.register-back:hover { color: #064b39; }
+.register-back:focus-visible { outline: 2px solid #00bd8b; outline-offset: 3px; }
+
+@media (max-width: 420px) {
+  .register-profile-cards { gap: .6rem; }
+  .register-profile-card { border-radius: 1rem; }
+  .register-profile-card__art { aspect-ratio: .78; background-size: 210% 164%; background-position-y: 35%; }
+  .register-profile-card__copy { min-height: 5.25rem; padding: .55rem .6rem .7rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .register-profile-card, .register-picker-trigger { transition: none; }
+  .register-dialog-backdrop, .register-dialog { animation: none; }
 }

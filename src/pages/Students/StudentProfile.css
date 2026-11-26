@@ -50,6 +50,7 @@
 .student-body-metrics-table th { color: var(--color-text-secondary); font-size: var(--font-size-sm); font-weight: var(--font-weight-medium); }
 .student-body-metrics-table td { color: var(--color-text); font-weight: var(--font-weight-semibold); text-align: right; }
 .student-body-metrics-updated { margin: .65rem 0 0; color: var(--color-text-secondary); font-size: var(--font-size-xs); }
+.student-body-metrics-note { margin: .65rem 0 0; color: var(--color-text-secondary); font-size: var(--font-size-xs); line-height: 1.5; }
 .student-body-metrics-empty { margin: 0; color: var(--color-text-secondary); font-size: var(--font-size-sm); line-height: 1.5; }
 .student-detail-section__heading { display: flex; align-items: end; justify-content: space-between; gap: 1rem; margin: 0 0 .7rem; }
 .student-detail-section__heading .students-eyebrow { margin: 0 0 .2rem; color: var(--color-primary-active); font-size: var(--font-size-xs); font-weight: var(--font-weight-bold); letter-spacing: .06em; }

@@ -6,6 +6,7 @@ import WeightTrendChart from '../../components/WeightTrendChart.jsx'
 import FadeContent from '../../components/FadeContent.jsx'
 import SlideTextButton from '../../components/kokonutui/slide-text-button.jsx'
 import { getProfessionalStudentDashboard } from '../../services/studentDashboardService.js'
+import { getAgeInfo } from '../../utils/userAge.js'
 import './StudentProfile.css'
 
 const WEEKDAY_FORMATTER = new Intl.DateTimeFormat('pt-BR', { weekday: 'short' })
@@ -61,6 +62,7 @@ function StudentProfilePage() {
   const [activeTab, setActiveTab] = useState('overview')
   const [showAllSessions, setShowAllSessions] = useState(false)
   const [weekOffset, setWeekOffset] = useState(0)
+  const studentAgeInfo = getAgeInfo(dashboard?.bodyMetrics?.birthDate)
 
   useEffect(() => {
     getProfessionalStudentDashboard(studentId).then((data) => {
@@ -223,12 +225,15 @@ function StudentProfilePage() {
                     <tr><th scope="row">Peso</th><td>{dashboard.bodyMetrics.weightKg.toLocaleString('pt-BR', { maximumFractionDigits: 2 })} kg</td></tr>
                     <tr><th scope="row">Altura</th><td>{dashboard.bodyMetrics.heightCm.toLocaleString('pt-BR', { maximumFractionDigits: 1 })} cm</td></tr>
                     <tr><th scope="row">IMC</th><td><strong>{dashboard.bodyMetrics.bmi.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong> kg/m²</td></tr>
+                    {studentAgeInfo && <tr><th scope="row">Faixa etária</th><td>{studentAgeInfo.category} · {studentAgeInfo.age} anos</td></tr>}
+                    {dashboard.bodyMetrics.gender && <tr><th scope="row">Gênero</th><td>{dashboard.bodyMetrics.gender === 'MALE' ? 'Masculino' : 'Feminino'}</td></tr>}
                   </tbody>
                 </table>
                 <p className="student-body-metrics-updated">Atualizado em {formatDate(dashboard.bodyMetrics.updatedAt, { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+                {studentAgeInfo?.age < 20 && <p className="student-body-metrics-note">Em crianças e adolescentes, a interpretação do IMC considera idade e sexo. O valor acima é o cálculo do IMC, sem classificação clínica.</p>}
               </>
             ) : <p className="student-body-metrics-empty">O aluno ainda não registrou peso e altura.</p>}
-            <WeightTrendChart records={dashboard.bodyMetrics?.history ?? []} heightCm={dashboard.bodyMetrics?.heightCm} />
+            <WeightTrendChart records={dashboard.bodyMetrics?.history ?? []} heightCm={dashboard.bodyMetrics?.heightCm} birthDate={dashboard.bodyMetrics?.birthDate} gender={dashboard.bodyMetrics?.gender} />
           </section>
           <section className="student-detail-section"><div className="student-detail-section__heading"><div><p className="students-eyebrow">DESEMPENHO</p><h2>Evolução por atividade</h2></div></div>
             <article className="student-frequency-card"><div className="student-evolution-card__heading"><div><span>REGULARIDADE</span><h3>Treinos por semana</h3></div><span>Últimas 8 semanas</span></div><svg className="student-frequency-chart" viewBox="0 0 320 150" role="img" aria-label="Treinos concluídos por semana nas últimas oito semanas"><title>Frequência semanal de treinos concluídos</title><path className="student-frequency-chart__axis" d="M20 116H310" />{weeklyTraining.map((week, index) => { const height = week.count ? Math.max(8, (week.count / maxWeeklyTraining) * 82) : 2; const x = 28 + index * 36; const y = 116 - height; return <g key={week.start.toISOString()}><rect className={index === 7 ? 'is-current' : ''} x={x} y={y} width="19" height={height} rx="5"><title>{`${week.count} ${week.count === 1 ? 'treino concluído' : 'treinos concluídos'} na semana de ${formatDate(week.start)}`}</title></rect><text x={x + 9.5} y="138" textAnchor="middle">{formatDate(week.start, { day: '2-digit', month: '2-digit' })}</text></g> })}</svg><p>{completedSessions.length ? 'Sessões concluídas pelo aluno, agrupadas pela semana de início.' : 'As sessões concluídas aparecerão aqui conforme o aluno registrar seus treinos.'}</p></article>
