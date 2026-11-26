@@ -4,7 +4,7 @@ import { createPortal } from 'react-dom'
 import { ArrowLeft, CalendarDays, Check, ChevronLeft, ChevronRight, LockKeyhole, Pencil, Save, UserRound, VenusAndMars, X } from 'lucide-react'
 import StudentBottomNav from '../../components/StudentBottomNav.jsx'
 import StudentButton from '../../components/StudentButton.jsx'
-import BrandLogo from '../../components/BrandLogo.jsx'
+import StudentHeader from '../../components/StudentHeader.jsx'
 import SmoothTab from '../../components/kokonutui/smooth-tab.jsx'
 import WeightTrendChart from '../../components/WeightTrendChart.jsx'
 import { getApiErrorMessage, getStoredUser, logoutUser } from '../../services/authService.js'
@@ -373,9 +373,7 @@ function ProfilePage() {
 
   return (
     <main className="start-session-page profile-page">
-      <header className="session-header profile-header">
-        <div className="session-brand"><BrandLogo className="session-brand-logo" variant="adaptive" to="/home" /></div>
-      </header>
+      <StudentHeader className="profile-header" onEditProfile={openProfileEditor} />
 
       <section className="profile-dashboard-content">
 
@@ -678,7 +676,7 @@ function ProfilePage() {
         </StudentButton>
       </section>
 
-      <StudentBottomNav active="profile" onEditProfile={openProfileEditor} />
+      <StudentBottomNav active="profile" showAccountMenu={false} />
     </main>
   )
 }

@@ -26,7 +26,9 @@ function App() {
   }, [location.pathname])
 
   const isPublicLightPage = ['/', '/login', '/cadastro', '/sessao-expirada'].includes(location.pathname)
-  const showThemeSwitch = Boolean(getStoredUser()) && !isPublicLightPage
+  const isStudentPage = ['/home', '/profile', '/sessions/start', '/sessions/completed', '/invites/accept'].includes(location.pathname)
+    || location.pathname.startsWith('/sessions/')
+  const showThemeSwitch = Boolean(getStoredUser()) && !isPublicLightPage && !isStudentPage
 
   return (
     <>

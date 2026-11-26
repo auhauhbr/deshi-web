@@ -9,7 +9,7 @@ import {
 import { getApiErrorMessage } from '../../services/authService.js'
 import StudentBottomNav from '../../components/StudentBottomNav.jsx'
 import StudentButton from '../../components/StudentButton.jsx'
-import BrandLogo from '../../components/BrandLogo.jsx'
+import StudentHeader from '../../components/StudentHeader.jsx'
 import './StartSession.css'
 
 function ProgramIcon({ url, completed = false }) {
@@ -156,11 +156,7 @@ async function handleStartSession(event, programId = selectedProgram) {
 
   return (
     <main className="start-session-page programs-page">
-      <header className="session-header programs-header">
-        <div className="session-brand">
-          <BrandLogo className="session-brand-logo" variant="adaptive" to="/home" />
-        </div>
-      </header>
+      <StudentHeader className="programs-header" />
 
       <section className="start-session-content">
         <div className="session-heading programs-heading">
@@ -315,7 +311,7 @@ async function handleStartSession(event, programId = selectedProgram) {
 
         </form>
       </section>
-      <StudentBottomNav active="todo" />
+      <StudentBottomNav active="todo" showAccountMenu={false} />
     </main>
   )
 }

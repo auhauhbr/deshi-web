@@ -5,7 +5,6 @@ import StudentButton from '../../components/StudentButton.jsx'
 import ExerciseMedia from '../../components/ExerciseMedia.jsx'
 import { METRICAS_ATIVIDADE } from '../../utils/metricas-atividade.js'
 import {
-  completeActivity,
   endActivityRest,
   getStudentSessions,
   pauseActivity,
@@ -223,8 +222,6 @@ function SessionActivity() {
         : activity.status === 'RESTING'
           ? { action: endActivityRest, label: 'Encerrar descanso', icon: 'play' }
           : null
-  const canComplete = ['IN_PROGRESS', 'PAUSED', 'RESTING'].includes(activity.status)
-  const canRest = activity.status === 'IN_PROGRESS'
   function openExecutionForm() {
     navigate(`/sessions/${sessionId}/executions/${activity.activityId}`, {
       state: { session, activity, programName: state?.programName },
@@ -308,6 +305,8 @@ function SessionActivity() {
           src={activity.midiaUrl}
           alt=""
           preview
+          shouldPlay={session.status === 'IN_PROGRESS' && activity.status === 'IN_PROGRESS'}
+          loop
           fallback={<ExerciseFallback label={label} />}
         />
       </div>
@@ -329,6 +328,11 @@ function SessionActivity() {
           {activity.descricao && <p>{activity.descricao}</p>}
         </div>
 
+        {!isPreviewMode && <div className="activity-player-clock" aria-live="off">
+          <strong>{formatClock(activityTime)}</strong>
+          <span>{activity.status === 'RESTING' ? 'Descanso' : activity.status === 'PAUSED' ? 'Pausa' : 'Tempo de execução'}</span>
+        </div>}
+
         {activity.status === 'PENDING' && activity.prescribed && Object.keys(activity.prescribed).length > 0 && (
           <dl className="activity-prescription" aria-label="Prescrição do profissional">
             {Object.entries(activity.prescribed).filter(([key]) => Object.hasOwn(METRICAS_ATIVIDADE, key)).map(([key, value]) => (
@@ -337,57 +341,35 @@ function SessionActivity() {
           </dl>
         )}
 
-        {['IN_PROGRESS', 'RESTING'].includes(activity.status) && (
+        {['IN_PROGRESS', 'RESTING', 'PAUSED'].includes(activity.status) && (
           <section className="activity-set-panel" aria-label="Registro das séries">
             <div className="activity-set-heading"><span>{isRoundBased ? 'ROUND' : 'SÉRIE'} {activeSet} DE {prescribedSets}</span><strong>{activity.status === 'RESTING' ? formatClock(restRemaining * 1000) : isRoundBased ? formatClock(roundRemaining * 1000) : `${activity.prescribed?.repeticoes || '—'} repetições`}</strong></div>
-            {activity.status === 'RESTING' ? <p role="status">Descanso. O próximo round começa automaticamente ao fim do cronômetro.</p> : isRoundBased ? <>
+            {activity.status === 'RESTING' ? <p role="status">Descanso. O próximo round começa automaticamente ao fim do cronômetro.</p> : activity.status === 'PAUSED' ? <p role="status">Atividade pausada. Retome quando estiver pronto para continuar.</p> : isRoundBased ? <>
               <p role="status">{roundReady ? 'Pronto para começar o próximo round.' : roundRemaining ? 'Execute o round no seu ritmo.' : 'Round concluído. Toque para registrar e continuar.'}</p>
-              {roundReady ? <StudentButton variant="primary" className="activity-main-action" onClick={startNextRound} disabled={busy}>Iniciar round {activeSet}</StudentButton> : <StudentButton variant="primary" className="activity-main-action" onClick={finishRound} disabled={busy || roundRemaining > 0}>{activeSet >= prescribedSets ? 'Terminar último round' : restSeconds ? 'Terminar round e descansar' : 'Terminar round'}</StudentButton>}
+              {roundReady ? <StudentButton variant="primary" className="activity-main-action activity-set-panel-action" onClick={startNextRound} disabled={busy}>Iniciar round {activeSet}</StudentButton> : <StudentButton variant="primary" className="activity-main-action activity-set-panel-action" onClick={finishRound} disabled={busy || roundRemaining > 0}>{activeSet >= prescribedSets ? 'Terminar último round' : restSeconds ? 'Terminar round e descansar' : 'Terminar round'}</StudentButton>}
             </> : <>
               <label>Repetições realizadas<input type="number" min="1" step="1" value={reps} onChange={(event) => setReps(event.target.value)} placeholder={String(activity.prescribed?.repeticoes || '')} /></label>
               <label>Carga utilizada (kg)<input type="number" min="0" step="0.5" value={load} onChange={(event) => setLoad(event.target.value)} placeholder={String(activity.prescribed?.cargaKg ?? 0)} /></label>
-              <StudentButton variant="primary" className="activity-main-action" onClick={saveSet} disabled={busy}>{activeSet < prescribedSets && restSeconds ? 'Registrar série e descansar' : activeSet < prescribedSets ? 'Registrar série' : 'Concluir atividade'}</StudentButton>
+              <StudentButton variant="primary" className="activity-main-action activity-set-panel-action" onClick={saveSet} disabled={busy}>{activeSet < prescribedSets && restSeconds ? 'Registrar série e descansar' : activeSet < prescribedSets ? 'Registrar série' : 'Concluir atividade'}</StudentButton>
             </>}
+            {!isPreviewMode && !isSessionPaused && mainAction && activity.status !== 'PENDING' && (
+              <StudentButton variant="secondary" className="activity-set-control activity-set-panel-action" onClick={() => runAction(mainAction.action)} busy={busy}>
+                {busy ? <span className="activity-action-spinner" aria-hidden="true" /> : <ActionIcon kind={mainAction.icon} />}
+                {busy ? 'Atualizando...' : mainAction.label}
+              </StudentButton>
+            )}
+            {isSessionPaused && <p className="activity-session-paused-note" role="status">O treino está pausado. Retome a sessão para usar os controles desta atividade.</p>}
           </section>
         )}
 
-        {!isPreviewMode && <div className="activity-player-controls">
-          <div className="activity-player-clock" aria-live="off">
-            <strong>{formatClock(activityTime)}</strong>
-            <span>{activity.status === 'RESTING' ? 'Descanso' : activity.status === 'PAUSED' ? 'Pausa' : 'Tempo de execução'}</span>
-          </div>
-
-          {isSessionPaused ? (
-            <p className="activity-session-paused-note" role="status">O treino está pausado. Retome a sessão para usar os controles desta atividade.</p>
-          ) : (
-            <>
-              {mainAction && (
-                <StudentButton variant="primary" className="activity-main-action" onClick={() => runAction(mainAction.action)} busy={busy}>
-                  {busy ? <span className="activity-action-spinner" aria-hidden="true" /> : <ActionIcon kind={mainAction.icon} />}
-                  {busy ? 'Atualizando...' : mainAction.label}
-                </StudentButton>
-              )}
-
-              <div className="activity-secondary-actions">
-                {canRest && (
-                  <StudentButton variant="secondary" onClick={() => runAction(startActivityRest)} disabled={busy}>
-                    <ActionIcon kind="rest" /> Iniciar descanso
-                  </StudentButton>
-                )}
-                {canComplete && (
-                  <StudentButton variant="secondary" particles onClick={() => runAction(completeActivity)} disabled={busy}>
-                    <ActionIcon kind="check" /> Concluir atividade
-                  </StudentButton>
-                )}
-                {['COMPLETED', 'INCOMPLETE'].includes(activity.status) && session.status === 'IN_PROGRESS' && (
-                  <StudentButton variant="secondary" onClick={openExecutionForm} disabled={busy}>
-                    Registrar execução
-                  </StudentButton>
-                )}
-              </div>
-            </>
-          )}
-
+        {!isPreviewMode && (activity.status === 'PENDING' || ['COMPLETED', 'INCOMPLETE'].includes(activity.status) || message) && <div className="activity-player-controls">
+          {activity.status === 'PENDING' && (isSessionPaused
+            ? <p className="activity-session-paused-note" role="status">O treino está pausado. Retome a sessão para iniciar esta atividade.</p>
+            : mainAction && <StudentButton variant="primary" className="activity-main-action" onClick={() => runAction(mainAction.action)} busy={busy}>
+              {busy ? <span className="activity-action-spinner" aria-hidden="true" /> : <ActionIcon kind={mainAction.icon} />}
+              {busy ? 'Atualizando...' : mainAction.label}
+            </StudentButton>)}
+          {['COMPLETED', 'INCOMPLETE'].includes(activity.status) && session.status === 'IN_PROGRESS' && <StudentButton variant="secondary" onClick={openExecutionForm} disabled={busy}>Registrar execução</StudentButton>}
           {message && <p className="activity-player-message" role="alert">{message}</p>}
         </div>}
       </section>

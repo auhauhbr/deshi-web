@@ -2,7 +2,7 @@ import { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import StudentBottomNav from '../../components/StudentBottomNav.jsx'
 import StudentButton from '../../components/StudentButton.jsx'
-import BrandLogo from '../../components/BrandLogo.jsx'
+import StudentHeader from '../../components/StudentHeader.jsx'
 import { resumeApiLoadingScreen } from '../../services/apiLoadingState.js'
 import './Home.css'
 
@@ -50,11 +50,7 @@ function HomePage() {
 
   return (
     <main className="home-page">
-      <header className="home-header">
-        <div className="session-brand">
-          <BrandLogo className="session-brand-logo" variant="adaptive" to="/home" />
-        </div>
-      </header>
+      <StudentHeader className="home-header" />
       <section className="home-content">
         <div className="home-card">
           <div className="home-copy">
@@ -74,7 +70,7 @@ function HomePage() {
           </div>
         </div>
       </section>
-      <StudentBottomNav active="home" />
+      <StudentBottomNav active="home" showAccountMenu={false} />
       {isLoginRevealVisible && (
         <div className="login-transition-overlay" role="status" aria-label="Animação de entrada do Deshi">
           <div className="login-transition-crop">

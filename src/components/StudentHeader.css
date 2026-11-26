@@ -1,0 +1,25 @@
+.student-header.student-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.student-header-actions {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: .65rem;
+}
+
+@media (max-width: 700px) {
+  .student-header {
+    padding-right: max(.75rem, env(safe-area-inset-right));
+    padding-left: max(.75rem, env(safe-area-inset-left));
+  }
+
+  .student-header-actions {
+    gap: .45rem;
+  }
+}

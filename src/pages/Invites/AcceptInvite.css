@@ -3,12 +3,24 @@
   min-height: 100dvh;
   height: auto;
   overflow: auto;
+  padding-top: 4.75rem;
   background:
     radial-gradient(circle at 82% 30%, rgb(0 217 160 / 12%), transparent 24rem),
     var(--color-background);
 }
 
-.invite-header { flex-shrink: 0; }
+main.invite-page > .student-header {
+  position: fixed;
+  inset: 0 0 auto;
+  width: 100%;
+  flex-shrink: 0;
+}
+
+@media (max-width: 700px) {
+  .invite-page { padding-top: 4.25rem; }
+  .invite-header { height: 4.25rem; padding-inline: 1rem; }
+  .invite-header .session-brand-logo { width: 5.4rem; height: 3.4rem; }
+}
 
 .invite-content {
   width: min(100% - 2rem, 38rem);

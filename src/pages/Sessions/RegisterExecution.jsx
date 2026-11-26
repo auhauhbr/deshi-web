@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import StudentBottomNav from '../../components/StudentBottomNav.jsx'
 import StudentButton from '../../components/StudentButton.jsx'
-import BrandLogo from '../../components/BrandLogo.jsx'
+import StudentHeader from '../../components/StudentHeader.jsx'
 import { registerExecution } from '../../services/sessionService.js'
 import { getApiErrorMessage } from '../../services/authService.js'
 import './StartSession.css'
@@ -38,7 +38,7 @@ export default function RegisterExecution() {
   }
 
   return <main className="start-session-page">
-    <header className="session-header"><div className="session-brand"><BrandLogo className="session-brand-logo" variant="adaptive" to="/home" /></div><span className="session-header-label">Resumo da execução</span></header>
+    <StudentHeader><span className="session-header-label">Resumo da execução</span></StudentHeader>
     <section className="session-details-content">
       <div className="session-heading"><p className="session-eyebrow">ATIVIDADE {activity?.order || ''}</p><h1>Como foi sua execução?</h1><p>Confira suas séries antes de confirmar para seu profissional.</p></div>
       {!session || !activity || !finalSet ? <article className="session-details-card">Resumo indisponível. Volte à sessão e conclua as séries para continuar.</article> : <article className="session-details-card execution-summary-card">
@@ -50,6 +50,6 @@ export default function RegisterExecution() {
         {error && <p className="session-message" role="alert">{error}</p>}
         <div className="execution-actions"><StudentButton variant="secondary" className="session-secondary-button" onClick={() => navigate(-1)} disabled={busy}>Voltar</StudentButton><StudentButton particles className="session-start-button" onClick={confirm} busy={busy}>{busy ? 'Confirmando...' : 'Confirmar execução'}</StudentButton></div>
       </article>}
-    </section><StudentBottomNav active="todo" />
+    </section><StudentBottomNav active="todo" showAccountMenu={false} />
   </main>
 }

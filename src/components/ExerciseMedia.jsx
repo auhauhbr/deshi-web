@@ -44,6 +44,7 @@ export default function ExerciseMedia({
   fallback = null,
   preview = false,
   autoPlay = false,
+  shouldPlay = false,
   loop = preview,
   controls = !preview,
   interactive = true,
@@ -70,6 +71,15 @@ export default function ExerciseMedia({
     return observePreview(media, () => setPreviewReady(true))
   }, [preview, src])
 
+  useEffect(() => {
+    if (!isVideo) return
+    const video = mediaRef.current
+    if (!video) return
+
+    if (shouldPlay) video.play().catch(() => {})
+    else video.pause()
+  }, [isVideo, shouldPlay, previewReady, src])
+
   if (!src || failedSrc === src) return fallback
 
   const handleError = () => setFailedSrc(src)
@@ -80,7 +90,7 @@ export default function ExerciseMedia({
       className={className}
       src={preview && !previewReady ? undefined : src}
       aria-label={alt || undefined}
-      autoPlay={autoPlay}
+      autoPlay={autoPlay || shouldPlay}
       muted
       loop={loop}
       playsInline

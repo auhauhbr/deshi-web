@@ -4,7 +4,7 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { getApiErrorMessage } from '../../services/authService.js'
 import StudentBottomNav from '../../components/StudentBottomNav.jsx'
 import StudentButton from '../../components/StudentButton.jsx'
-import BrandLogo from '../../components/BrandLogo.jsx'
+import StudentHeader from '../../components/StudentHeader.jsx'
 import ExerciseMedia from '../../components/ExerciseMedia.jsx'
 import { METRICAS_ATIVIDADE } from '../../utils/metricas-atividade.js'
 import SessionActionSlider from './SessionActionSlider.jsx'
@@ -158,11 +158,7 @@ function SessionDetails() {
   if (isLoading || showSessionUnavailable) {
     return (
       <main className="start-session-page">
-        <header className="session-header">
-          <div className="session-brand">
-            <BrandLogo className="session-brand-logo" variant="adaptive" to="/home" />
-          </div>
-        </header>
+        <StudentHeader />
         <section className="session-details-content">
           <div className="session-details-card" role="status" aria-live="polite">
             {isLoading ? (
@@ -178,7 +174,7 @@ function SessionDetails() {
             )}
           </div>
         </section>
-        <StudentBottomNav active="todo" />
+        <StudentBottomNav active="todo" showAccountMenu={false} />
       </main>
     )
   }
@@ -259,11 +255,7 @@ function SessionDetails() {
 
   return (
     <main className="start-session-page">
-      <header className="session-header">
-        <div className="session-brand">
-          <BrandLogo className="session-brand-logo" variant="adaptive" to="/home" />
-        </div>
-      </header>
+      <StudentHeader />
 
       <section className="session-details-content">
         <section className="workout-session-summary" aria-label="Resumo do treino">
@@ -382,7 +374,7 @@ function SessionDetails() {
           )}
         </section>
       </section>
-      <StudentBottomNav active={session.status === 'COMPLETED' ? 'completed' : 'todo'} />
+      <StudentBottomNav active={session.status === 'COMPLETED' ? 'completed' : 'todo'} showAccountMenu={false} />
     </main>
   )
 }

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import StudentBottomNav from '../../components/StudentBottomNav.jsx'
 import StudentButton from '../../components/StudentButton.jsx'
-import BrandLogo from '../../components/BrandLogo.jsx'
+import StudentHeader from '../../components/StudentHeader.jsx'
 import { getApiErrorMessage } from '../../services/authService.js'
 import { getStudentPrograms, getStudentSessions } from '../../services/sessionService.js'
 import { useStudentEntrance } from '../../hooks/useStudentEntrance.js'
@@ -58,11 +58,7 @@ function CompletedSessions() {
 
   return (
     <main ref={pageRef} className="start-session-page completed-sessions-page">
-      <header className="session-header">
-        <div className="session-brand">
-          <BrandLogo className="session-brand-logo" variant="adaptive" to="/home" />
-        </div>
-      </header>
+      <StudentHeader />
 
       <section className="session-details-content">
         <div className="session-heading">
@@ -107,7 +103,7 @@ function CompletedSessions() {
         )}
       </section>
 
-      <StudentBottomNav active="completed" />
+      <StudentBottomNav active="completed" showAccountMenu={false} />
     </main>
   )
 }

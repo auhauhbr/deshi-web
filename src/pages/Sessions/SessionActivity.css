@@ -115,6 +115,9 @@
 .activity-set-panel label { display: grid; gap: .35rem; color: rgb(255 255 255 / 84%); font-size: .78rem; }
 .activity-set-panel input { width: 100%; min-height: 2.8rem; box-sizing: border-box; border: 1px solid rgb(255 255 255 / 30%); border-radius: .7rem; padding: 0 .7rem; background: rgb(255 255 255 / 95%); color: #17231e; font: inherit; }
 .activity-set-panel > p,.activity-set-panel > button { grid-column: 1 / -1; margin: 0; }
+.activity-set-panel > .activity-set-panel-action { display: inline-flex; width: 100%; height: 3.5rem; min-height: 3.5rem; box-sizing: border-box; }
+.activity-set-panel > .activity-set-control { border-color: rgb(255 255 255 / 28%); padding: .6rem .8rem; background: rgb(7 18 14 / 42%); color: #fff; box-shadow: none; backdrop-filter: blur(12px); }
+.activity-set-panel > .activity-set-control:hover { filter: brightness(1.12); }
 .activity-execution-summary { grid-template-columns: 1fr; color: #fff; }
 .activity-execution-summary h2 { margin: 0; font-size: 1.2rem; }
 .execution-summary-list { display: grid; gap: .55rem; }

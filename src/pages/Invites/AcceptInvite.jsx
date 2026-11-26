@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import StudentHeader from '../../components/StudentHeader.jsx'
 import BrandLogo from '../../components/BrandLogo.jsx'
 import StudentBottomNav from '../../components/StudentBottomNav.jsx'
 import StudentButton from '../../components/StudentButton.jsx'
@@ -193,9 +194,7 @@ function AcceptInvitePage() {
 
   return (
     <main className="start-session-page invite-page">
-      <header className="session-header invite-header">
-        <div className="session-brand"><BrandLogo className="session-brand-logo" variant="adaptive" to="/home" /></div>
-      </header>
+      <StudentHeader className="invite-header" />
 
       <section className="invite-content" aria-labelledby="invite-title">
         <div className="invite-card">
@@ -284,7 +283,7 @@ function AcceptInvitePage() {
           )}
         </div>
       </section>
-      <StudentBottomNav active="invite" />
+      <StudentBottomNav active="invite" showAccountMenu={false} />
     </main>
   )
 }
