@@ -1,7 +1,7 @@
 import { api } from './api.js'
 
-export async function getStudentPrograms() {
-  const { data } = await api.get('/programas')
+export async function getStudentPrograms({ skipGlobalLoading = false } = {}) {
+  const { data } = await api.get('/programas', { skipGlobalLoading })
 
   if (!Array.isArray(data)) {
     throw new Error('A API retornou uma lista de programas inválida.')
@@ -20,8 +20,8 @@ export async function getStudentPrograms() {
   }))
 }
 
-export async function getStudentProfessionals() {
-  const { data } = await api.get('/vinculos/profissionais')
+export async function getStudentProfessionals({ skipGlobalLoading = false } = {}) {
+  const { data } = await api.get('/vinculos/profissionais', { skipGlobalLoading })
 
   if (!Array.isArray(data)) {
     throw new Error('A API retornou uma lista de profissionais inválida.')
@@ -38,8 +38,8 @@ export async function startSession(programId) {
   return data
 }
 
-export async function getStudentSessions() {
-  const { data } = await api.get('/sessions/history')
+export async function getStudentSessions({ skipGlobalLoading = false } = {}) {
+  const { data } = await api.get('/sessions/history', { skipGlobalLoading })
 
   return data
 }
