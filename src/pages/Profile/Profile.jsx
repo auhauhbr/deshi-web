@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { createPortal } from 'react-dom'
-import { ArrowLeft, CalendarDays, Check, LockKeyhole, Pencil, Save, UserRound, VenusAndMars, X } from 'lucide-react'
+import { ArrowLeft, CalendarDays, Check, ChevronRight, LockKeyhole, Pencil, Save, UserRound, VenusAndMars, X } from 'lucide-react'
 import BirthDateWheelPicker from '../../components/BirthDateWheelPicker.jsx'
-import StudentBottomNav from '../../components/StudentBottomNav.jsx'
+import AppBottomNav from '../../components/AppBottomNav.jsx'
 import StudentButton from '../../components/StudentButton.jsx'
 import StudentHeader from '../../components/StudentHeader.jsx'
 import SmoothTab from '../../components/kokonutui/smooth-tab.jsx'
@@ -657,7 +657,7 @@ function ProfilePage() {
         </StudentButton>
       </section>
 
-      <StudentBottomNav active="profile" showAccountMenu={false} />
+      <AppBottomNav active="profile" />
     </main>
   )
 }

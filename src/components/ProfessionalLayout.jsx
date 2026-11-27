@@ -1,6 +1,6 @@
 import { Outlet, useLocation } from 'react-router-dom'
 import AppHeader from './AppHeader.jsx'
-import ProfessionalNavigation from './ProfessionalNavigation.jsx'
+import AppBottomNav from './AppBottomNav.jsx'
 import './ProfessionalLayout.css'
 
 export default function ProfessionalLayout({ children }) {
@@ -9,8 +9,8 @@ export default function ProfessionalLayout({ children }) {
   return (
     <div className="professional-layout">
       <AppHeader key={key} className="professional-header" fallbackLabel="Profissional" editProfileTo="/perfil#profile-modalities-title" />
-      <ProfessionalNavigation />
       <div className="professional-layout__content">{children ?? <Outlet />}</div>
+      <AppBottomNav />
     </div>
   )
 }

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import StudentHeader from '../../components/StudentHeader.jsx'
 import BrandLogo from '../../components/BrandLogo.jsx'
-import StudentBottomNav from '../../components/StudentBottomNav.jsx'
+import AppBottomNav from '../../components/AppBottomNav.jsx'
 import StudentButton from '../../components/StudentButton.jsx'
 import { getApiErrorMessage, getStoredUser } from '../../services/authService.js'
 import { api } from '../../services/api.js'
@@ -290,7 +290,7 @@ function AcceptInvitePage() {
           )}
         </div>
       </section>
-      <StudentBottomNav active="invite" showAccountMenu={false} />
+      <AppBottomNav active="invite" />
     </main>
   )
 }

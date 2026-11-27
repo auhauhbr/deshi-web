@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import StudentBottomNav from '../../components/StudentBottomNav.jsx'
+import AppBottomNav from '../../components/AppBottomNav.jsx'
 import StudentButton from '../../components/StudentButton.jsx'
 import StudentHeader from '../../components/StudentHeader.jsx'
 import { getApiErrorMessage } from '../../services/authService.js'
@@ -103,7 +103,7 @@ function CompletedSessions() {
         )}
       </section>
 
-      <StudentBottomNav active="completed" showAccountMenu={false} />
+      <AppBottomNav active="completed" />
     </main>
   )
 }

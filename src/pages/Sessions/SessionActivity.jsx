@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { getApiErrorMessage } from '../../services/authService.js'
+import AppBottomNav from '../../components/AppBottomNav.jsx'
 import StudentButton from '../../components/StudentButton.jsx'
 import ExerciseMedia from '../../components/ExerciseMedia.jsx'
 import { METRICAS_ATIVIDADE } from '../../utils/metricas-atividade.js'
@@ -190,12 +191,13 @@ function SessionActivity() {
   }
 
   if (loading || !activity || !session) {
-    return (
+    return <>
       <main className="activity-player-page activity-player-loading">
         <button type="button" className="activity-player-back" onClick={() => navigate(`/sessions/${sessionId}`)} aria-label="Voltar ao treino">←</button>
         <p role={loading ? 'status' : 'alert'}>{loading ? 'Carregando atividade...' : message || 'Atividade indisponível.'}</p>
       </main>
-    )
+      <AppBottomNav active="todo" />
+    </>
   }
 
   const label = activity.nome || 'Atividade'
@@ -299,6 +301,7 @@ function SessionActivity() {
 
 
   return (
+    <>
     <main className="activity-player-page">
       <div className="activity-player-backdrop" aria-hidden="true">
         <ExerciseMedia
@@ -374,6 +377,8 @@ function SessionActivity() {
         </div>}
       </section>
     </main>
+    <AppBottomNav active="todo" />
+    </>
   )
 }
 

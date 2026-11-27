@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
 import { ArrowRight, CalendarDays, Check, CirclePlay, Clock3, Dumbbell, History, TicketCheck } from 'lucide-react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import StudentBottomNav from '../../components/StudentBottomNav.jsx'
+import AppBottomNav from '../../components/AppBottomNav.jsx'
 import StudentButton from '../../components/StudentButton.jsx'
 import StudentHeader from '../../components/StudentHeader.jsx'
 import { getApiErrorMessage, getStoredUser } from '../../services/authService.js'
@@ -223,7 +223,7 @@ function HomePage() {
           </section>
         </div>
       </section>
-      <StudentBottomNav active="home" showAccountMenu={false} />
+      <AppBottomNav active="home" />
       {isLoginRevealVisible && (
         <div className="login-transition-overlay" role="status" aria-label="Animação de entrada do Deshi">
           <div className="login-transition-crop">
