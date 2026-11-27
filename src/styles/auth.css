@@ -1,4 +1,6 @@
 .auth-page {
+  position: relative;
+  isolation: isolate;
   min-height: 100svh;
   display: grid;
   grid-template-columns: minmax(360px, .88fr) minmax(0, 1.12fr);
@@ -8,6 +10,9 @@
 }
 
 .auth-introduction {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
   min-height: 100svh;
   display: flex;
   flex-direction: column;
@@ -15,6 +20,29 @@
   padding: clamp(2rem, 5vw, 5rem);
   background: linear-gradient(145deg, #111d20 0%, #0c493d 56%, #31d883 100%);
   color: var(--color-text-inverse);
+}
+
+.auth-grainient {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.auth-grainient-canvas,
+.auth-grainient-canvas > canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.auth-introduction > :not(.auth-grainient),
+.auth-content > :not(.auth-grainient) {
+  position: relative;
+  z-index: 1;
 }
 
 .brand {
@@ -91,6 +119,8 @@
 }
 
 .auth-content {
+  position: relative;
+  isolation: isolate;
   display: grid;
   place-items: center;
   padding: clamp(2rem, 6vw, 5.5rem);
@@ -256,7 +286,7 @@
 @media (max-width: 780px) {
   .auth-page { display: block; }
   .auth-introduction { display: none; }
-  .auth-content { min-height: 100svh; align-items: start; padding: max(1.4rem, env(safe-area-inset-top)) 1.25rem max(2rem, env(safe-area-inset-bottom)); }
+  .auth-content { min-height: 100svh; align-items: start; padding: max(1.4rem, env(safe-area-inset-top)) 1.25rem max(2rem, env(safe-area-inset-bottom)); background: linear-gradient(180deg, var(--color-surface) 0%, var(--color-professional-green-light) 100%); }
   .auth-card { margin: 0 auto; }
   .brand-mobile { display: inline-flex; margin-bottom: clamp(2.5rem, 9vh, 4.5rem); }
   .auth-card header { margin-bottom: 1.75rem; }
