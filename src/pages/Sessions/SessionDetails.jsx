@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { getApiErrorMessage, getStoredUser } from '../../services/authService.js'
-import StudentBottomNav from '../../components/StudentBottomNav.jsx'
+import AppBottomNav from '../../components/AppBottomNav.jsx'
 import StudentButton from '../../components/StudentButton.jsx'
 import HelpfulRating from '../../components/kokonutui/helpful-rating.jsx'
 import StudentHeader from '../../components/StudentHeader.jsx'
@@ -198,7 +198,7 @@ function SessionDetails() {
             )}
           </div>
         </section>
-        <StudentBottomNav active="todo" showAccountMenu={false} />
+        <AppBottomNav active="todo" />
       </main>
     )
   }
@@ -408,7 +408,7 @@ function SessionDetails() {
           )}
         </section>
       </section>
-      <StudentBottomNav active={session.status === 'COMPLETED' ? 'completed' : 'todo'} showAccountMenu={false} />
+      <AppBottomNav active={session.status === 'COMPLETED' ? 'completed' : 'todo'} />
     </main>
   )
 }

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
-import StudentBottomNav from '../../components/StudentBottomNav.jsx'
+import AppBottomNav from '../../components/AppBottomNav.jsx'
 import StudentButton from '../../components/StudentButton.jsx'
 import StudentHeader from '../../components/StudentHeader.jsx'
 import { registerExecution } from '../../services/sessionService.js'
@@ -50,6 +50,6 @@ export default function RegisterExecution() {
         {error && <p className="session-message" role="alert">{error}</p>}
         <div className="execution-actions"><StudentButton variant="secondary" className="session-secondary-button" onClick={() => navigate(-1)} disabled={busy}>Voltar</StudentButton><StudentButton particles className="session-start-button" onClick={confirm} busy={busy}>{busy ? 'Confirmando...' : 'Confirmar execução'}</StudentButton></div>
       </article>}
-    </section><StudentBottomNav active="todo" showAccountMenu={false} />
+    </section><AppBottomNav active="todo" />
   </main>
 }

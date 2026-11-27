@@ -1,0 +1,26 @@
+.birth-date-wheel-picker { display: grid; gap: .2rem; }
+.birth-date-wheel-picker__labels { display: grid; grid-template-columns: 4.5rem 8.5rem 5rem; justify-content: center; color: var(--color-text-secondary); font-size: .72rem; font-weight: 700; text-align: center; }
+.birth-date-wheel[data-wheel-picker] { position: relative; width: 100%; height: 264px; display: flex; justify-content: center; overflow: hidden; padding: 0 .4rem; border: 1px solid var(--color-border); border-radius: .9rem; background: var(--color-surface); color: var(--color-text); }
+.birth-date-wheel [data-wheel-band] { position: absolute; z-index: 0; inset-inline: .5rem; top: calc(50% + 22px); height: 44px; border-radius: .65rem; background: var(--color-primary-light); pointer-events: none; transform: translateY(-50%); }
+.birth-date-wheel [data-wheel-tick] { position: absolute; z-index: 1; top: calc(50% + 22px); width: .35rem; height: 1px; background: var(--color-primary-active); pointer-events: none; transform: translateY(-50%); }
+.birth-date-wheel [data-wheel-tick]:first-of-type { left: .3rem; }
+.birth-date-wheel [data-wheel-tick]:last-of-type { right: .3rem; }
+.birth-date-wheel [role="spinbutton"] { position: relative; z-index: 1; flex: 0 0 auto; height: 264px !important; outline: none; cursor: grab; touch-action: none; }
+.birth-date-wheel__day { width: 4.5rem; }
+.birth-date-wheel__month { width: 8.5rem; }
+.birth-date-wheel__year { width: 5rem; }
+.birth-date-wheel [role="spinbutton"] > div:first-child { position: absolute; inset: 0; }
+.birth-date-wheel [role="spinbutton"] > div > div { position: absolute; inset: 0; pointer-events: none; }
+.birth-date-wheel [role="spinbutton"] > div > div > div { position: absolute; top: 50%; right: 0; left: 0; transform-style: preserve-3d; }
+.birth-date-wheel [data-wheel-row] { position: absolute; right: 0; left: 0; display: flex; align-items: center; justify-content: center; color: var(--color-text-secondary); font-size: 1rem; font-variant-numeric: tabular-nums; line-height: 1; white-space: nowrap; }
+.birth-date-wheel [role="spinbutton"] > .wheel-picker-selected-value { position: absolute; z-index: 2; inset: auto; top: 50%; left: 50%; width: 100%; height: 44px; display: grid; place-items: center; color: var(--color-text); font-size: 1rem; font-variant-numeric: tabular-nums; font-weight: 750; line-height: 1; white-space: nowrap; pointer-events: none; transform: translate(-50%, -50%); }
+.birth-date-wheel [role="spinbutton"]:focus-visible { border-radius: .55rem; outline: 2px solid var(--color-primary-active); outline-offset: -2px; }
+.birth-date-wheel-picker__value { display: block; margin: .45rem 0 0; color: var(--color-primary-active); font-size: .92rem; font-variant-numeric: tabular-nums; font-weight: 750; text-align: center; }
+
+@media (max-width: 420px) {
+  .birth-date-wheel-picker__labels { grid-template-columns: 3.8rem minmax(7.3rem, 8.5rem) 4.5rem; }
+  .birth-date-wheel__day { width: 3.8rem; }
+  .birth-date-wheel__month { width: min(8.5rem, calc(100vw - 14.5rem)); }
+  .birth-date-wheel__year { width: 4.5rem; }
+  .birth-date-wheel [data-wheel-row] { font-size: .92rem; }
+}

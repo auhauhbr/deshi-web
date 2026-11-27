@@ -7,7 +7,7 @@ import {
   startSession
 } from '../../services/sessionService.js'
 import { getApiErrorMessage } from '../../services/authService.js'
-import StudentBottomNav from '../../components/StudentBottomNav.jsx'
+import AppBottomNav from '../../components/AppBottomNav.jsx'
 import StudentButton from '../../components/StudentButton.jsx'
 import StudentHeader from '../../components/StudentHeader.jsx'
 import './StartSession.css'
@@ -311,7 +311,7 @@ async function handleStartSession(event, programId = selectedProgram) {
 
         </form>
       </section>
-      <StudentBottomNav active="todo" showAccountMenu={false} />
+      <AppBottomNav active="todo" />
     </main>
   )
 }

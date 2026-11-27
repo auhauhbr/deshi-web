@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import AuthLayout from '../../components/AuthLayout.jsx'
 import PasswordField from '../../components/PasswordField.jsx'
+import SwipeToast from '../../components/SwipeToast.jsx'
 import { getApiErrorMessage, loginUser } from '../../services/authService.js'
 import { suppressApiLoadingScreen } from '../../services/apiLoadingState.js'
 import './Login.css'
@@ -11,6 +12,9 @@ function LoginPage() {
   const navigate = useNavigate()
   const [form, setForm] = useState({ email: '', senha: '' })
   const [message, setMessage] = useState(location.state?.message || '')
+  const [successToast, setSuccessToast] = useState(() => (
+    location.state?.registrationSuccess ? 'registration' : location.state?.logoutSuccess ? 'logout' : ''
+  ))
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   function updateField(event) {
@@ -43,7 +47,8 @@ function LoginPage() {
     }
   }
 
-  return <AuthLayout
+  return <>
+  <AuthLayout
     pageClassName="login-page"
     title="Entrar na sua conta"
     subtitle="Acesse seus treinos e acompanhamentos."
@@ -61,6 +66,16 @@ function LoginPage() {
       <button className="auth-submit" type="submit" disabled={isSubmitting}>{isSubmitting ? 'Entrando...' : 'Entrar'}</button>
     </form>
   </AuthLayout>
+  <SwipeToast
+    open={Boolean(successToast)}
+    title={successToast === 'logout' ? 'Você saiu da conta com sucesso!' : 'Conta criada com sucesso!'}
+    description={successToast === 'logout' ? 'Sua sessão foi encerrada com segurança.' : 'Agora você já pode entrar na sua conta.'}
+    onClose={() => {
+      setSuccessToast('')
+      navigate('/login', { replace: true, state: null })
+    }}
+  />
+  </>
 }
 
 export default LoginPage

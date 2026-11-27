@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import StudentHeader from '../../components/StudentHeader.jsx'
 import BrandLogo from '../../components/BrandLogo.jsx'
-import StudentBottomNav from '../../components/StudentBottomNav.jsx'
+import AppBottomNav from '../../components/AppBottomNav.jsx'
 import StudentButton from '../../components/StudentButton.jsx'
 import { getApiErrorMessage, getStoredUser } from '../../services/authService.js'
 import { api } from '../../services/api.js'
@@ -134,10 +134,17 @@ function AcceptInvitePage() {
     setInvite(null)
     try {
       const { data } = await api.get(`/vinculos/convites/${encodeURIComponent(code)}`)
-      setInvite(data)
+      // A API retorna { convite, profissional }; mantém o profissional no nível
+      // esperado pelo cartão e pelo fluxo de aceite desta tela.
+      const professional = data?.profissional ?? data?.convite?.profissional
+      if (!professional) {
+        setMessage('Não foi possível carregar os dados do profissional deste convite.')
+        return
+      }
+      setInvite({ ...data, profissional: professional })
       const linkedProfessional = activeProfessionals.find((item) => matchesProfessional({
-        professionalId: data?.profissional?.id,
-        professionalEmail: data?.profissional?.email,
+        professionalId: professional.id,
+        professionalEmail: professional.email,
       }, item))
       setAccepted(Boolean(linkedProfessional))
       setIsCuttingTicket(true)
@@ -190,7 +197,7 @@ function AcceptInvitePage() {
   }
 
   const savedTickets = getAcceptedTickets(student?.id)
-  const pendingProfessional = isAddingProfessional && !accepted ? invite?.profissional : null
+  const pendingProfessional = !accepted ? invite?.profissional : null
 
   return (
     <main className="start-session-page invite-page">
@@ -283,7 +290,7 @@ function AcceptInvitePage() {
           )}
         </div>
       </section>
-      <StudentBottomNav active="invite" showAccountMenu={false} />
+      <AppBottomNav active="invite" />
     </main>
   )
 }

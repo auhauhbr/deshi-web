@@ -1,0 +1,47 @@
+.swipe-toast {
+  --swipe-toast-bg: #10382d;
+  --swipe-toast-color: #f4fff9;
+  --swipe-toast-fuse: #00d9a0;
+  position: fixed;
+  z-index: 9999;
+  right: max(1.25rem, env(safe-area-inset-right));
+  bottom: max(1.25rem, env(safe-area-inset-bottom));
+  width: min(23rem, calc(100vw - 2rem));
+  min-height: 4.25rem;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  overflow: hidden;
+  padding: .85rem 1rem;
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: .9rem;
+  background: var(--swipe-toast-bg);
+  color: var(--swipe-toast-color);
+  box-shadow: 0 16px 38px rgb(5 35 25 / 24%);
+  font-family: inherit;
+  touch-action: pan-x;
+  user-select: none;
+  outline: none;
+}
+
+.swipe-toast:focus-visible { outline: 3px solid var(--swipe-toast-fuse); outline-offset: 3px; }
+.swipe-toast__icon { flex: 0 0 auto; display: grid; place-items: center; color: var(--swipe-toast-fuse); }
+.swipe-toast__copy { min-width: 0; flex: 1; display: grid; gap: .12rem; }
+.swipe-toast__copy strong { font-size: .88rem; font-weight: 750; line-height: 1.35; }
+.swipe-toast__copy > span { color: rgb(244 255 249 / 70%); font-size: .77rem; line-height: 1.4; }
+.swipe-toast__dismiss { width: 2rem; height: 2rem; flex: 0 0 auto; display: grid; place-items: center; border: 0; border-radius: .5rem; background: transparent; color: rgb(244 255 249 / 70%); font: inherit; cursor: pointer; }
+.swipe-toast__dismiss:hover { background: rgb(255 255 255 / 10%); color: #fff; }
+.swipe-toast__dismiss:focus-visible { outline: 2px solid var(--swipe-toast-fuse); outline-offset: 2px; }
+.swipe-toast__dismiss span { font-size: 1.4rem; line-height: 1; }
+.swipe-toast__fuse { position: absolute; right: 0; bottom: 0; left: 0; height: 3px; background: var(--swipe-toast-fuse); transform-origin: left; animation: swipe-toast-burn linear forwards; }
+.swipe-toast__fuse.is-paused { animation-play-state: paused; }
+@keyframes swipe-toast-burn { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+
+@media (max-width: 600px) {
+  .swipe-toast { right: max(.75rem, env(safe-area-inset-right)); bottom: max(.75rem, env(safe-area-inset-bottom)); width: calc(100vw - 1.5rem); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .swipe-toast__fuse { animation-duration: 1ms !important; }
+}
