@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { createPortal } from 'react-dom'
-import { ArrowLeft, CalendarDays, Check, ChevronLeft, ChevronRight, LockKeyhole, Pencil, Save, UserRound, VenusAndMars, X } from 'lucide-react'
+import { ArrowLeft, CalendarDays, Check, LockKeyhole, Pencil, Save, UserRound, VenusAndMars, X } from 'lucide-react'
+import BirthDateWheelPicker from '../../components/BirthDateWheelPicker.jsx'
 import StudentBottomNav from '../../components/StudentBottomNav.jsx'
 import StudentButton from '../../components/StudentButton.jsx'
 import StudentHeader from '../../components/StudentHeader.jsx'
@@ -25,20 +26,6 @@ function getDateKey(value) {
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) return ''
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
-}
-
-function toDateInputValue(date) {
-  const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const day = String(date.getDate()).padStart(2, '0')
-  return `${year}-${month}-${day}`
-}
-
-function getCalendarDays(monthDate) {
-  const firstOfMonth = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1)
-  const mondayOffset = (firstOfMonth.getDay() + 6) % 7
-  const start = new Date(firstOfMonth.getFullYear(), firstOfMonth.getMonth(), 1 - mondayOffset)
-  return Array.from({ length: 42 }, (_, index) => new Date(start.getFullYear(), start.getMonth(), start.getDate() + index))
 }
 
 function getWeekDays(today, weekOffset = 0) {
@@ -144,7 +131,7 @@ function ProfilePage() {
   const [profileEditError, setProfileEditError] = useState('')
   const [profileEditFeedback, setProfileEditFeedback] = useState('')
   const [profileEditSaving, setProfileEditSaving] = useState(false)
-  const [birthDateCalendarMonth, setBirthDateCalendarMonth] = useState(() => new Date(new Date().getFullYear(), new Date().getMonth(), 1))
+  const birthDatePickerRef = useRef(null)
   const [weekOffset, setWeekOffset] = useState(0)
   const swipeStartX = useRef(null)
 
@@ -263,14 +250,16 @@ function ProfilePage() {
     setProfileEditError('')
     if (section === 'birthDate') {
       const value = user?.birthDate || getLocalDateInputValue()
-      const selected = new Date(`${value}T12:00:00`)
-      setBirthDateCalendarMonth(new Date(selected.getFullYear(), selected.getMonth(), 1))
+      setProfileEditBirthDate(value)
     }
   }
 
   async function handleProfileEditSubmit(event) {
     event.preventDefault()
     setProfileEditError('')
+    const selectedBirthDate = profileEditSection === 'birthDate'
+      ? birthDatePickerRef.current?.getDate() || profileEditBirthDate
+      : profileEditBirthDate
     if (profileEditSection === 'name' && profileEditName.trim().length < 3) {
       setProfileEditError('O nome deve ter pelo menos 3 caracteres.')
       return
@@ -285,7 +274,7 @@ function ProfilePage() {
         return
       }
     }
-    if (profileEditSection === 'birthDate' && (!profileEditBirthDate || profileEditBirthDate > getLocalDateInputValue())) {
+    if (profileEditSection === 'birthDate' && (!selectedBirthDate || selectedBirthDate > getLocalDateInputValue())) {
       setProfileEditError('Selecione uma data de nascimento válida.')
       return
     }
@@ -300,8 +289,9 @@ function ProfilePage() {
         setUser(await updateStudentProfile({ name: profileEditName.trim() }))
         setProfileEditFeedback('Nome atualizado com sucesso.')
       } else if (profileEditSection === 'birthDate') {
-        setUser(await updateStudentProfile({ birthDate: profileEditBirthDate }))
-        setProfileEditFeedback('Data de nascimento cadastrada com sucesso.')
+        setUser(await updateStudentProfile({ birthDate: selectedBirthDate }))
+        setProfileEditBirthDate(selectedBirthDate)
+        setProfileEditFeedback(user?.birthDate ? 'Data de nascimento atualizada com sucesso.' : 'Data de nascimento cadastrada com sucesso.')
       } else if (profileEditSection === 'gender') {
         setUser(await updateStudentProfile({ gender: profileEditGender }))
         setProfileEditFeedback('Gênero cadastrado com sucesso.')
@@ -353,10 +343,6 @@ function ProfilePage() {
   const shortestProgress = longestDuration ? shortestSession.duration / longestDuration : 0
   const photoUrl = user?.photoUrl || user?.avatarUrl || user?.imageUrl || user?.picture
   const initials = user?.name?.trim()?.charAt(0)?.toLocaleUpperCase('pt-BR') || '•'
-  const birthDateCalendarDays = getCalendarDays(birthDateCalendarMonth)
-  const birthDateMonthLabel = new Intl.DateTimeFormat('pt-BR', { month: 'long' }).format(birthDateCalendarMonth)
-  const todayDateValue = getLocalDateInputValue()
-
   function handleWeekPointerDown(event) {
     swipeStartX.current = event.clientX
     event.currentTarget.setPointerCapture?.(event.pointerId)
@@ -630,7 +616,7 @@ function ProfilePage() {
             {profileEditSection === 'menu' ? <div className="profile-edit-options">
               <button type="button" onClick={() => selectProfileEditSection('name')}><span className="profile-edit-option-icon"><UserRound size={18} /></span><span><strong>Nome</strong><small>Atualize como seu nome aparece no perfil</small></span><ChevronRight size={18} /></button>
               <button type="button" onClick={() => selectProfileEditSection('password')}><span className="profile-edit-option-icon"><LockKeyhole size={18} /></span><span><strong>Senha</strong><small>Altere sua senha de acesso</small></span><ChevronRight size={18} /></button>
-              {!user?.birthDate && <button type="button" onClick={() => selectProfileEditSection('birthDate')}><span className="profile-edit-option-icon"><CalendarDays size={18} /></span><span><strong>Data de nascimento</strong><small>Adicione sua data para completar o perfil</small></span><ChevronRight size={18} /></button>}
+              <button type="button" onClick={() => selectProfileEditSection('birthDate')}><span className="profile-edit-option-icon"><CalendarDays size={18} /></span><span><strong>Data de nascimento</strong><small>{user?.birthDate ? 'Atualize sua data de nascimento' : 'Adicione sua data para completar o perfil'}</small></span><ChevronRight size={18} /></button>
               {!user?.gender && <button type="button" onClick={() => selectProfileEditSection('gender')}><span className="profile-edit-option-icon"><VenusAndMars size={18} /></span><span><strong>Gênero</strong><small>Adicione essa informação ao perfil</small></span><ChevronRight size={18} /></button>}
             </div> : null}
 
@@ -649,12 +635,7 @@ function ProfilePage() {
             </form>}
 
             {profileEditSection === 'birthDate' && <form className="profile-edit-form" onSubmit={handleProfileEditSubmit}>
-              <div className="profile-edit-calendar">
-                <div className="profile-edit-calendar__navigation"><button type="button" onClick={() => setBirthDateCalendarMonth((month) => new Date(month.getFullYear(), month.getMonth() - 1, 1))} aria-label="Mês anterior"><ChevronLeft size={18} /></button><strong>{birthDateMonthLabel}</strong><label>Ano<input type="number" min="1900" max={new Date().getFullYear()} value={birthDateCalendarMonth.getFullYear()} aria-label="Ano de nascimento" onChange={(event) => { const year = Number(event.target.value); if (year >= 1900 && year <= new Date().getFullYear()) setBirthDateCalendarMonth((month) => new Date(year, month.getMonth(), 1)) }} /></label><button type="button" onClick={() => setBirthDateCalendarMonth((month) => new Date(month.getFullYear(), month.getMonth() + 1, 1))} disabled={toDateInputValue(new Date(birthDateCalendarMonth.getFullYear(), birthDateCalendarMonth.getMonth() + 1, 1)) > todayDateValue} aria-label="Próximo mês"><ChevronRight size={18} /></button></div>
-                <div className="profile-edit-calendar__weekdays" aria-hidden="true">{['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'].map((day) => <span key={day}>{day}</span>)}</div>
-                <div className="profile-edit-calendar__grid">{birthDateCalendarDays.map((date) => { const dateValue = toDateInputValue(date); return <button className={`${date.getMonth() === birthDateCalendarMonth.getMonth() ? '' : 'is-outside-month'} ${profileEditBirthDate === dateValue ? 'is-selected' : ''}`} type="button" key={dateValue} disabled={dateValue > todayDateValue} aria-pressed={profileEditBirthDate === dateValue} aria-label={new Intl.DateTimeFormat('pt-BR', { dateStyle: 'full' }).format(date)} onClick={() => setProfileEditBirthDate(dateValue)}>{date.getDate()}</button> })}</div>
-              </div>
-              {profileEditBirthDate && <p className="profile-edit-selected-date">Data selecionada: {formatBirthDate(profileEditBirthDate)}</p>}
+              <BirthDateWheelPicker ref={birthDatePickerRef} value={profileEditBirthDate} onChange={setProfileEditBirthDate} label="Escolha sua data de nascimento" />
               {profileEditError && <p className="profile-body-metrics-message is-error" role="alert">{profileEditError}</p>}
               <button className="profile-edit-submit" type="submit" disabled={profileEditSaving || !profileEditBirthDate}><Save size={17} />{profileEditSaving ? 'Salvando...' : 'Salvar data de nascimento'}</button>
             </form>}

@@ -93,10 +93,8 @@ function hapticTick() {
  * placed round it with `rotateX() translateZ()` and the whole drum turns
  * with a single transform, so a frame costs one style write per column.
  *
- * The drum is drawn twice. The bottom copy is muted; the top copy is in full
- * color and clipped to the selection band. Text turns dark exactly as it
- * crosses the band's edge, the way the native picker does. Hairline ticks
- * mark the band's ends.
+ * Each row is drawn once, with the selected row highlighted in the center
+ * band. Hairline ticks mark the band's ends.
  */
 export default function WheelPicker({
   columns = DEFAULT_COLUMNS,
@@ -505,19 +503,9 @@ function WheelColumnView({
             "linear-gradient(to bottom, transparent, #000 24%, #000 76%, transparent)",
         }}
       >
-        <Drum
-          drum={drum}
-          optionAt={optionAt}
-          rowClassName="text-zinc-400 dark:text-zinc-500"
-          rows={rows}
-        />
-        <Drum
-          clip
-          drum={drum}
-          optionAt={optionAt}
-          rowClassName="font-medium text-zinc-900 dark:text-zinc-50"
-          rows={rows}
-        />
+        <Drum drum={drum} optionAt={optionAt} rows={rows} layer="above" />
+        <Drum drum={drum} optionAt={optionAt} rows={rows} layer="below" />
+        <Drum drum={drum} optionAt={optionAt} rows={[center]} layer="selected" />
       </div>
     </div>
   );
@@ -527,18 +515,22 @@ function Drum({
   drum,
   rows,
   optionAt,
-  rowClassName,
-  clip = false
+  layer
 }) {
+  const clipPath = layer === "above"
+    ? "inset(0 0 calc(50% + 22px) 0)"
+    : layer === "below"
+      ? "inset(calc(50% + 22px) 0 0 0)"
+      : "inset(calc(50% - 22px) 0 calc(50% - 22px) 0)";
+
   return (
     <div
       aria-hidden="true"
       className="pointer-events-none absolute inset-0"
+      data-wheel-layer={layer}
       style={{
         perspective: 2200,
-        clipPath: clip
-          ? `inset(calc(50% - ${ITEM_HEIGHT / 2}px) 0 calc(50% - ${ITEM_HEIGHT / 2}px) 0)`
-          : undefined,
+        clipPath,
       }}
     >
       <motion.div
@@ -547,11 +539,8 @@ function Drum({
       >
         {rows.map((index) => (
           <div
-            className={cn(
-              "absolute inset-x-0 flex items-center justify-center text-xl tabular-nums [backface-visibility:hidden]",
-              rowClassName
-            )}
-          data-wheel-row={clip ? "selected" : "muted"}
+            className="absolute inset-x-0 flex items-center justify-center text-xl tabular-nums [backface-visibility:hidden]"
+            data-wheel-row={layer === "selected" ? "selected" : "muted"}
             key={index}
             style={{
               top: -ITEM_HEIGHT / 2,
