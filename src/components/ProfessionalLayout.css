@@ -42,6 +42,8 @@
   .app-header.professional-header {
     padding-inline: max(.75rem, env(safe-area-inset-left)) max(.75rem, env(safe-area-inset-right));
   }
+
+  .professional-layout__content:has(> .students-page) { padding-bottom: 0; }
 }
 
 @media (max-width: 650px) {
