@@ -90,7 +90,7 @@ function AccountMenu({ fallbackLabel = 'Usuário', onEditProfile, editProfileTo 
     }
     navigate('/login', {
       replace: true,
-      state: { message: 'Você saiu da sua conta com segurança.' },
+      state: { logoutSuccess: true },
     })
   }
 

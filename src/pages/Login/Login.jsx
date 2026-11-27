@@ -12,7 +12,9 @@ function LoginPage() {
   const navigate = useNavigate()
   const [form, setForm] = useState({ email: '', senha: '' })
   const [message, setMessage] = useState(location.state?.message || '')
-  const [showRegistrationSuccess, setShowRegistrationSuccess] = useState(Boolean(location.state?.registrationSuccess))
+  const [successToast, setSuccessToast] = useState(() => (
+    location.state?.registrationSuccess ? 'registration' : location.state?.logoutSuccess ? 'logout' : ''
+  ))
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   function updateField(event) {
@@ -65,11 +67,11 @@ function LoginPage() {
     </form>
   </AuthLayout>
   <SwipeToast
-    open={showRegistrationSuccess}
-    title="Conta criada com sucesso!"
-    description="Agora você já pode entrar na sua conta."
+    open={Boolean(successToast)}
+    title={successToast === 'logout' ? 'Você saiu da conta com sucesso!' : 'Conta criada com sucesso!'}
+    description={successToast === 'logout' ? 'Sua sessão foi encerrada com segurança.' : 'Agora você já pode entrar na sua conta.'}
     onClose={() => {
-      setShowRegistrationSuccess(false)
+      setSuccessToast('')
       navigate('/login', { replace: true, state: null })
     }}
   />
