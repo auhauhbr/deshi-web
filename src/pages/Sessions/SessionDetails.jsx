@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
-import { getApiErrorMessage } from '../../services/authService.js'
+import { getApiErrorMessage, getStoredUser } from '../../services/authService.js'
 import StudentBottomNav from '../../components/StudentBottomNav.jsx'
 import StudentButton from '../../components/StudentButton.jsx'
+import HelpfulRating from '../../components/kokonutui/helpful-rating.jsx'
 import StudentHeader from '../../components/StudentHeader.jsx'
 import ExerciseMedia from '../../components/ExerciseMedia.jsx'
 import { METRICAS_ATIVIDADE } from '../../utils/metricas-atividade.js'
@@ -19,6 +20,27 @@ import {
 } from '../../services/sessionService.js'
 import './StartSession.css'
 import './SessionDetails.css'
+
+function WorkoutRating({ sessionId, onSkip }) {
+  const sectionRef = useRef(null)
+
+  useEffect(() => {
+    const section = sectionRef.current
+    section.focus({ preventScroll: true })
+    section.scrollIntoView({ block: 'nearest', behavior: 'instant' })
+  }, [])
+
+  function saveRating(rating) {
+    const userId = getStoredUser()?.id
+    if (!userId) throw new Error('Sessão do aluno indisponível.')
+    const key = `deshi.workout-rating:${encodeURIComponent(userId)}:${encodeURIComponent(sessionId)}`
+    localStorage.setItem(key, JSON.stringify(rating))
+  }
+
+  return <section ref={sectionRef} className="workout-rating" aria-label="Avaliação do treino" tabIndex={-1}>
+    <HelpfulRating className="workout-rating__panel" onSubmit={saveRating} onSkip={onSkip} />
+  </section>
+}
 
 function formatSessionClock(milliseconds = 0) {
   const totalSeconds = Math.max(0, Math.floor(milliseconds / 1000))
@@ -90,6 +112,8 @@ function SessionDetails() {
   const [isUpdatingSession, setIsUpdatingSession] = useState(false)
   const [showFinishConfirm, setShowFinishConfirm] = useState(false)
   const [justFinished, setJustFinished] = useState(false)
+  const [ratingSessionId, setRatingSessionId] = useState(null)
+  const sessionHeadingRef = useRef(null)
   const [now, setNow] = useState(Date.now())
 
   useEffect(() => {
@@ -224,7 +248,8 @@ function SessionDetails() {
         }),
       }))
       setShowFinishConfirm(false)
-      if (resolvedAction === 'finish') {
+      if (resolvedAction === 'finish' && updatedSession.status === 'COMPLETED') {
+        setRatingSessionId(updatedSession.id)
         setJustFinished(true)
         playSessionCelebration()
       }
@@ -262,7 +287,7 @@ function SessionDetails() {
           <div className="workout-summary-heading">
             <div>
               <p className="session-eyebrow">{isProgramPreview ? 'VISUALIZAÇÃO DO PROGRAMA' : session.status === 'IN_PROGRESS' ? 'TREINO EM ANDAMENTO' : session.status === 'PAUSED' ? 'TREINO PAUSADO' : session.status === 'COMPLETED' ? 'TREINO CONCLUÍDO' : 'TREINO INTERROMPIDO'}</p>
-              <h1>{programName || 'Seu treino'}</h1>
+              <h1 ref={sessionHeadingRef} tabIndex={-1}>{programName || 'Seu treino'}</h1>
             </div>
             {session.professionalName && <span className="workout-coach-name">com {session.professionalName}</span>}
           </div>
@@ -319,6 +344,15 @@ function SessionDetails() {
             <p className={`workout-terminal-note${session.status === 'COMPLETED' && justFinished ? ' is-celebrating' : ''}`} role={justFinished ? 'status' : undefined}>{session.status === 'COMPLETED' ? 'Os registros deste treino foram salvos.' : 'Os registros feitos até a interrupção foram salvos.'}{session.status === 'COMPLETED' && justFinished && <span className="workout-celebration-sparkles" aria-hidden="true">✦　✧　✦</span>}</p>
           )}
         </section>
+
+        {session.status === 'COMPLETED' && ratingSessionId === session.id && <WorkoutRating
+          key={session.id}
+          sessionId={session.id}
+          onSkip={() => {
+            setRatingSessionId(null)
+            sessionHeadingRef.current?.focus()
+          }}
+        />}
 
         <section className="session-details-card" aria-label="Dados da sessão">
           <div className="session-activity-heading">

@@ -59,8 +59,7 @@
 .register-dialog__header { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-bottom: 1.1rem; }
 .register-dialog__header h2 { margin: .15rem 0 0; color: var(--color-text); font-size: 1.15rem; letter-spacing: -.025em; }
 .register-dialog__eyebrow { margin: 0; color: var(--color-primary-active); font-size: .65rem; font-weight: 800; letter-spacing: .12em; }
-.register-dialog__close,
-.register-calendar__navigation button {
+.register-dialog__close {
   width: 2.35rem;
   height: 2.35rem;
   display: grid;
@@ -72,39 +71,112 @@
   color: var(--color-text-secondary);
   cursor: pointer;
 }
-.register-dialog__close:hover,
-.register-calendar__navigation button:hover:not(:disabled) { border-color: var(--color-primary); background: var(--color-primary-light); color: var(--color-primary-active); }
-.register-calendar__navigation { display: flex; align-items: center; justify-content: space-between; gap: .75rem; margin-bottom: .85rem; }
-.register-calendar__navigation strong { color: var(--color-text); font-size: .98rem; text-transform: capitalize; }
-.register-calendar__year { display: grid; gap: .15rem; color: var(--color-text-secondary); font-size: .62rem !important; font-weight: 700 !important; }
-.register-calendar__year input { width: 4.2rem; min-height: 2rem; box-sizing: border-box; padding: 0 .35rem; border: 1px solid var(--color-border); border-radius: .5rem; background: var(--color-surface); color: var(--color-text); font: inherit; font-size: .78rem; text-align: center; }
-.register-calendar__year input:focus { outline: 2px solid color-mix(in srgb, var(--color-primary) 32%, transparent); border-color: var(--color-primary-active); }
-.register-calendar__navigation button:disabled { cursor: not-allowed; opacity: .35; }
-.register-calendar__weekdays,
-.register-calendar__grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: .28rem; }
-.register-calendar__weekdays { margin-bottom: .35rem; }
-.register-calendar__weekdays span { padding: .3rem 0; color: var(--color-text-secondary); font-size: .7rem; font-weight: 700; text-align: center; }
-.register-calendar__grid button {
-  aspect-ratio: 1;
+.register-dialog__close:hover { border-color: var(--color-primary); background: var(--color-primary-light); color: var(--color-primary-active); }
+.register-gender-options button:focus-visible,
+.register-dialog__close:focus-visible { outline: 3px solid color-mix(in srgb, var(--color-primary) 35%, transparent); outline-offset: 2px; }
+
+.register-birth-date-dialog {
+  inset: 0;
+  width: min(calc(100% - 2rem), 25rem);
+  max-height: calc(100dvh - max(1rem, env(safe-area-inset-top)) - max(1rem, env(safe-area-inset-bottom)));
+  overflow-x: hidden;
+  margin: auto;
+  padding: clamp(.9rem, 4vw, 1.2rem);
+}
+.register-birth-date-dialog::backdrop {
+  background: rgb(10 31 24 / 40%);
+  backdrop-filter: blur(9px);
+  animation: register-backdrop-in 150ms ease-out both;
+}
+.birth-date-wheel__labels {
   display: grid;
-  place-items: center;
-  border: 1px solid transparent;
-  border-radius: .7rem;
+  grid-template-columns: 1fr 2.1fr 1fr;
+  padding: 0 .5rem;
+  margin-bottom: .2rem;
+  color: var(--color-text-secondary);
+  text-align: center;
+  font-size: .75rem;
+  font-weight: 700;
+}
+.birth-date-wheel[data-wheel-picker] {
+  padding-inline: .5rem;
+  border: 0;
   background: transparent;
+}
+.birth-date-wheel [data-wheel-band] { inset-inline: 0; border-radius: .75rem; background: var(--color-primary-light); }
+.birth-date-wheel [data-wheel-tick] { display: none; }
+.birth-date-wheel [data-wheel-row] { line-height: 1.45; }
+.birth-date-wheel [data-wheel-row="muted"] { color: var(--color-text-secondary); }
+.birth-date-wheel [data-wheel-row="selected"] { color: var(--color-professional-forest); font-weight: 700; }
+.birth-date-wheel [role="spinbutton"] { min-width: 0; flex: 1; }
+.birth-date-wheel .birth-date-wheel__month { flex-grow: 2.1; }
+.birth-date-wheel__month [data-wheel-row] { font-size: clamp(1rem, 4.5vw, 1.2rem); }
+.birth-date-wheel [role="spinbutton"]:focus-visible {
+  outline: 2px solid var(--color-professional-green);
+  outline-offset: -2px;
+  box-shadow: none;
+}
+.birth-date-selection {
+  display: block;
+  margin: .8rem 0;
+  color: var(--color-professional-forest);
+  font-size: .9rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  text-align: center;
+}
+.birth-date-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .65rem; }
+.birth-date-actions button { margin: 0; }
+.birth-date-actions .auth-submit { padding-inline: .35rem; }
+.birth-date-actions [data-label="success"] {
+  max-width: 100%;
+  gap: .25rem;
+  line-height: 1.2;
+  white-space: normal;
+}
+.birth-date-actions [data-label="success"] > span { min-width: 0; overflow-wrap: anywhere; }
+.birth-date-actions [data-label="success"] > svg { width: .875rem; height: .875rem; }
+.birth-date-actions .auth-submit[data-status="success"] { opacity: 1; }
+.birth-date-actions [data-particle-burst] {
+  max-width: calc(100% + var(--particle-bleed));
+  max-height: calc(100% + var(--particle-bleed));
+  overflow: clip;
+}
+.birth-date-actions [data-particle-burst] canvas {
+  width: calc(100% + var(--particle-bleed));
+  height: calc(100% + var(--particle-bleed));
+}
+.birth-date-error {
+  margin: -.2rem 0 .8rem;
+  color: var(--color-error);
+  font-size: .82rem;
+  line-height: 1.45;
+  text-align: center;
+}
+.birth-date-error:empty { margin: 0; }
+.birth-date-actions .auth-submit:disabled:not([data-status="success"]) {
+  background: var(--color-surface-secondary) !important;
+  color: var(--color-text-secondary) !important;
+  transition: none !important;
+  box-shadow: none;
+  cursor: not-allowed;
+  opacity: 1;
+}
+.birth-date-actions button:not(.auth-submit) {
+  border: 1px solid var(--color-border);
+  border-radius: .65rem;
+  background: var(--color-surface);
   color: var(--color-text);
   font: inherit;
-  font-size: .82rem;
+  font-size: .92rem;
+  font-weight: 700;
   cursor: pointer;
 }
-.register-calendar__grid button:hover:not(:disabled) { border-color: var(--color-primary); background: var(--color-primary-light); }
-.register-calendar__grid button.is-outside-month { color: var(--color-text-secondary); opacity: .56; }
-.register-calendar__grid button.is-selected { border-color: var(--color-primary-active); background: var(--color-primary); color: #063d2e; font-weight: 800; }
-.register-calendar__grid button:disabled { cursor: not-allowed; opacity: .25; }
-.register-calendar__grid button:focus-visible,
-.register-gender-options button:focus-visible,
-.register-dialog__close:focus-visible,
-.register-calendar__navigation button:focus-visible { outline: 3px solid color-mix(in srgb, var(--color-primary) 35%, transparent); outline-offset: 2px; }
-.register-calendar__hint { margin: .85rem 0 0; padding-top: .75rem; border-top: 1px solid var(--color-border); color: var(--color-text-secondary); font-size: .75rem; line-height: 1.5; }
+.birth-date-actions button:not(.auth-submit):hover { background: var(--color-surface-secondary); }
+.birth-date-actions button:not(.auth-submit):focus-visible {
+  outline: 2px solid var(--color-professional-green);
+  outline-offset: 2px;
+}
 .register-gender-options { display: grid; gap: .65rem; }
 .register-gender-options button { min-height: 3.5rem; display: flex; align-items: center; justify-content: space-between; gap: .75rem; padding: .75rem .9rem; border: 1px solid var(--color-border); border-radius: .85rem; background: var(--color-surface); color: var(--color-text); font: inherit; font-weight: 650; text-align: left; cursor: pointer; transition: border-color 150ms ease, background 150ms ease; }
 .register-gender-options button:hover,
@@ -160,5 +232,6 @@
 
 @media (prefers-reduced-motion: reduce) {
   .register-profile-card, .register-picker-trigger { transition: none; }
-  .register-dialog-backdrop, .register-dialog { animation: none; }
+  .register-dialog-backdrop, .register-dialog, .register-birth-date-dialog::backdrop { animation: none; }
+  .birth-date-actions .auth-submit { transform: none !important; transition: none !important; }
 }

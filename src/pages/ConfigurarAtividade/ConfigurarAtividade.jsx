@@ -226,7 +226,7 @@ function ConfigurarAtividade({ atividadeId, programContext, returnTo }) {
       atividadeId: atividade.id,
       ordem: programDraft.atividades.length + 1,
     }]
-    navigate(returnTo, { replace: true, state: { programDraft: { ...programDraft, atividades: activities } } })
+    navigate(returnTo, { replace: true, state: { programDraft: { ...programDraft, atividades: activities }, addedActivityId: atividade.id } })
   }
 
   const selectionPath = programContext?.selectionPath
