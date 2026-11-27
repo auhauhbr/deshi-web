@@ -9,10 +9,13 @@
     var(--color-background);
 }
 
-main.invite-page > .student-header {
+main.invite-page > header.app-header.invite-header {
   position: fixed;
-  inset: 0 0 auto;
+  top: 0;
+  right: 0;
+  left: 0;
   width: 100%;
+  z-index: 100;
   flex-shrink: 0;
 }
 
