@@ -505,7 +505,9 @@ function WheelColumnView({
       >
         <Drum drum={drum} optionAt={optionAt} rows={rows} layer="above" />
         <Drum drum={drum} optionAt={optionAt} rows={rows} layer="below" />
-        <Drum drum={drum} optionAt={optionAt} rows={[center]} layer="selected" />
+      </div>
+      <div className="wheel-picker-selected-value" aria-hidden="true">
+        {optionAt(center).label}
       </div>
     </div>
   );
@@ -519,9 +521,7 @@ function Drum({
 }) {
   const clipPath = layer === "above"
     ? "inset(0 0 calc(50% + 22px) 0)"
-    : layer === "below"
-      ? "inset(calc(50% + 22px) 0 0 0)"
-      : "inset(calc(50% - 22px) 0 calc(50% - 22px) 0)";
+    : "inset(calc(50% + 22px) 0 0 0)";
 
   return (
     <div
@@ -540,7 +540,7 @@ function Drum({
         {rows.map((index) => (
           <div
             className="absolute inset-x-0 flex items-center justify-center text-xl tabular-nums [backface-visibility:hidden]"
-            data-wheel-row={layer === "selected" ? "selected" : "muted"}
+            data-wheel-row="muted"
             key={index}
             style={{
               top: -ITEM_HEIGHT / 2,
