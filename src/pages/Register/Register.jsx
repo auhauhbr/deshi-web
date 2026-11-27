@@ -242,7 +242,7 @@ function RegisterPage() {
       })
       navigate('/login', {
         replace: true,
-        state: { message: 'Conta criada com sucesso. Agora você já pode entrar.' },
+        state: { registrationSuccess: true },
       })
     } catch (error) {
       setMessage(getApiErrorMessage(error, 'Não foi possível criar a conta. Tente novamente.'))
