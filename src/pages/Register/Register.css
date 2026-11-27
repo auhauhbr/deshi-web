@@ -88,43 +88,6 @@
   backdrop-filter: blur(9px);
   animation: register-backdrop-in 150ms ease-out both;
 }
-.birth-date-wheel__labels {
-  display: grid;
-  grid-template-columns: 1fr 2.1fr 1fr;
-  padding: 0 .5rem;
-  margin-bottom: .2rem;
-  color: var(--color-text-secondary);
-  text-align: center;
-  font-size: .75rem;
-  font-weight: 700;
-}
-.birth-date-wheel[data-wheel-picker] {
-  padding-inline: .5rem;
-  border: 0;
-  background: transparent;
-}
-.birth-date-wheel [data-wheel-band] { inset-inline: 0; border-radius: .75rem; background: var(--color-primary-light); }
-.birth-date-wheel [data-wheel-tick] { display: none; }
-.birth-date-wheel [data-wheel-row] { line-height: 1.45; }
-.birth-date-wheel [data-wheel-row="muted"] { color: var(--color-text-secondary); }
-.birth-date-wheel [data-wheel-row="selected"] { color: var(--color-professional-forest); font-weight: 700; }
-.birth-date-wheel [role="spinbutton"] { min-width: 0; flex: 1; }
-.birth-date-wheel .birth-date-wheel__month { flex-grow: 2.1; }
-.birth-date-wheel__month [data-wheel-row] { font-size: clamp(1rem, 4.5vw, 1.2rem); }
-.birth-date-wheel [role="spinbutton"]:focus-visible {
-  outline: 2px solid var(--color-professional-green);
-  outline-offset: -2px;
-  box-shadow: none;
-}
-.birth-date-selection {
-  display: block;
-  margin: .8rem 0;
-  color: var(--color-professional-forest);
-  font-size: .9rem;
-  font-variant-numeric: tabular-nums;
-  font-weight: 700;
-  text-align: center;
-}
 .birth-date-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .65rem; }
 .birth-date-actions button { margin: 0; }
 .birth-date-actions .auth-submit { padding-inline: .35rem; }

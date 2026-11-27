@@ -2,9 +2,9 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { CalendarDays, Check, ChevronDown, X } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import AuthLayout from '../../components/AuthLayout.jsx'
+import BirthDateWheelPicker from '../../components/BirthDateWheelPicker.jsx'
 import PasswordField from '../../components/PasswordField.jsx'
 import ParticleButton from '../../components/kokonutui/particle-button.jsx'
-import WheelPicker from '../../components/kokonutui/wheel-picker.jsx'
 import { getApiErrorMessage, registerUser } from '../../services/authService.js'
 import { getLocalDateInputValue } from '../../utils/date.js'
 import { formatBirthDate } from '../../utils/userAge.js'
@@ -26,26 +26,11 @@ function getPasswordStrength(password) {
   return Math.max(1, score)
 }
 
-const firstBirthYear = 1900
 const birthDateFeedbackDuration = 900
-const padDatePart = (number) => String(number).padStart(2, '0')
-const monthFormatter = new Intl.DateTimeFormat('pt-BR', { month: 'long' })
-const birthMonths = Array.from({ length: 12 }, (_, index) => ({
-  value: padDatePart(index + 1),
-  label: monthFormatter.format(new Date(2000, index, 1)),
-}))
 
 function splitBirthDate(isoDate) {
   const [year, month, day] = isoDate.split('-')
   return { year, month, day }
-}
-
-function daysInMonth(year, month) {
-  return new Date(Number(year), Number(month), 0).getDate()
-}
-
-function fitDayToMonth({ year, month, day }) {
-  return { year, month, day: padDatePart(Math.min(Number(day), daysInMonth(year, month))) }
 }
 
 function BirthDateDialog({ value, triggerRef, onCancel, onConfirm }) {
@@ -56,17 +41,6 @@ function BirthDateDialog({ value, triggerRef, onCancel, onConfirm }) {
   const [confirmedDate, setConfirmedDate] = useState('')
   const selectedDate = `${selection.year}-${selection.month}-${selection.day}`
   const isFutureDate = selectedDate > today
-  const columns = [
-    { id: 'day', label: 'Dia', className: 'birth-date-wheel__day', options: Array.from({ length: daysInMonth(selection.year, selection.month) }, (_, index) => {
-      const day = padDatePart(index + 1)
-      return { value: day, label: day }
-    }) },
-    { id: 'month', label: 'Mês', className: 'birth-date-wheel__month', options: birthMonths },
-    { id: 'year', label: 'Ano', className: 'birth-date-wheel__year', options: Array.from({ length: Number(today.slice(0, 4)) - firstBirthYear + 1 }, (_, index) => {
-      const year = String(firstBirthYear + index)
-      return { value: year, label: year }
-    }) },
-  ]
 
   useLayoutEffect(() => {
     const dialog = dialogRef.current
@@ -86,15 +60,14 @@ function BirthDateDialog({ value, triggerRef, onCancel, onConfirm }) {
   }, [confirmedDate, onConfirm])
 
   function confirmDate() {
-    const next = fitDayToMonth(pickerRef.current.getSelection())
-    const date = `${next.year}-${next.month}-${next.day}`
+    const date = pickerRef.current?.getDate() || selectedDate
     const currentToday = getLocalDateInputValue()
     if (date > currentToday) {
       setToday(currentToday)
-      setSelection(next)
+      setSelection(splitBirthDate(currentToday))
       return
     }
-    setSelection(next)
+    setSelection(splitBirthDate(date))
     setConfirmedDate(date)
   }
 
@@ -114,20 +87,16 @@ function BirthDateDialog({ value, triggerRef, onCancel, onConfirm }) {
       <div><p className="register-dialog__eyebrow">SEU PERFIL</p><h2 id="register-birth-date-title">Data de nascimento</h2></div>
       <button className="register-dialog__close" type="button" onClick={onCancel} aria-label="Fechar seleção de data"><X size={19} aria-hidden="true" /></button>
     </header>
-    <div className="birth-date-wheel__labels" aria-hidden="true"><span>Dia</span><span>Mês</span><span>Ano</span></div>
     <div inert={Boolean(confirmedDate)}>
-      <WheelPicker
+      <BirthDateWheelPicker
         ref={pickerRef}
-        className="birth-date-wheel"
-        columns={columns}
-        value={selection}
-        onValueChange={(next) => {
-          if (!confirmedDate) setSelection(fitDayToMonth(next))
+        value={selectedDate}
+        onChange={(date) => {
+          if (!confirmedDate) setSelection(splitBirthDate(date))
         }}
         label="Dia, mês e ano de nascimento"
       />
     </div>
-    <output className="birth-date-selection" aria-label="Data selecionada">{formatBirthDate(selectedDate)}</output>
     <p id="birth-date-error" className="birth-date-error" role="status">{isFutureDate ? 'A data de nascimento não pode estar no futuro. Selecione hoje ou uma data anterior.' : ''}</p>
     <div className="birth-date-actions">
       <button type="button" onClick={onCancel}>Cancelar</button>
